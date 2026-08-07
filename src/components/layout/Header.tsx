@@ -13,8 +13,11 @@ export function Header() {
       // Handles both /stocks landing and /stocks/[symbol] stock pages
       return pathname.startsWith("/stocks");
     }
-    if (href === "/fight") {
-      return pathname.startsWith("/fight");
+    if (href === "/compare") {
+      return pathname.startsWith("/compare") || pathname.startsWith("/fight");
+    }
+    if (href === "/ipo") {
+      return pathname.startsWith("/ipo");
     }
     return pathname === href;
   };
@@ -51,17 +54,17 @@ export function Header() {
             </span>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/markets" className={linkClass("/markets")}>
-              Markets
+            <Link href="/stocks" className={linkClass("/stocks")}>
+              Stocks
             </Link>
             <Link href="/screener" className={linkClass("/screener")}>
               Screener
             </Link>
-            <Link href="/stocks" className={linkClass("/stocks")}>
-              Stocks
+            <Link href="/ipo" className={linkClass("/ipo")}>
+              IPO
             </Link>
-            <Link href="/fight" className={linkClass("/fight")}>
-              Fight of Stocks
+            <Link href="/compare" className={linkClass("/compare")}>
+              Compare
             </Link>
           </nav>
         </div>

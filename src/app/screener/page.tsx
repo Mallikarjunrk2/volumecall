@@ -1,6 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { resolveSymbol, getStockPrice, getStockProfile, getKeyRatios } from "@/lib/upstox/service";
 import ScreenerClient from "./ScreenerClient";
 
 export const metadata = {
@@ -8,43 +9,10 @@ export const metadata = {
   description: "Screen Indian stocks by valuation metrics, returns ratios, and industry sector.",
 };
 
-const POPULAR_TICKERS = ["RELIANCE", "TCS", "HDFCBANK", "INFY", "BHARTIARTL"];
+import { StockDataService } from "@/lib/stocks/stockDataService";
 
 async function getScreenerData() {
-  const promises = POPULAR_TICKERS.map(async (symbol) => {
-    try {
-      const instrument = await resolveSymbol(symbol);
-      if (!instrument) return null;
-
-      const [price, profile, ratios] = await Promise.all([
-        getStockPrice(instrument.instrumentKey),
-        getStockProfile(instrument.isin),
-        getKeyRatios(instrument.isin),
-      ]);
-
-      const getVal = (name: string) => ratios.find((r) => r.name.toLowerCase() === name.toLowerCase())?.companyValue || "N/A";
-      const peRatio = ratios.find((r) => r.name.toLowerCase().includes("p/e"))?.companyValue || "N/A";
-
-      return {
-        symbol: instrument.symbol,
-        name: instrument.name,
-        exchange: instrument.exchange,
-        price: price ? price.lastPrice : null,
-        sector: profile ? profile.sector : "N/A",
-        pe: peRatio,
-        pb: getVal("P/B"),
-        roe: getVal("ROE"),
-        roce: getVal("ROCE"),
-        evEbitda: getVal("EV/EBITDA"),
-      };
-    } catch (err) {
-      console.error(`Screener failed to load ${symbol}:`, err);
-      return null;
-    }
-  });
-
-  const results = await Promise.all(promises);
-  return results.filter((item): item is NonNullable<typeof item> => item !== null);
+  return StockDataService.getScreenerUniverse();
 }
 
 export default async function ScreenerPage() {

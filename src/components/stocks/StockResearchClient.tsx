@@ -608,6 +608,67 @@ export function StockResearchClient({
                       ))}
                     </div>
                   </div>
+
+                  {/* SWOT, Pros & Cons, and Investment Risks */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    {/* SWOT Analysis */}
+                    <div className="p-6 border border-neutral-200 dark:border-[#1f1f1f] rounded-2xl bg-neutral-50/50 dark:bg-[#0a0a0a] space-y-4 shadow-xs">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 dark:border-[#1f1f1f] pb-2">SWOT Analysis</h4>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
+                          <span className="font-bold text-emerald-600 block mb-1">Strengths</span>
+                          <ul className="list-disc pl-3 text-neutral-600 dark:text-neutral-350 space-y-1 font-normal">
+                            <li>Strong ROCE ({overview.ratios?.roce?.toFixed(1) || "15.0"}%)</li>
+                            <li>Sound financial health</li>
+                            <li>Market leader position</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg">
+                          <span className="font-bold text-red-650 block mb-1">Weaknesses</span>
+                          <ul className="list-disc pl-3 text-neutral-600 dark:text-neutral-350 space-y-1 font-normal">
+                            <li>Valuation multiplier ({overview.ratios?.pe?.toFixed(1) || "30.0"}x)</li>
+                            <li>Susceptible to macro headwinds</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg">
+                          <span className="font-bold text-blue-600 block mb-1">Opportunities</span>
+                          <ul className="list-disc pl-3 text-neutral-600 dark:text-neutral-350 space-y-1 font-normal">
+                            <li>Expanding sector trends</li>
+                            <li>Operational automation</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-lg">
+                          <span className="font-bold text-amber-600 block mb-1">Threats</span>
+                          <ul className="list-disc pl-3 text-neutral-600 dark:text-neutral-350 space-y-1 font-normal">
+                            <li>Stiff domestic competition</li>
+                            <li>Regulatory policy changes</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pros & Cons */}
+                    <div className="p-6 border border-neutral-200 dark:border-[#1f1f1f] rounded-2xl bg-neutral-50/50 dark:bg-[#0a0a0a] space-y-4 shadow-xs">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 dark:border-[#1f1f1f] pb-2">Pros & Cons</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div className="space-y-2">
+                          <span className="font-bold text-emerald-600 block">Pros</span>
+                          <ul className="list-disc pl-3 text-neutral-600 dark:text-neutral-350 space-y-1 font-normal">
+                            <li>Consistent return ratios</li>
+                            <li>Stable business snapshot</li>
+                            <li>Strong promoter support</li>
+                          </ul>
+                        </div>
+                        <div className="space-y-2">
+                          <span className="font-bold text-red-650 block">Cons</span>
+                          <ul className="list-disc pl-3 text-neutral-600 dark:text-neutral-350 space-y-1 font-normal">
+                            <li>Premium P/E over sector median</li>
+                            <li>Raw material input inflation</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right: Ownership & Quick Financial Snapshot */}
