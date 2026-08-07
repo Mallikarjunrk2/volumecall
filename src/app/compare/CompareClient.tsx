@@ -655,7 +655,7 @@ export function CompareClient() {
         {!isCompared && (
           <div className="pt-4">
             <button
-              onClick={runComparison}
+              onClick={() => runComparison()}
               disabled={selectedStocks.length < 2 || loadingFinancials}
               className={`px-8 py-3 text-sm font-bold rounded-xl transition-all flex items-center space-x-2 cursor-pointer ${
                 selectedStocks.length >= 2 && !loadingFinancials
