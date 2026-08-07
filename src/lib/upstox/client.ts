@@ -85,9 +85,14 @@ export async function fetchUpstox<T>(
     );
   }
 
+  const text = await response.text();
+  if (!text || text.trim() === "") {
+    return {} as T;
+  }
+
   let json: unknown;
   try {
-    json = await response.json();
+    json = JSON.parse(text);
   } catch (err) {
     console.error(`Failed to parse Upstox JSON response:`, err);
     throw new UpstoxError(

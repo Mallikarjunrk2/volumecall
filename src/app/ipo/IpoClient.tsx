@@ -38,23 +38,13 @@ interface IpoClientProps {
 export function IpoClient({ initialData, error }: IpoClientProps) {
   const [activeTab, setActiveTab] = useState<"open" | "upcoming" | "listed" | "closed">("open");
 
-  if (error || !initialData) {
-    return (
-      <div className="p-4 border border-red-200/50 dark:border-red-900/50 rounded-lg bg-red-500/5 text-xs text-red-600 dark:text-red-400 flex items-start gap-2.5">
-        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-bold">Error Loading IPOs</span>
-          <p>{error || "IPO listing data is currently unavailable."}</p>
-        </div>
-      </div>
-    );
-  }
+  const data = initialData || { upcoming: [], listed: [], active: [], closed: [], pre_apply: [] };
 
   // Combine active and pre_apply for Open IPOs
-  const openIpos = [...(initialData.active || []), ...(initialData.pre_apply || [])];
-  const upcomingIpos = initialData.upcoming || [];
-  const listedIpos = initialData.listed || [];
-  const closedIpos = initialData.closed || [];
+  const openIpos = [...(data.active || []), ...(data.pre_apply || [])];
+  const upcomingIpos = data.upcoming || [];
+  const listedIpos = data.listed || [];
+  const closedIpos = data.closed || [];
 
   const tabClass = (tab: typeof activeTab) =>
     `px-4 py-2 text-xs font-bold rounded-md transition-all whitespace-nowrap cursor-pointer ${
@@ -75,6 +65,16 @@ export function IpoClient({ initialData, error }: IpoClientProps) {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 border border-red-200/50 dark:border-red-900/50 rounded-lg bg-red-500/5 text-xs text-red-650 flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="font-bold">Notice</span>
+            <p>IPO listing details are temporarily unavailable. Showing empty dataset.</p>
+          </div>
+        </div>
+      )}
+
       {/* Tab Selectors */}
       <div className="flex space-x-2 border-b border-[var(--border)] pb-3 overflow-x-auto scrollbar-none">
         <button onClick={() => setActiveTab("open")} className={tabClass("open")}>

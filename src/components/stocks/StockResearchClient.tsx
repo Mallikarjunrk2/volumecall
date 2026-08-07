@@ -182,6 +182,17 @@ interface StockResearchClientProps {
   initialCandles: Candle[];
 }
 
+const safeJsonParse = async (res: Response) => {
+  if (!res.ok) return null;
+  const text = await res.text();
+  if (!text || text.trim() === "") return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
 const isImportantRow = (name: string) => {
   const normalized = name.toLowerCase().replace(/[^a-z]/g, "");
   return [
@@ -254,7 +265,7 @@ export function StockResearchClient({
     try {
       const res = await fetch(`/api/stocks/${symbol}/analysis`);
       if (!res.ok) throw new Error("Failed to generate AI trend analysis.");
-      const data = await res.json();
+      const data = await safeJsonParse(res);
       setAnalysis(data);
     } catch (err: unknown) {
       setErrorAnalysis((err as Error).message || "AI Analysis summary is temporarily unavailable.");
@@ -272,7 +283,7 @@ export function StockResearchClient({
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=overview`);
         if (!res.ok) throw new Error("Failed to load overview snapshot.");
-        const data = await res.json();
+        const data = await safeJsonParse(res);
         if (active) setOverview(data);
       } catch (err: unknown) {
         if (active) setErrorOverview((err as Error).message || "Unable to retrieve company overview.");
@@ -298,7 +309,7 @@ export function StockResearchClient({
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=financials`);
         if (!res.ok) throw new Error("Failed to load financial statements.");
-        const data = await res.json();
+        const data = await safeJsonParse(res);
         if (active) setFinancials(data);
       } catch (err: unknown) {
         if (active) setErrorFinancials((err as Error).message || "Financial statements are temporarily unavailable.");
@@ -313,7 +324,7 @@ export function StockResearchClient({
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=shareholding`);
         if (!res.ok) throw new Error("Failed to load shareholding history.");
-        const data = await res.json();
+        const data = await safeJsonParse(res);
         if (active) setShareholding(data);
       } catch (err: unknown) {
         if (active) setErrorShareholding((err as Error).message || "Shareholding details are temporarily unavailable.");
@@ -328,7 +339,7 @@ export function StockResearchClient({
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=peers`);
         if (!res.ok) throw new Error("Failed to resolve industry peers.");
-        const data = await res.json();
+        const data = await safeJsonParse(res);
         if (active) setPeers(data);
       } catch (err: unknown) {
         if (active) setErrorPeers((err as Error).message || "Peer comparison data is temporarily unavailable.");
@@ -343,7 +354,7 @@ export function StockResearchClient({
       try {
         const res = await fetch(`/api/stocks/${symbol}/analysis`);
         if (!res.ok) throw new Error("Failed to generate AI trend analysis.");
-        const data = await res.json();
+        const data = await safeJsonParse(res);
         if (active) setAnalysis(data);
       } catch (err: unknown) {
         if (active) setErrorAnalysis((err as Error).message || "AI Analysis summary is temporarily unavailable.");
@@ -1457,6 +1468,77 @@ export function StockResearchClient({
         )}
 
       </div>
+
+      {/* SEBI Filings / Exchange Announcements Section */}
+      {!loadingOverview && overview && overview.announcements && overview.announcements.length > 0 && (
+        <section className="mt-12 border border-neutral-200 dark:border-[#1f1f1f] bg-white dark:bg-[#0a0a0a] rounded-2xl p-6 shadow-xs space-y-6">
+          <div className="flex justify-between items-center border-b border-neutral-200 dark:border-[#1f1f1f] pb-4">
+            <div>
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                <span>SEBI Filings & Corporate Announcements</span>
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1">Official BSE/NSE disclosures and announcements in chronological order</p>
+            </div>
+            <button
+              onClick={() => {
+                setActiveTab("documents");
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              className="text-xs text-[#0F766E] dark:text-teal-400 hover:underline font-bold cursor-pointer"
+            >
+              View All Filings →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {overview.announcements.slice(0, 3).map((ann, idx) => {
+              const dateObj = new Date(ann.date);
+              const formattedDate = isNaN(dateObj.getTime()) 
+                ? ann.date 
+                : dateObj.toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+              
+              const isNse = ann.category.toLowerCase().includes("nse") || !ann.category.toLowerCase().includes("bse");
+              const exchangeLabel = isNse ? "NSE" : "BSE";
+
+              return (
+                <div key={idx} className="p-4 border border-neutral-200 dark:border-[#1f1f1f] bg-neutral-50 dark:bg-[#161616]/40 rounded-xl flex flex-col justify-between space-y-3 text-xs sm:text-sm font-semibold">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">{ann.category || "Announcement"}</span>
+                      <span className="px-1.5 py-0.5 text-[9px] font-black tracking-wider uppercase bg-white dark:bg-zinc-805 border border-neutral-200 dark:border-zinc-700 text-[#667085] dark:text-neutral-450 rounded-sm">
+                        {exchangeLabel}
+                      </span>
+                    </div>
+                    <h4 className="font-semibold leading-relaxed text-neutral-900 dark:text-neutral-100 line-clamp-3">
+                      {ann.title}
+                    </h4>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-neutral-200/50 dark:border-neutral-850">
+                    <span className="tabular-nums text-neutral-450 text-[10px]">{formattedDate}</span>
+                    {ann.sourceUrl && (
+                      <a 
+                        href={ann.sourceUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-[#0F766E] dark:text-teal-400 hover:underline font-bold text-xs inline-flex items-center space-x-0.5"
+                      >
+                        <span>View Document</span>
+                        <ChevronRight className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <VolumeCallAIDrawer
         isOpen={isDrawerOpen}

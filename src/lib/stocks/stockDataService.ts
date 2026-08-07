@@ -121,7 +121,16 @@ export class StockDataService {
       ? (data.indianApiDetails.companyProfile as Record<string, unknown>).mgIndustry as string || "N/A"
       : "N/A";
 
-    const capVal = data.profile?.sectorMarketCapInr?.value ?? null;
+    let capVal = data.profile?.sectorMarketCapInr?.value ?? null;
+    if (capVal === null && data.indianApiDetails?.keyMetrics) {
+      const rawCap = (data.indianApiDetails.keyMetrics as Record<string, unknown>).marketCap;
+      if (rawCap) {
+        const num = typeof rawCap === "number" ? rawCap : parseFloat(String(rawCap).replace(/[^0-9.-]/g, ""));
+        if (!isNaN(num)) {
+          capVal = num;
+        }
+      }
+    }
 
     // Ratios fallback
     const pe = resolveFallbackMetric("pe", cleanSym, data, data);
@@ -308,7 +317,14 @@ export class StockDataService {
           throw new Error(`SWR background refresh failed with status: ${res.status}`);
         }
         const text = await res.text();
-        return JSON.parse(text);
+        if (!text || text.trim() === "") {
+          return {};
+        }
+        try {
+          return JSON.parse(text);
+        } catch {
+          return {};
+        }
       });
       return cached;
     }
@@ -324,6 +340,9 @@ export class StockDataService {
         throw new Error(`IPO fetch failed with status: ${res.status}`);
       }
       const text = await res.text();
+      if (!text || text.trim() === "") {
+        return {};
+      }
       try {
         const data = JSON.parse(text);
         await this.cache.set(cacheKey, data, 3600); // 1 hour TTL

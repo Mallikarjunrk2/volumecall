@@ -17,8 +17,12 @@ export default async function IpoPage() {
 
   try {
     ipoData = await StockDataService.getIPOData() as ComponentProps<typeof IpoClient>["initialData"];
+    if (!ipoData) {
+      ipoData = { upcoming: [], listed: [], active: [], closed: [], pre_apply: [] };
+    }
   } catch (err) {
     console.error("[IPO Page Load Error]:", err);
+    ipoData = { upcoming: [], listed: [], active: [], closed: [], pre_apply: [] };
     ipoError = (err as Error).message || "Unable to fetch IPO listings.";
   }
 

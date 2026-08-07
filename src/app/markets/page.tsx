@@ -13,7 +13,13 @@ export const metadata = {
 };
 
 export default async function MarketsDashboardPage() {
-  const universe = await StockDataService.getScreenerUniverse();
+  let universe: any[] = [];
+  try {
+    universe = await StockDataService.getScreenerUniverse() || [];
+  } catch (err) {
+    console.error("[Markets Page Load Error]:", err);
+    universe = [];
+  }
 
   // 1. Calculate movers dynamically from universe
   const activePriceStocks = universe.filter(s => s.price !== null && s.changePercent !== null);

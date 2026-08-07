@@ -103,11 +103,22 @@ export default function VolumeCallAIDrawer({ isOpen, onClose, context }: AIDrawe
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
+        const text = await res.text().catch(() => "");
+        let errData: any = {};
+        try { errData = JSON.parse(text); } catch {}
         throw new Error(errData.error || "Failed to generate AI response.");
       }
 
-      const data = await res.json();
+      const text = await res.text();
+      if (!text || text.trim() === "") {
+        throw new Error("Received empty response from AI service.");
+      }
+      let data: any = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Failed to parse AI response.");
+      }
       setMessages((prev) => [...prev, { role: "assistant", content: data.answer }]);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Something went wrong.";

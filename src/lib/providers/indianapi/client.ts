@@ -59,7 +59,17 @@ export async function fetchIndianApi<T>(
       );
     }
 
-    const rawData = await response.json();
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return {} as T;
+    }
+
+    let rawData: unknown;
+    try {
+      rawData = JSON.parse(text);
+    } catch {
+      throw new IndianApiError("Response is not valid JSON.", response.status, "SERVER_ERROR");
+    }
 
     const symbolMatch = endpoint.match(/[?&](stock_name|name)=([^&]+)/);
     const symbol = symbolMatch ? decodeURIComponent(symbolMatch[2]) : "UNKNOWN";
