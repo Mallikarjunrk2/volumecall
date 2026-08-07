@@ -3,11 +3,9 @@ export const dynamic = "force-dynamic";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
-import { StockDataService } from "@/lib/stocks/stockDataService";
+import { StockDataService, ScreenerStock } from "@/lib/stocks/stockDataService";
 import { formatCurrency } from "@/lib/stocks/formatting";
 import { TrendingUp, TrendingDown, Activity, Award } from "lucide-react";
-
-import { SearchInstrument } from "@/lib/stocks/types";
 
 export const metadata = {
   title: "Markets Dashboard | Live Market Movers | VolumeCall",
@@ -15,7 +13,7 @@ export const metadata = {
 };
 
 export default async function MarketsDashboardPage() {
-  let universe: SearchInstrument[] = [];
+  let universe: ScreenerStock[] = [];
   try {
     universe = await StockDataService.getScreenerUniverse() || [];
   } catch (err) {
