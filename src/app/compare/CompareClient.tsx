@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, Loader2, X, AlertCircle, Sparkles, Info, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { SearchInstrument } from "@/lib/stocks/types";
 import VolumeCallAIDrawer from "@/components/stocks/VolumeCallAIDrawer";
