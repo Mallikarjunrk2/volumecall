@@ -510,7 +510,7 @@ export function CompareClient() {
               </button>
             )}
             <button
-              onClick={runComparison}
+              onClick={() => runComparison()}
               disabled={selectedStocks.length < 2 || loadingFinancials}
               className="ml-auto text-sm bg-[#0F766E] text-white hover:bg-teal-800 px-6 py-2.5 font-bold rounded-lg transition-colors flex items-center space-x-2 cursor-pointer shadow-xs"
             >
