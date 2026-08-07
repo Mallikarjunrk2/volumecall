@@ -104,22 +104,22 @@ export default function VolumeCallAIDrawer({ isOpen, onClose, context }: AIDrawe
 
       if (!res.ok) {
         const text = await res.text().catch(() => "");
-        let errData: any = {};
+        let errData: Record<string, unknown> = {};
         try { errData = JSON.parse(text); } catch {}
-        throw new Error(errData.error || "Failed to generate AI response.");
+        throw new Error((errData.error as string | undefined) || "Failed to generate AI response.");
       }
 
       const text = await res.text();
       if (!text || text.trim() === "") {
         throw new Error("Received empty response from AI service.");
       }
-      let data: any = {};
+      let data: { answer?: string } = {};
       try {
         data = JSON.parse(text);
       } catch {
         throw new Error("Failed to parse AI response.");
       }
-      setMessages((prev) => [...prev, { role: "assistant", content: data.answer }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: data.answer || "No response generated." }]);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Something went wrong.";
       setMessages((prev) => [

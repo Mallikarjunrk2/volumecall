@@ -70,6 +70,80 @@ export function CompareClient() {
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Run decoupled stock comparison
+  const runComparison = async (overrideStocks?: SearchInstrument[]) => {
+    const stocksToCompare = overrideStocks || selectedStocks;
+    if (stocksToCompare.length < 2) return;
+
+    setLoadingFinancials(true);
+    setLoadingAI(true);
+    setFinancialsError(null);
+    setAiError(null);
+    setComparisonData(null);
+    setAiAnalysis(null);
+    setIsCompared(true);
+
+    const symbols = stocksToCompare.map((s) => s.symbol);
+
+    // Update URL query parameters silently
+    if (typeof window !== "undefined") {
+      const newUrl = `/compare?stocks=${symbols.join(",")}`;
+      window.history.replaceState(null, "", newUrl);
+    }
+
+    try {
+      const res = await fetch("/api/stocks/compare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols, runAI: false }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        let errJson: Record<string, unknown> = {};
+        try { errJson = JSON.parse(text); } catch {}
+        throw new Error((errJson.error as string | undefined) || "Failed to process stock comparison.");
+      }
+
+      const data = await safeJsonParse(res);
+      setComparisonData(data ? data.comparison : null);
+      setLoadingFinancials(false);
+
+      // Fetch Groq AI analysis
+      try {
+        const aiRes = await fetch("/api/stocks/compare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ symbols, runAI: true }),
+        });
+
+        if (!aiRes.ok) {
+          const text = await aiRes.text().catch(() => "");
+          let errJson2: Record<string, unknown> = {};
+          try { errJson2 = JSON.parse(text); } catch {}
+          throw new Error((errJson2.error as string | undefined) || "AI completion failed.");
+        }
+
+        const aiData = await safeJsonParse(aiRes);
+        if (aiData && aiData.aiError) {
+          setAiError(aiData.aiError);
+        } else if (aiData) {
+          setAiAnalysis(aiData.aiResponse);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setAiError(msg || "AI Analysis is temporarily unavailable.");
+      } finally {
+        setLoadingAI(false);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setFinancialsError(msg || "An error occurred during comparison.");
+      setLoadingFinancials(false);
+      setLoadingAI(false);
+    }
+  };
+
   // Close search on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -193,7 +267,7 @@ export function CompareClient() {
               const res = await fetch(`/api/stocks/search?q=${encodeURIComponent(sym)}`);
               if (res.ok) {
                 const data = await safeJsonParse(res);
-                const exact = (data || []).find((item: any) => item.symbol.toUpperCase() === sym);
+                const exact = (data || []).find((item: SearchInstrument) => item.symbol.toUpperCase() === sym);
                 if (exact) resolved.push(exact);
                 else if (data && data.length > 0) resolved.push(data[0]);
               }
@@ -212,7 +286,8 @@ export function CompareClient() {
         loadInitialStocks();
       }
     }
-  }, [runComparison]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const selectStock = (instrument: SearchInstrument, index: number) => {
     if (selectedStocks.some((s) => s.symbol === instrument.symbol)) {
@@ -272,79 +347,7 @@ export function CompareClient() {
     }
   };
 
-  // Run decoupled stock comparison
-  const runComparison = useCallback(async (overrideStocks?: SearchInstrument[]) => {
-    const stocksToCompare = overrideStocks || selectedStocks;
-    if (stocksToCompare.length < 2) return;
 
-    setLoadingFinancials(true);
-    setLoadingAI(true);
-    setFinancialsError(null);
-    setAiError(null);
-    setComparisonData(null);
-    setAiAnalysis(null);
-    setIsCompared(true);
-
-    const symbols = stocksToCompare.map((s) => s.symbol);
-
-    // Update URL query parameters silently
-    if (typeof window !== "undefined") {
-      const newUrl = `/compare?stocks=${symbols.join(",")}`;
-      window.history.replaceState(null, "", newUrl);
-    }
-
-    try {
-      const res = await fetch("/api/stocks/compare", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbols, runAI: false }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        let errJson: any = {};
-        try { errJson = JSON.parse(text); } catch {}
-        throw new Error(errJson?.error || "Failed to process stock comparison.");
-      }
-
-      const data = await safeJsonParse(res);
-      setComparisonData(data ? data.comparison : null);
-      setLoadingFinancials(false);
-
-      // Fetch Groq AI analysis
-      try {
-        const aiRes = await fetch("/api/stocks/compare", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ symbols, runAI: true }),
-        });
-
-        if (!aiRes.ok) {
-          const text = await aiRes.text().catch(() => "");
-          let errJson: any = {};
-          try { errJson = JSON.parse(text); } catch {}
-          throw new Error(errJson?.error || "AI completion failed.");
-        }
-
-        const aiData = await safeJsonParse(aiRes);
-        if (aiData && aiData.aiError) {
-          setAiError(aiData.aiError);
-        } else if (aiData) {
-          setAiAnalysis(aiData.aiResponse);
-        }
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setAiError(msg || "AI Analysis is temporarily unavailable.");
-      } finally {
-        setLoadingAI(false);
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setFinancialsError(msg || "An error occurred during comparison.");
-      setLoadingFinancials(false);
-      setLoadingAI(false);
-    }
-  }, [selectedStocks]);
 
   // Helper values for rendering the selector slots
   const slots = Array.from({ length: Math.max(3, Math.min(5, selectedStocks.length + 1)) });

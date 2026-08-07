@@ -7,13 +7,15 @@ import { StockDataService } from "@/lib/stocks/stockDataService";
 import { formatCurrency } from "@/lib/stocks/formatting";
 import { TrendingUp, TrendingDown, Activity, Award } from "lucide-react";
 
+import { SearchInstrument } from "@/lib/stocks/types";
+
 export const metadata = {
   title: "Markets Dashboard | Live Market Movers | VolumeCall",
   description: "Monitor leading indexes like NIFTY 50 and SENSEX. Discover today's top gainers, top losers, active stocks, and volume leaders in the Indian markets.",
 };
 
 export default async function MarketsDashboardPage() {
-  let universe: any[] = [];
+  let universe: SearchInstrument[] = [];
   try {
     universe = await StockDataService.getScreenerUniverse() || [];
   } catch (err) {
