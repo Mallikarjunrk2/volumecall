@@ -566,7 +566,20 @@ export async function GET(
         ltDebtPerEquityMostRecentFiscalYear?: number | string;
       }
 
-      let peerResults: Record<string, unknown>[] = [];
+      interface NormalizedPeerItem {
+        symbol: string;
+        isin: string;
+        name: string;
+        price: number | null;
+        marketCap: number | null;
+        pe: number | null;
+        pb: number | null;
+        roe: number | null;
+        roce: number | null;
+        debtToEquity: number | null;
+      }
+
+      let peerResults: NormalizedPeerItem[] = [];
       
       // Try to get peers list from main company details profile first
       try {
@@ -668,10 +681,10 @@ export async function GET(
       // Log missing metrics in development
       if (process.env.NODE_ENV === "development") {
         peerResults.forEach((p) => {
-          const metricsToCheck = ["price", "marketCap", "pe", "pb", "roe", "roce", "debtToEquity"];
+          const metricsToCheck: (keyof NormalizedPeerItem)[] = ["price", "marketCap", "pe", "pb", "roe", "roce", "debtToEquity"];
           metricsToCheck.forEach((m) => {
             if (p[m] === null || p[m] === undefined) {
-              const label = m === "debtToEquity" ? "D/E" : m.toUpperCase();
+              const label = m === "debtToEquity" ? "D/E" : String(m).toUpperCase();
               console.log(`[Peers] Missing ${label} for ${p.name}`);
             }
           });
