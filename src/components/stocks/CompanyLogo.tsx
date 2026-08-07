@@ -74,6 +74,13 @@ export function CompanyLogo({
   if (imgSrc && stage !== "failed") {
     return (
       <div className={`${className} overflow-hidden shrink-0 flex items-center justify-center border border-neutral-200 dark:border-neutral-800 bg-white`}>
+        {/* 
+          Standard <img> tag is intentionally used here to dynamically load external company logos 
+          from Logo.dev with synchronous client-side error fallbacks (ISIN -> Ticker -> Initials) 
+          without Next.js Image Optimization network overhead, image-cache pre-requisites, or 
+          static/remote domain configuration limits.
+        */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imgSrc}
           alt={`${companyName} logo`}

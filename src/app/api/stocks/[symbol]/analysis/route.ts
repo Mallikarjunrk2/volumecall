@@ -6,6 +6,11 @@ import {
   normalizeShareholdingHistory
 } from "@/lib/providers/indianapi/normalize";
 import { getOrFetchWithCache } from "@/lib/providers/indianapi/cache";
+import {
+  RawIndianCompanyDetails,
+  FinancialPeriod,
+  NormalizedShareholdingQuarter
+} from "@/lib/providers/indianapi/types";
 
 export async function GET(
   request: Request,
@@ -24,7 +29,6 @@ export async function GET(
     }
 
     // 1. Reconstruct verified trends context on server-side with timing instrumentation
-    const fetchStart = Date.now();
     const [rawDetails, rawAnnual, rawShareholding] = await Promise.allSettled([
       (async () => {
         const start = Date.now();
@@ -45,25 +49,23 @@ export async function GET(
         return { res, elapsed };
       })()
     ]);
-    const totalFetchTime = Date.now() - fetchStart;
-
     let profileTime = 0;
     let financialsTime = 0;
     let shareholdingTime = 0;
 
-    let raw: any = null;
+    let raw: RawIndianCompanyDetails | null = null;
     if (rawDetails.status === "fulfilled") {
       raw = rawDetails.value.res;
       profileTime = rawDetails.value.elapsed;
     }
 
-    let annualPL: any[] = [];
+    let annualPL: FinancialPeriod[] = [];
     if (rawAnnual.status === "fulfilled") {
       annualPL = normalizeFinancialPeriods(rawAnnual.value.res);
       financialsTime = rawAnnual.value.elapsed;
     }
 
-    let shareholding: any[] = [];
+    let shareholding: NormalizedShareholdingQuarter[] = [];
     if (rawShareholding.status === "fulfilled") {
       shareholding = normalizeShareholdingHistory(rawShareholding.value.res);
       shareholdingTime = rawShareholding.value.elapsed;

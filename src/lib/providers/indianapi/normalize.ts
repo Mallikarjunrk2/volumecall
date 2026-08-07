@@ -326,7 +326,7 @@ export function normalizeExternalArticleUrl(article: Record<string, unknown>): s
       if (parsed.protocol === "http:" || parsed.protocol === "https:") {
         return parsed.toString();
       }
-    } catch (_) {
+    } catch {
       return null;
     }
     return null;
@@ -356,7 +356,7 @@ export function normalizeExternalArticleUrl(article: Record<string, unknown>): s
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
       return parsed.toString();
     }
-  } catch (_) {
+  } catch {
     return null;
   }
 

@@ -73,17 +73,17 @@ export async function fetchIndianApi<T>(
         console.error(`endpoint: ${endpoint.split("?")[0]}`);
         parseError.issues.forEach((issue) => {
           const pathStr = issue.path.join(".");
-          let receivedVal: any = rawData;
+          let receivedVal: unknown = rawData;
           for (const segment of issue.path) {
             if (receivedVal && typeof receivedVal === "object") {
-              receivedVal = (receivedVal as any)[segment];
+              receivedVal = (receivedVal as Record<string, unknown>)[segment.toString()];
             } else {
               receivedVal = undefined;
               break;
             }
           }
           console.error(`path: ${pathStr}`);
-          console.error(`expected: ${issue.code === "invalid_type" ? (issue as any).expected : "valid format"}`);
+          console.error(`expected: ${issue.code === "invalid_type" ? (issue as { expected?: string }).expected : "valid format"}`);
           console.error(`received: ${receivedVal !== undefined ? JSON.stringify(receivedVal) : "undefined"} (${typeof receivedVal})`);
         });
         console.error("");

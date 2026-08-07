@@ -283,14 +283,14 @@ export function InteractiveChart({ initialCandles, symbol }: InteractiveChartPro
   return (
     <div className="border border-[var(--border)] rounded-md bg-[var(--background)] p-4 sm:p-5">
       {/* Chart Header Tools */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[var(--border)] mb-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 pb-4 border-b border-[var(--border)] mb-4">
         {/* Timeframes */}
-        <div className="flex items-center space-x-0.5 bg-[var(--background-secondary)] p-0.5 rounded-md border border-[var(--border)]">
+        <div className="flex items-center space-x-0.5 bg-[var(--background-secondary)] p-0.5 rounded-md border border-[var(--border)] w-full md:w-auto justify-between md:justify-start">
           {(["1M", "6M", "1Y", "3Y", "5Y", "10Y"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setRange(t)}
-              className={`px-2 py-0.5 text-[10px] font-medium rounded-sm transition-all cursor-pointer ${
+              className={`px-3 py-1.5 md:px-2 md:py-0.5 text-[10px] font-medium rounded-sm transition-all cursor-pointer flex-1 md:flex-none text-center min-h-[32px] md:min-h-0 flex items-center justify-center ${
                 range === t
                   ? "bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] shadow-xs font-semibold"
                   : "text-[var(--text-secondary)] hover:text-[var(--foreground)]"
@@ -302,12 +302,12 @@ export function InteractiveChart({ initialCandles, symbol }: InteractiveChartPro
         </div>
 
         {/* Toggles */}
-        <div className="flex items-center space-x-4 text-[10px] font-medium">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-[10px] font-medium w-full md:w-auto">
           {/* Chart type */}
-          <div className="flex items-center space-x-0.5 bg-[var(--background-secondary)] p-0.5 rounded-md border border-[var(--border)]">
+          <div className="flex items-center space-x-0.5 bg-[var(--background-secondary)] p-0.5 rounded-md border border-[var(--border)] w-full sm:w-auto justify-between sm:justify-start">
             <button
               onClick={() => setChartType("line")}
-              className={`px-2 py-0.5 rounded-sm transition-all cursor-pointer ${
+              className={`px-3 py-1.5 md:px-2 md:py-0.5 rounded-sm transition-all cursor-pointer flex-1 sm:flex-none text-center min-h-[32px] md:min-h-0 flex items-center justify-center ${
                 chartType === "line"
                   ? "bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] shadow-xs font-semibold"
                   : "text-[var(--text-secondary)] hover:text-[var(--foreground)]"
@@ -317,7 +317,7 @@ export function InteractiveChart({ initialCandles, symbol }: InteractiveChartPro
             </button>
             <button
               onClick={() => setChartType("candlestick")}
-              className={`px-2 py-0.5 rounded-sm transition-all cursor-pointer ${
+              className={`px-3 py-1.5 md:px-2 md:py-0.5 rounded-sm transition-all cursor-pointer flex-1 sm:flex-none text-center min-h-[32px] md:min-h-0 flex items-center justify-center ${
                 chartType === "candlestick"
                   ? "bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] shadow-xs font-semibold"
                   : "text-[var(--text-secondary)] hover:text-[var(--foreground)]"
@@ -328,24 +328,24 @@ export function InteractiveChart({ initialCandles, symbol }: InteractiveChartPro
           </div>
 
           {/* Indicators */}
-          <div className="flex items-center space-x-3 text-[var(--text-secondary)]">
-            <label className="flex items-center space-x-1.5 cursor-pointer">
+          <div className="flex items-center space-x-4 sm:space-x-3 text-[var(--text-secondary)] w-full sm:w-auto justify-start py-1 md:py-0">
+            <label className="flex items-center space-x-1.5 cursor-pointer py-1 md:py-0">
               <input
                 type="checkbox"
                 checked={showDMA50}
                 onChange={(e) => setShowDMA50(e.target.checked)}
-                className="rounded-xs border-neutral-300 text-teal-600 focus:ring-teal-500 h-3 w-3 accent-teal-600 cursor-pointer"
+                className="rounded-xs border-neutral-300 text-teal-600 focus:ring-teal-500 h-4 w-4 md:h-3 md:w-3 accent-teal-600 cursor-pointer"
               />
               <span className="text-[10px] text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">DMA 50</span>
               <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
             </label>
 
-            <label className="flex items-center space-x-1.5 cursor-pointer">
+            <label className="flex items-center space-x-1.5 cursor-pointer py-1 md:py-0">
               <input
                 type="checkbox"
                 checked={showDMA200}
                 onChange={(e) => setShowDMA200(e.target.checked)}
-                className="rounded-xs border-neutral-300 text-teal-600 focus:ring-teal-500 h-3 w-3 accent-teal-600 cursor-pointer"
+                className="rounded-xs border-neutral-300 text-teal-600 focus:ring-teal-500 h-4 w-4 md:h-3 md:w-3 accent-teal-600 cursor-pointer"
               />
               <span className="text-[10px] text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">DMA 200</span>
               <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
@@ -355,11 +355,11 @@ export function InteractiveChart({ initialCandles, symbol }: InteractiveChartPro
       </div>
 
       {/* Tooltip HUD */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[11px] text-[var(--text-secondary)] mb-3 border-b border-[var(--border)] pb-2">
+      <div className="flex flex-col md:flex-row md:items-center gap-y-2 gap-x-6 text-[11px] text-[var(--text-secondary)] mb-3 border-b border-[var(--border)] pb-2">
         <div>
           Date: <span ref={dateRef} className="font-semibold text-[var(--foreground)] font-mono" />
         </div>
-        <div className="flex gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 md:flex gap-x-4 gap-y-1.5 md:gap-4 w-full md:w-auto">
           <div>
             O: <span ref={openRef} className="font-semibold text-[var(--foreground)] tabular-nums" />
           </div>
@@ -372,7 +372,7 @@ export function InteractiveChart({ initialCandles, symbol }: InteractiveChartPro
           <div>
             C: <span ref={closeRef} className="font-semibold text-[var(--foreground)] tabular-nums" />
           </div>
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             V: <span ref={volumeRef} className="font-semibold text-[var(--foreground)] tabular-nums" />
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   ArrowUpRight, ArrowDownRight, Calendar, ShieldAlert, Info, ChevronRight, Sparkles
 } from "lucide-react";
@@ -204,6 +204,21 @@ export function StockResearchClient({
   initialCandles,
 }: StockResearchClientProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const tabContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll the active tab into view on mobile
+  useEffect(() => {
+    if (tabContainerRef.current) {
+      const activeBtn = tabContainerRef.current.querySelector('[data-active="true"]');
+      if (activeBtn) {
+        activeBtn.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
+    }
+  }, [activeTab]);
 
   // Section States
   const [overview, setOverview] = useState<OverviewData | null>(null);
@@ -443,36 +458,40 @@ export function StockResearchClient({
     <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 text-neutral-900 dark:text-neutral-100 min-h-screen">
       
       {/* HUD HEADER */}
-      <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-neutral-200 dark:border-[#1f1f1f]">
-        <div className="space-y-3">
-          <div className="flex items-center space-x-3.5">
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6 pb-4 md:pb-6 border-b border-neutral-200 dark:border-[#1f1f1f]">
+        <div className="space-y-2 md:space-y-3">
+          <div className="flex items-center space-x-2.5 md:space-x-3.5">
             <CompanyLogo
                 symbol={symbol}
                 isin={isin}
                 companyName={name}
-                className="h-12 w-12 rounded-lg"
-                textClassName="text-lg"
+                className="h-9 w-9 md:h-12 md:w-12 rounded-md md:rounded-lg"
+                textClassName="text-sm md:text-lg"
             />
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight leading-none">{name}</h1>
-              <div className="flex items-center space-x-2 text-xs text-neutral-500 mt-2 font-medium">
+              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight leading-none break-words">{name}</h1>
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500 mt-2 font-medium">
                 <span className="font-bold text-[#0F766E] dark:text-teal-400 font-mono">{symbol}</span>
-                <span>·</span>
+                <span className="text-neutral-350 dark:text-neutral-700">·</span>
                 <span className="px-1.5 py-0.5 bg-neutral-50 dark:bg-[#161616] border border-neutral-200 dark:border-neutral-800 rounded-sm font-mono uppercase text-[10px]">
                   {exchange}
                 </span>
-                <span>·</span>
-                <span className="font-mono text-neutral-400">{isin}</span>
+                {isin && (
+                  <>
+                    <span className="text-neutral-350 dark:text-neutral-700">·</span>
+                    <span className="font-mono text-neutral-450">{isin}</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:items-end text-right">
-          <div className="text-3xl sm:text-4xl font-black tabular-nums tracking-tight">
+        <div className="flex flex-col items-start md:items-end text-left md:text-right mt-2 md:mt-0">
+          <div className="text-2xl sm:text-4xl font-black tabular-nums tracking-tight text-neutral-900 dark:text-white">
             {currentPrice ? formatCurrency(currentPrice) : "—"}
           </div>
-          <div className="flex items-center space-x-2 mt-1.5 text-sm font-bold">
+          <div className="flex items-center space-x-2 mt-1 md:mt-1.5 text-sm font-bold">
             {changePercent !== 0 && (
               <span className={`flex items-center ${isPos ? "text-emerald-650" : "text-red-650"}`}>
                 {isPos ? <ArrowUpRight className="h-4 w-4 mr-0.5" /> : <ArrowDownRight className="h-4 w-4 mr-0.5" />}
@@ -483,25 +502,26 @@ export function StockResearchClient({
               {overview?.market?.freshness || "LIVE"}
             </span>
           </div>
-          <span className="text-[10px] text-neutral-450 mt-1 font-normal">
+          <span className="text-[10px] text-neutral-450 mt-0.5 md:mt-1 font-normal">
             Updated {overview?.market?.updatedAt ? new Date(overview.market.updatedAt).toLocaleTimeString() : "—"}
           </span>
         </div>
       </section>
 
       {/* HORIZONTAL TAB NAVIGATION */}
-      <nav className="border-b border-neutral-200 dark:border-[#1f1f1f] flex flex-wrap justify-between items-center py-1 gap-4">
-        <div className="flex space-x-1.5 overflow-x-auto scrollbar-none py-1">
+      <nav className="border-b border-neutral-200 dark:border-[#1f1f1f] flex md:flex-wrap justify-between items-center py-1 gap-4 overflow-x-auto md:overflow-x-visible scrollbar-none w-full">
+        <div ref={tabContainerRef} className="flex space-x-1.5 overflow-x-auto md:overflow-x-visible scrollbar-none py-1 snap-x snap-mandatory scroll-smooth w-full md:w-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              data-active={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               onMouseEnter={() => {
                 if (tab.id === "analysis") {
                   prefetchAnalysis();
                 }
               }}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap border ${
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap border snap-center min-h-[44px] flex items-center justify-center ${
                 activeTab === tab.id
                   ? "bg-white dark:bg-[#0a0a0a] text-[#0F766E] dark:text-teal-400 border-neutral-200 dark:border-[#1f1f1f] shadow-xs"
                   : "text-neutral-550 dark:text-neutral-400 border-transparent hover:text-neutral-900 dark:hover:text-white"
@@ -514,7 +534,7 @@ export function StockResearchClient({
         
         <button
           onClick={() => setIsDrawerOpen(true)}
-          className="px-4 py-2.5 bg-teal-50 hover:bg-teal-100 text-[#0F766E] border border-teal-200 hover:border-teal-300 dark:bg-teal-950/20 dark:hover:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/30 dark:hover:border-teal-700 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+          className="px-4 py-2.5 bg-teal-50 hover:bg-teal-100 text-[#0F766E] border border-teal-200 hover:border-teal-300 dark:bg-teal-950/20 dark:hover:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/30 dark:hover:border-teal-700 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap min-h-[44px]"
         >
           <Sparkles className="h-4 w-4 fill-[#0F766E] dark:fill-teal-400" />
           Ask VolumeCall AI
@@ -568,7 +588,7 @@ export function StockResearchClient({
                       <h3 className="text-lg font-bold">Key Valuation & Ratios</h3>
                     </div>
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-5">
                       {[
                         { label: "Market Cap", val: getMetricValue(overview.keyMetrics, "marketCap") ? `${formatCurrency(getMetricValue(overview.keyMetrics, "marketCap"))} Cr` : "—" },
                         { label: "Current Price", val: overview.market?.priceNse ? formatCurrency(overview.market.priceNse) : (overview.market?.priceBse ? formatCurrency(overview.market.priceBse) : "—") },
@@ -581,9 +601,9 @@ export function StockResearchClient({
                         { label: "ROCE", val: overview.ratios?.roce ? `${overview.ratios.roce.toFixed(1)}%` : "—" },
                         { label: "Debt to Equity", val: overview.ratios?.debtToEquity !== null && overview.ratios?.debtToEquity !== undefined ? `${overview.ratios.debtToEquity.toFixed(2)}` : "—" },
                       ].map((card, idx) => (
-                        <div key={idx} className="p-4 border border-neutral-200 dark:border-[#1f1f1f] bg-neutral-50 dark:bg-[#161616] rounded-xl space-y-1">
-                          <span className="text-[10px] uppercase font-bold text-neutral-450 tracking-wider">{card.label}</span>
-                          <div className="text-lg font-black tabular-nums">{card.val}</div>
+                        <div key={idx} className="p-3 md:p-4 border border-neutral-200 dark:border-[#1f1f1f] bg-neutral-50 dark:bg-[#161616] rounded-xl flex flex-col justify-between gap-1 min-h-[72px] md:min-h-[84px]">
+                          <span className="text-[9px] md:text-[10px] uppercase font-bold text-neutral-450 tracking-wider block leading-snug">{card.label}</span>
+                          <div className="text-sm xs:text-base md:text-lg font-black tabular-nums break-words leading-tight text-neutral-900 dark:text-white">{card.val}</div>
                         </div>
                       ))}
                     </div>
@@ -597,8 +617,8 @@ export function StockResearchClient({
                     <span className="text-sm font-bold uppercase text-neutral-500 tracking-wider">Ownership Snapshot</span>
                     
                     {overview.shareholdingLatest?.promoters !== null && overview.shareholdingLatest?.promoters !== undefined ? (
-                      <div className="space-y-6">
-                        <div className="h-44 w-44 mx-auto">
+                      <div className="space-y-6 flex flex-col items-center">
+                        <div className="h-32 w-32 md:h-44 md:w-44 mx-auto">
                           {renderDonutChart(
                             overview.shareholdingLatest.promoters,
                             overview.shareholdingLatest.fii || 0,
@@ -607,21 +627,21 @@ export function StockResearchClient({
                           )}
                         </div>
                         
-                        <div className="space-y-2 text-xs font-semibold">
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#0F766E] mr-2" />Promoters</span>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 md:block md:space-y-2 text-xs font-semibold w-full">
+                          <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none">
+                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#0F766E] mr-2 shrink-0" />Promoters</span>
                             <span className="num-val">{formatIndianNumber(overview.shareholdingLatest.promoters, true)}%</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#3B82F6] mr-2" />FIIs</span>
+                          <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none">
+                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#3B82F6] mr-2 shrink-0" />FIIs</span>
                             <span className="num-val">{formatIndianNumber(overview.shareholdingLatest.fii || 0, true)}%</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B] mr-2" />DIIs</span>
+                          <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none">
+                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B] mr-2 shrink-0" />DIIs</span>
                             <span className="num-val">{formatIndianNumber(overview.shareholdingLatest.dii || 0, true)}%</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#EC4899] mr-2" />Public</span>
+                          <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none">
+                            <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#EC4899] mr-2 shrink-0" />Public</span>
                             <span className="num-val">{formatIndianNumber(overview.shareholdingLatest.public || 0, true)}%</span>
                           </div>
                         </div>
@@ -635,28 +655,28 @@ export function StockResearchClient({
                   <div className="p-6 border border-neutral-200 dark:border-[#1f1f1f] rounded-2xl bg-white dark:bg-[#0a0a0a] space-y-4">
                     <span className="text-sm font-bold uppercase text-neutral-500 tracking-wider">Quick Financial Snapshot</span>
                     
-                    <div className="space-y-3 text-xs font-semibold">
-                      <div className="flex justify-between items-center">
+                    <div className="space-y-2 md:space-y-3 text-xs font-semibold">
+                      <div className="flex justify-between items-center py-1.5 md:py-0 min-h-[32px] md:min-h-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none last:border-none">
                         <span className="text-neutral-500">Latest Revenue</span>
                         <span className="num-kpi text-neutral-900 dark:text-white">₹{overview.latestFinancials?.revenue !== null && overview.latestFinancials?.revenue !== undefined ? `${formatIndianNumber(overview.latestFinancials.revenue)} Cr` : "—"}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none last:border-none">
                         <span className="text-neutral-500">Latest Net Profit</span>
                         <span className="num-kpi text-neutral-900 dark:text-white">₹{overview.latestFinancials?.netProfit !== null && overview.latestFinancials?.netProfit !== undefined ? `${formatIndianNumber(overview.latestFinancials.netProfit)} Cr` : "—"}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none last:border-none">
                         <span className="text-neutral-500">EPS (TTM)</span>
                         <span className="num-kpi text-neutral-900 dark:text-white">₹{overview.latestFinancials?.eps !== null && overview.latestFinancials?.eps !== undefined ? formatIndianNumber(overview.latestFinancials.eps, true) : "—"}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none last:border-none">
                         <span className="text-neutral-500">Operating Margin</span>
                         <span className="num-kpi text-neutral-900 dark:text-white">{overview.latestFinancials?.operatingMargin !== null && overview.latestFinancials?.operatingMargin !== undefined ? `${formatIndianNumber(overview.latestFinancials.operatingMargin, true)}%` : "—"}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none last:border-none">
                         <span className="text-neutral-500">Revenue Growth (TTM)</span>
                         <span className="num-kpi text-neutral-900 dark:text-white">{overview.latestFinancials?.revenueGrowth !== null && overview.latestFinancials?.revenueGrowth !== undefined ? `${formatIndianNumber(overview.latestFinancials.revenueGrowth, true)}%` : "—"}</span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none last:border-none">
                         <span className="text-neutral-500">Profit Growth (TTM)</span>
                         <span className="num-kpi text-neutral-900 dark:text-white">{overview.latestFinancials?.profitGrowth !== null && overview.latestFinancials?.profitGrowth !== undefined ? `${formatIndianNumber(overview.latestFinancials.profitGrowth, true)}%` : "—"}</span>
                       </div>

@@ -24,7 +24,8 @@ import {
   FinancialPeriod,
   BalanceSheetPeriod,
   CashFlowPeriod,
-  NormalizedShareholdingQuarter
+  NormalizedShareholdingQuarter,
+  RawIndianCompanyDetails
 } from "@/lib/providers/indianapi/types";
 
 // Helper mapping for symbol peers
@@ -129,9 +130,8 @@ function calculateDerivableMetrics(
 }
 
 function resolveLatestFinancials(
-  rawDetails: any,
-  annualPL: FinancialPeriod[],
-  quarterly: FinancialPeriod[]
+  rawDetails: RawIndianCompanyDetails | null,
+  annualPL: FinancialPeriod[]
 ) {
   const result = {
     revenue: null as number | null,
@@ -211,7 +211,7 @@ export async function GET(
         quarterStats,
         annualStats,
         balanceStats,
-        cashFlowStats,
+        , // Cash flow stats preloaded in parallel but not directly required by overview
         shareholdingStats,
       ] = await Promise.allSettled([
         getStockPrice(instrument.instrumentKey),
@@ -431,8 +431,7 @@ export async function GET(
       // Resolve financial snapshot values
       const latestFinancials = resolveLatestFinancials(
         rawIndianDetails.status === "fulfilled" ? rawIndianDetails.value : null,
-        annualProfitLoss,
-        quarterlyResults
+        annualProfitLoss
       );
 
       return NextResponse.json({

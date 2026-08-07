@@ -29,20 +29,20 @@ export function Footer() {
             </span>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs font-normal text-[var(--text-secondary)]">
-            <Link href="/about" className="hover:text-[var(--foreground)] transition-colors">
+          <nav className="flex flex-wrap gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-2 text-xs font-normal text-[var(--text-secondary)]">
+            <Link href="/about" className="hover:text-[var(--foreground)] transition-colors py-2.5 px-3 md:py-0 md:px-0 bg-neutral-100/50 dark:bg-neutral-900/50 md:bg-transparent rounded-lg md:rounded-none border border-neutral-200/50 dark:border-neutral-800/50 md:border-none min-h-[44px] md:min-h-0 flex items-center justify-center">
               About
             </Link>
-            <Link href="/contact" className="hover:text-[var(--foreground)] transition-colors">
+            <Link href="/contact" className="hover:text-[var(--foreground)] transition-colors py-2.5 px-3 md:py-0 md:px-0 bg-neutral-100/50 dark:bg-neutral-900/50 md:bg-transparent rounded-lg md:rounded-none border border-neutral-200/50 dark:border-neutral-800/50 md:border-none min-h-[44px] md:min-h-0 flex items-center justify-center">
               Contact
             </Link>
-            <Link href="/privacy" className="hover:text-[var(--foreground)] transition-colors">
+            <Link href="/privacy" className="hover:text-[var(--foreground)] transition-colors py-2.5 px-3 md:py-0 md:px-0 bg-neutral-100/50 dark:bg-neutral-900/50 md:bg-transparent rounded-lg md:rounded-none border border-neutral-200/50 dark:border-neutral-800/50 md:border-none min-h-[44px] md:min-h-0 flex items-center justify-center">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-[var(--foreground)] transition-colors">
+            <Link href="/terms" className="hover:text-[var(--foreground)] transition-colors py-2.5 px-3 md:py-0 md:px-0 bg-neutral-100/50 dark:bg-neutral-900/50 md:bg-transparent rounded-lg md:rounded-none border border-neutral-200/50 dark:border-neutral-800/50 md:border-none min-h-[44px] md:min-h-0 flex items-center justify-center">
               Terms & Conditions
             </Link>
-            <Link href="/disclaimer" className="hover:text-[var(--foreground)] transition-colors">
+            <Link href="/disclaimer" className="hover:text-[var(--foreground)] transition-colors py-2.5 px-3 md:py-0 md:px-0 bg-neutral-100/50 dark:bg-neutral-900/50 md:bg-transparent rounded-lg md:rounded-none border border-neutral-200/50 dark:border-neutral-800/50 md:border-none min-h-[44px] md:min-h-0 flex items-center justify-center">
               Disclaimer
             </Link>
           </nav>
