@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #0f766e;
+  --color-primary-dark: #2dd4bf;
+  --color-positive: #10b981;
+  --color-negative: #ef4444;
+  
+  --font-sans: var(--font-geist-sans), "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --background-secondary: #fafafa;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border: #e5e5e5;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --background-secondary: #0a0a0a;
+  --text-secondary: #a3a3a3;
+  --text-muted: #666666;
+  --border: #1f1f1f;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Custom scrollbars for a cleaner, precise aesthetic */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+  border-radius: 2px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1f1f1f;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+/* Tabular numbers class */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ensure focus states are accessible and clean */
+*:focus-visible {
+  outline: 1.5px solid #0f766e;
+  outline-offset: 1.5px;
+}
+
+.dark *:focus-visible {
+  outline: 1.5px solid #2dd4bf;
+}
+
+/* Premium Financial Table Classes */
+.financial-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+}
+
+.financial-table thead tr {
+  border-bottom: 1px solid var(--border);
+  background-color: #f8fafc; /* Light theme year header bg */
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b; /* slate-500 */
+}
+.dark .financial-table thead tr {
+  border-bottom: 1px solid #202020;
+  background-color: #0c0c0c; /* Dark theme year header bg */
+  color: #94a3b8; /* slate-400 */
+}
+
+/* Year Header border & padding */
+.financial-table th {
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+/* Metric Column Header sticky left-0 */
+.financial-table th.sticky-metric {
+  position: sticky;
+  left: 0;
+  background-color: #f8fafc;
+  z-index: 20;
+  border-right: 1px solid #e2e8f0;
+}
+.dark .financial-table th.sticky-metric {
+  background-color: #0c0c0c;
+  border-right: 1px solid #202020;
+}
+
+/* alternating zebra colors */
+.financial-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+.financial-table tbody tr:nth-child(even) {
+  background-color: #f7f8fa; /* Row 2, 4 alternating */
+}
+
+.dark .financial-table tbody tr:nth-child(odd) {
+  background-color: #090909;
+}
+.dark .financial-table tbody tr:nth-child(even) {
+  background-color: #111111;
+}
+
+/* hover states */
+.financial-table tbody tr:hover {
+  background-color: #f1f5f4 !important;
+}
+.dark .financial-table tbody tr:hover {
+  background-color: #151a19 !important;
+}
+
+/* cells */
+.financial-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.dark .financial-table td {
+  border-bottom: 1px solid #202020;
+}
+
+/* Sticky metrics cell in table rows */
+.financial-table td.sticky-metric {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.015);
+}
+.dark .financial-table td.sticky-metric {
+  border-right: 1px solid #202020;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Make sure the sticky column inherits the zebra background */
+.financial-table tbody tr:nth-child(odd) td.sticky-metric {
+  background-color: #ffffff;
+}
+.financial-table tbody tr:nth-child(even) td.sticky-metric {
+  background-color: #f7f8fa;
+}
+.dark .financial-table tbody tr:nth-child(odd) td.sticky-metric {
+  background-color: #090909;
+}
+.dark .financial-table tbody tr:nth-child(even) td.sticky-metric {
+  background-color: #111111;
+}
+
+/* Hover cell inheritance */
+.financial-table tbody tr:hover td.sticky-metric {
+  background-color: #f1f5f4 !important;
+}
+.dark .financial-table tbody tr:hover td.sticky-metric {
+  background-color: #151a19 !important;
+}
+
+/* Font styles for numbers */
+.num-val {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+  font-weight: 500; /* Table numbers default 500 */
+}
+
+.num-important {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+  font-weight: 600; /* Important numbers 600 */
+}
+
+.num-kpi {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.012em;
+  font-weight: 600; /* KPI / card numbers 600-650 */
+}
+
