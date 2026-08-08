@@ -135,8 +135,8 @@ export function IpoClient({ initialData, error }: IpoClientProps) {
                         {ipo.total_subscription_rate !== null ? `${ipo.total_subscription_rate.toFixed(2)}x` : "—"}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        {ipo.document_url ? (
-                          <a href={ipo.document_url} target="_blank" rel="noreferrer" className="inline-flex text-teal-700 dark:text-teal-400 hover:underline">
+                        {ipo.document_url && typeof ipo.document_url === "string" && ipo.document_url.trim() !== "" ? (
+                          <a href={ipo.document_url} target="_blank" rel="noopener noreferrer" className="inline-flex text-teal-700 dark:text-teal-400 hover:underline">
                             <FileText className="w-4 h-4" />
                           </a>
                         ) : "—"}
@@ -188,8 +188,8 @@ export function IpoClient({ initialData, error }: IpoClientProps) {
                         {ipo.min_price && ipo.max_price ? `₹${ipo.min_price} - ₹${ipo.max_price}` : "To be announced"}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        {ipo.document_url ? (
-                          <a href={ipo.document_url} target="_blank" rel="noreferrer" className="inline-flex text-teal-700 dark:text-teal-400 hover:underline">
+                        {ipo.document_url && typeof ipo.document_url === "string" && ipo.document_url.trim() !== "" ? (
+                          <a href={ipo.document_url} target="_blank" rel="noopener noreferrer" className="inline-flex text-teal-700 dark:text-teal-400 hover:underline">
                             <FileText className="w-4 h-4" />
                           </a>
                         ) : "—"}
@@ -292,8 +292,8 @@ export function IpoClient({ initialData, error }: IpoClientProps) {
                         {ipo.min_price && ipo.max_price ? `₹${ipo.min_price} - ₹${ipo.max_price}` : "—"}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        {ipo.document_url ? (
-                          <a href={ipo.document_url} target="_blank" rel="noreferrer" className="inline-flex text-teal-700 dark:text-teal-400 hover:underline">
+                        {ipo.document_url && typeof ipo.document_url === "string" && ipo.document_url.trim() !== "" ? (
+                          <a href={ipo.document_url} target="_blank" rel="noopener noreferrer" className="inline-flex text-teal-700 dark:text-teal-400 hover:underline">
                             <FileText className="w-4 h-4" />
                           </a>
                         ) : "—"}
