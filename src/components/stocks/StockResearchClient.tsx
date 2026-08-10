@@ -263,7 +263,7 @@ export function StockResearchClient({
     setLoadingAnalysis(true);
     setErrorAnalysis(null);
     try {
-      const res = await fetch(`/api/stocks/${symbol}/analysis`);
+      const res = await fetch(`/api/stocks/${symbol}/analysis`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to generate AI trend analysis.");
       const data = await safeJsonParse(res);
       setAnalysis(data);
@@ -281,7 +281,7 @@ export function StockResearchClient({
       setLoadingOverview(true);
       setErrorOverview(null);
       try {
-        const res = await fetch(`/api/stocks/${symbol}/research?section=overview`);
+        const res = await fetch(`/api/stocks/${symbol}/research?section=overview`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load overview snapshot.");
         const data = await safeJsonParse(res);
         if (active) setOverview(data);
@@ -307,7 +307,7 @@ export function StockResearchClient({
       setLoadingFinancials(true);
       setErrorFinancials(null);
       try {
-        const res = await fetch(`/api/stocks/${symbol}/research?section=financials`);
+        const res = await fetch(`/api/stocks/${symbol}/research?section=financials`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load financial statements.");
         const data = await safeJsonParse(res);
         if (active) setFinancials(data);
@@ -322,7 +322,7 @@ export function StockResearchClient({
       setLoadingShareholding(true);
       setErrorShareholding(null);
       try {
-        const res = await fetch(`/api/stocks/${symbol}/research?section=shareholding`);
+        const res = await fetch(`/api/stocks/${symbol}/research?section=shareholding`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load shareholding history.");
         const data = await safeJsonParse(res);
         if (active) setShareholding(data);
@@ -337,7 +337,7 @@ export function StockResearchClient({
       setLoadingPeers(true);
       setErrorPeers(null);
       try {
-        const res = await fetch(`/api/stocks/${symbol}/research?section=peers`);
+        const res = await fetch(`/api/stocks/${symbol}/research?section=peers`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to resolve industry peers.");
         const data = await safeJsonParse(res);
         if (active) setPeers(data);
@@ -352,7 +352,7 @@ export function StockResearchClient({
       setLoadingAnalysis(true);
       setErrorAnalysis(null);
       try {
-        const res = await fetch(`/api/stocks/${symbol}/analysis`);
+        const res = await fetch(`/api/stocks/${symbol}/analysis`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to generate AI trend analysis.");
         const data = await safeJsonParse(res);
         if (active) setAnalysis(data);
