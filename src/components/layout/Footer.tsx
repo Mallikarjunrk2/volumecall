@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="w-full border-t border-[var(--border)] bg-[var(--background-secondary)] py-8 mt-auto">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-b border-[var(--border)] pb-8 mb-8 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-b border-[var(--border)] pb-8 mb-8 text-xs">
           {/* Column 1: Markets */}
           <div className="flex flex-col space-y-3">
             <h4 className="font-bold text-[var(--foreground)] uppercase tracking-wider text-[10px]">Markets</h4>
@@ -24,23 +24,9 @@ export function Footer() {
             <h4 className="font-bold text-[var(--foreground)] uppercase tracking-wider text-[10px]">Stocks</h4>
             <ul className="space-y-2 text-[var(--text-secondary)] font-normal">
               <li><Link href="/stocks" className="hover:text-[var(--foreground)] transition-colors">Browse Stocks</Link></li>
-              <li><Link href="/screener" className="hover:text-[var(--foreground)] transition-colors">Screener</Link></li>
+
               <li><Link href="/compare" className="hover:text-[var(--foreground)] transition-colors">Compare</Link></li>
               <li><Link href="/ipo" className="hover:text-[var(--foreground)] transition-colors">IPO</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 3: Collections */}
-          <div className="flex flex-col space-y-3">
-            <h4 className="font-bold text-[var(--foreground)] uppercase tracking-wider text-[10px]">Collections</h4>
-            <ul className="space-y-2 text-[var(--text-secondary)] font-normal">
-              <li><Link href="/collections/banking" className="hover:text-[var(--foreground)] transition-colors">Banking Stocks</Link></li>
-              <li><Link href="/collections/it" className="hover:text-[var(--foreground)] transition-colors">IT Stocks</Link></li>
-              <li><Link href="/collections/pharma" className="hover:text-[var(--foreground)] transition-colors">Pharma Stocks</Link></li>
-              <li><Link href="/collections/auto" className="hover:text-[var(--foreground)] transition-colors">Auto Stocks</Link></li>
-              <li><Link href="/collections/defence" className="hover:text-[var(--foreground)] transition-colors">Defence Stocks</Link></li>
-              <li><Link href="/collections/railway" className="hover:text-[var(--foreground)] transition-colors">Railway Stocks</Link></li>
-              <li><Link href="/collections/dividend" className="hover:text-[var(--foreground)] transition-colors">Dividend Stocks</Link></li>
             </ul>
           </div>
 

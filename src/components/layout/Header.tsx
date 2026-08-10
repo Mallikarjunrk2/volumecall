@@ -57,9 +57,7 @@ export function Header() {
             <Link href="/stocks" className={linkClass("/stocks")}>
               Stocks
             </Link>
-            <Link href="/screener" className={linkClass("/screener")}>
-              Screener
-            </Link>
+
             <Link href="/ipo" className={linkClass("/ipo")}>
               IPO
             </Link>

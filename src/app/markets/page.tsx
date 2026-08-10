@@ -15,7 +15,7 @@ export const metadata = {
 export default async function MarketsDashboardPage() {
   let universe: ScreenerStock[] = [];
   try {
-    universe = await StockDataService.getScreenerUniverse() || [];
+    universe = await StockDataService.getMoversUniverse() || [];
   } catch (err) {
     console.error("[Markets Page Load Error]:", err);
     universe = [];

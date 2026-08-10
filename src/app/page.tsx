@@ -4,9 +4,9 @@ import Footer from "@/components/layout/Footer";
 import SearchAutocomplete from "@/components/stocks/SearchAutocomplete";
 
 export const metadata = {
-  title: "VolumeCall | Indian Stock Research & Stock Screener",
+  title: "VolumeCall | Indian Stock Research & Valuation Ratios",
   description:
-    "An Indian stock research and screening platform. View stock price quotes, fundamentals, key valuation ratios, interactive charts, and run custom screens.",
+    "An Indian stock research and analysis platform. View stock price quotes, fundamentals, key valuation ratios, interactive charts, and monitor custom watchlists.",
 };
 
 export default function Home() {

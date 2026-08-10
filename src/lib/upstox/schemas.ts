@@ -91,3 +91,108 @@ export const UpstoxSearchResponseSchema = z.object({
   status: z.string(),
   data: z.array(UpstoxSearchItemSchema),
 });
+
+// 6. Upstox Company Fundamentals schemas for testing
+export const UpstoxBalanceSheetItemSchema = z.object({
+  total_asset: z.number().nullable().optional(),
+  total_liability: z.number().nullable().optional(),
+  period: z.string(),
+});
+
+export const UpstoxBalanceSheetHistorySchema = z.object({
+  type: z.string(),
+  time_period: z.string(),
+  units_in: z.string(),
+  history: z.array(UpstoxBalanceSheetItemSchema),
+  full_statement: z.array(z.unknown()).nullable().optional(),
+});
+
+export const UpstoxBalanceSheetResponseSchema = z.object({
+  status: z.string(),
+  data: UpstoxBalanceSheetHistorySchema,
+});
+
+export const UpstoxIncomeStatementCategorySchema = z.object({
+  category: z.string(),
+  history: z.array(z.object({
+    value: z.number().nullable().optional(),
+    period: z.string(),
+    change: z.string().nullable().optional(),
+  })),
+});
+
+export const UpstoxIncomeStatementHistorySchema = z.object({
+  type: z.string(),
+  time_period: z.string(),
+  units_in: z.string(),
+  income_statement: z.array(UpstoxIncomeStatementCategorySchema),
+  full_statement: z.array(z.unknown()).nullable().optional(),
+});
+
+export const UpstoxIncomeStatementResponseSchema = z.object({
+  status: z.string(),
+  data: UpstoxIncomeStatementHistorySchema,
+});
+
+export const UpstoxShareholdingsCategorySchema = z.object({
+  category: z.string(),
+  history: z.array(z.object({
+    value: z.number().nullable().optional(),
+    period: z.string(),
+  })),
+});
+
+export const UpstoxShareholdingsResponseSchema = z.object({
+  status: z.string(),
+  data: z.array(UpstoxShareholdingsCategorySchema),
+});
+
+export const UpstoxCorporateActionItemSchema = z.object({
+  name: z.string(),
+  expiry_date: z.string().nullable().optional(),
+  amount: z.number().nullable().optional(),
+  ratio: z.string().nullable().optional(),
+  event_details: z.array(z.object({
+    name: z.string(),
+    value: z.string(),
+  })).nullable().optional(),
+});
+
+export const UpstoxCorporateActionsResponseSchema = z.object({
+  status: z.string(),
+  data: z.array(UpstoxCorporateActionItemSchema),
+});
+
+export const UpstoxCompetitorItemSchema = z.object({
+  company_profile: z.string().nullable().optional(),
+  sector: z.string().nullable().optional(),
+  sector_market_cap_inr: z.unknown().nullable().optional(),
+  sector_market_cap_usd: z.unknown().nullable().optional(),
+  instrument_key: z.string(),
+});
+
+export const UpstoxCompetitorsResponseSchema = z.object({
+  status: z.string(),
+  data: z.array(UpstoxCompetitorItemSchema),
+});
+
+export const UpstoxIpoItemSchema = z.object({
+  id: z.string(),
+  symbol: z.string().nullable().optional(),
+  name: z.string(),
+  status: z.string(),
+  isin: z.string().nullable().optional(),
+  issue_type: z.string().nullable().optional(),
+  issue_size: z.number().nullable().optional(),
+  industry: z.string().nullable().optional(),
+  minimum_price: z.number().nullable().optional(),
+  maximum_price: z.number().nullable().optional(),
+  bidding_start_date: z.string().nullable().optional(),
+  bidding_end_date: z.string().nullable().optional(),
+  total_subscription: z.string().nullable().optional(),
+});
+
+export const UpstoxIposResponseSchema = z.object({
+  status: z.string(),
+  data: z.array(UpstoxIpoItemSchema),
+});

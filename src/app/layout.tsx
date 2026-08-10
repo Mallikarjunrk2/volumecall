@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VolumeCall | Indian Stock Research & Screener",
-  description: "Professional, cyber-clean stock research and screening for NSE equities.",
+  title: "VolumeCall | Indian Stock Research & Analysis",
+  description: "Professional, cyber-clean stock research and analysis for NSE equities.",
 };
 
 export default function RootLayout({

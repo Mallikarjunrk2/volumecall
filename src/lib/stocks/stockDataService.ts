@@ -1,7 +1,9 @@
 import { getCacheProvider } from "./cacheProvider";
+import { after } from "next/server";
 import { UpstoxProviderAdapter, IndianApiProviderAdapter, ProviderCompanyData } from "./providers";
 import { resolveFallbackMetric } from "./fallback";
-import { UNIVERSE_TICKERS, THEME_MAP } from "./universe";
+import { UNIVERSE_TICKERS } from "./universe";
+import { persistCompanyData, getCompanyFromDb, getIposFromDb, saveIposToDb } from "@/lib/db/services";
 
 export interface ScreenerStock {
   symbol: string;
@@ -75,6 +77,38 @@ export class StockDataService {
     }
 
     return this.orchestrateRequest(cacheKey, async () => {
+      // 1. Attempt read-through from PostgreSQL first
+      try {
+        const dbCompany = await getCompanyFromDb(cleanSym);
+        if (dbCompany) {
+          // If valid database copy exists, query Upstox in parallel for live price & ratios
+          const upstoxData = await this.upstoxAdapter.getCompanyData(cleanSym);
+          
+          const merged: ProviderCompanyData = {
+            symbol: cleanSym,
+            name: upstoxData?.name || dbCompany.name || cleanSym,
+            exchange: upstoxData?.exchange || "NSE",
+            isin: upstoxData?.isin || dbCompany.isin || "",
+            price: upstoxData?.price || null,
+            profile: upstoxData?.profile || dbCompany.profile || null,
+            ratios: [...(upstoxData?.ratios || []), ...(dbCompany.ratios || [])],
+            indianApiDetails: dbCompany.indianApiDetails || null,
+            indianApiYoyPL: dbCompany.indianApiYoyPL || null,
+            indianApiQuarterlyPL: dbCompany.indianApiQuarterlyPL || null,
+            indianApiShareholding: dbCompany.indianApiShareholding || null,
+            indianApiBalanceSheet: dbCompany.indianApiBalanceSheet || null,
+            indianApiCashFlow: dbCompany.indianApiCashFlow || null,
+          };
+          
+          // Cache in memory for 6 hours (21600 seconds)
+          await cacheProvider.set(cacheKey, merged, 21600);
+          console.log(`[Database Read Cache] Served ${cleanSym} using Postgres cached financials and Upstox live metrics`);
+          return merged;
+        }
+      } catch (err) {
+        console.error(`[Database Read Cache Query Error] Failed for ${cleanSym}, falling back to API:`, err);
+      }
+
       const [upstoxData, indianApiData] = await Promise.all([
         this.upstoxAdapter.getCompanyData(cleanSym),
         this.indianApiAdapter.getCompanyData(cleanSym),
@@ -97,7 +131,22 @@ export class StockDataService {
         indianApiYoyPL: indianApiData?.indianApiYoyPL || null,
         indianApiQuarterlyPL: indianApiData?.indianApiQuarterlyPL || null,
         indianApiShareholding: indianApiData?.indianApiShareholding || null,
+        indianApiBalanceSheet: indianApiData?.indianApiBalanceSheet || null,
+        indianApiCashFlow: indianApiData?.indianApiCashFlow || null,
       };
+
+      // Asynchronously trigger database persistence (non-blocking, serverless-hardened)
+      try {
+        after(() => {
+          persistCompanyData(merged).catch((error) => {
+            console.error(`[Database Persistence Background Error] Failed for ${cleanSym}:`, error);
+          });
+        });
+      } catch {
+        persistCompanyData(merged).catch((error) => {
+          console.error(`[Database Persistence Background Error] Failed for ${cleanSym}:`, error);
+        });
+      }
 
       // Cache Fundamentals for 6 hours (21600 seconds)
       await cacheProvider.set(cacheKey, merged, 21600);
@@ -201,41 +250,73 @@ export class StockDataService {
   }
 
   /**
-   * Returns complete screener universe, cached for 5m (300 seconds) SWR
+   * Resolves price/change/volume metrics for Markets Dashboard using Upstox batching.
+   * Consumes 0 IndianAPI requests.
    */
-  static async getScreenerUniverse(): Promise<ScreenerStock[]> {
-    const cacheKey = "data:screener:universe";
-    const cacheProvider = this.cache;
-
-    const cached = await cacheProvider.get<ScreenerStock[]>(cacheKey);
+  static async getMoversUniverse(): Promise<ScreenerStock[]> {
+    const cacheKey = "data:markets:movers";
+    const cached = await this.cache.get<ScreenerStock[]>(cacheKey);
     if (cached) {
-      // SWR: Async refresh if expired in background
-      this.triggerSWRRefresh(cacheKey, async () => this.fetchFreshUniverse());
       return cached;
     }
 
-    return this.orchestrateRequest(cacheKey, async () => {
-      const data = await this.fetchFreshUniverse();
-      await cacheProvider.set(cacheKey, data, 300); // 5 minutes TTL
-      return data;
-    });
-  }
+    try {
+      const { sql } = await import("@/lib/db");
+      const dbCompanies = await sql`
+        SELECT symbol, name, sector FROM companies;
+      `.catch(() => []);
+      const companyMap = new Map(
+        dbCompanies.map((c) => [String(c.symbol).toUpperCase(), c])
+      );
 
-  private static async fetchFreshUniverse(): Promise<ScreenerStock[]> {
-    // Process universe stocks sequentially/parallel with batches to avoid rate limit
-    const results: ScreenerStock[] = [];
-    const batchSize = 5;
-    for (let i = 0; i < UNIVERSE_TICKERS.length; i += batchSize) {
-      const batch = UNIVERSE_TICKERS.slice(i, i + batchSize);
-      const promises = batch.map(sym => this.getStockScreenerItem(sym));
-      const items = await Promise.all(promises);
-      for (const item of items) {
-        if (item) results.push(item);
+      const results: ScreenerStock[] = [];
+      const batchSize = 10;
+      const { resolveSymbol, getStockPrice } = await import("@/lib/upstox/service");
+
+      for (let i = 0; i < UNIVERSE_TICKERS.length; i += batchSize) {
+        const batch = UNIVERSE_TICKERS.slice(i, i + batchSize);
+        const promises = batch.map(async (symbol) => {
+          try {
+            const cleanSym = symbol.toUpperCase();
+            const dbComp = companyMap.get(cleanSym);
+            const name = dbComp ? String(dbComp.name) : symbol;
+            const sector = dbComp ? String(dbComp.sector) : "N/A";
+
+            const instrument = await resolveSymbol(cleanSym);
+            if (!instrument) return null;
+
+            const price = await getStockPrice(instrument.instrumentKey).catch(() => null);
+            if (!price) return null;
+
+            return {
+              symbol: cleanSym,
+              name,
+              exchange: "NSE",
+              price: price.lastPrice,
+              changePercent: price.changePercent,
+              volume: price.volume,
+              pe: "—",
+              pb: "—",
+              roe: "—",
+              roce: "—",
+              debtToEquity: "—",
+              sector,
+              high52W: price.high,
+            } as ScreenerStock;
+          } catch {
+            return null;
+          }
+        });
+        const items = await Promise.all(promises);
+        results.push(...items.filter((item): item is ScreenerStock => item !== null));
       }
-      // Brief sleep between batches to respect rate limits
-      await new Promise(r => setTimeout(r, 100));
+
+      await this.cache.set(cacheKey, results, 300); // 5 minutes TTL
+      return results;
+    } catch (error) {
+      console.error("[getMoversUniverse Error]:", error);
+      return [];
     }
-    return results;
   }
 
   private static triggerSWRRefresh(key: string, fetchFn: () => Promise<unknown>) {
@@ -249,61 +330,11 @@ export class StockDataService {
       });
   }
 
-  /**
-   * Aggregates stats for specific sector
-   */
-  static async getSectorData(sectorId: string) {
-    const universe = await this.getScreenerUniverse();
-    const sectorStocks = universe.filter(
-      s => s.sector.toLowerCase().replace(/[^a-z0-9]/g, "") === sectorId.toLowerCase().replace(/[^a-z0-9]/g, "")
-    );
 
-    if (sectorStocks.length === 0) return null;
-
-    const marketCap = sectorStocks.reduce((sum, s) => sum + (s.marketCap || 0), 0);
-
-    const getMedian = (vals: number[]): number => {
-      if (vals.length === 0) return 0;
-      const sorted = [...vals].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-    };
-
-    const parseVal = (str: string): number | null => {
-      const num = parseFloat(str.replace(/[^0-9.-]/g, ""));
-      return isNaN(num) ? null : num;
-    };
-
-    const peVals = sectorStocks.map(s => parseVal(s.pe)).filter((v): v is number => v !== null);
-    const roeVals = sectorStocks.map(s => parseVal(s.roe)).filter((v): v is number => v !== null);
-    const roceVals = sectorStocks.map(s => parseVal(s.roce)).filter((v): v is number => v !== null);
-
-    // Sorted gainers/losers
-    const gainers = [...sectorStocks]
-      .filter(s => s.changePercent !== null)
-      .sort((a, b) => (b.changePercent || 0) - (a.changePercent || 0))
-      .slice(0, 5);
-
-    const losers = [...sectorStocks]
-      .filter(s => s.changePercent !== null)
-      .sort((a, b) => (a.changePercent || 0) - (b.changePercent || 0))
-      .slice(0, 5);
-
-    return {
-      sectorName: sectorStocks[0].sector,
-      marketCap,
-      companiesCount: sectorStocks.length,
-      medianPE: getMedian(peVals),
-      medianROE: getMedian(roeVals),
-      medianROCE: getMedian(roceVals),
-      topCompanies: sectorStocks.slice(0, 5),
-      gainers,
-      losers,
-    };
-  }
 
   /**
    * Fetches IPO Center data from IndianAPI, cached for 1 hour (3600s) SWR
+   * Backend cached in PostgreSQL for 24 hours.
    */
   static async getIPOData(): Promise<unknown> {
     const cacheKey = "data:ipo:listings";
@@ -321,7 +352,19 @@ export class StockDataService {
           return {};
         }
         try {
-          return JSON.parse(text);
+          const data = JSON.parse(text);
+          try {
+            after(() => {
+              saveIposToDb(data).catch(err => {
+                console.error("[IPO Database Cache Error] SWR background save failed:", err);
+              });
+            });
+          } catch {
+            saveIposToDb(data).catch(err => {
+              console.error("[IPO Database Cache Error] SWR background save failed:", err);
+            });
+          }
+          return data;
         } catch {
           return {};
         }
@@ -329,7 +372,22 @@ export class StockDataService {
       return cached;
     }
 
+    // Try reading from Postgres cache
+    try {
+      const dbData = await getIposFromDb();
+      if (dbData) {
+        // Postgres hit! Populate memory cache
+        await this.cache.set(cacheKey, dbData, 3600);
+        return dbData;
+      }
+    } catch (err) {
+      console.warn("[IPO Database Cache Warning] Failed to read IPOs from Postgres, falling back to API:", err);
+    }
+
+    // Postgres miss/stale/error -> Call IndianAPI
     return this.orchestrateRequest(cacheKey, async () => {
+      console.log("[IPO Database Cache] PostgreSQL cache miss");
+      console.log("[IPO Database Cache] Fetching fresh IPO data from provider");
       const res = await fetch("https://stock.indianapi.in/ipo", {
         headers: { "X-Api-Key": process.env.INDIAN_API_KEY || "", "Accept": "application/json" },
       });
@@ -346,6 +404,20 @@ export class StockDataService {
       try {
         const data = JSON.parse(text);
         await this.cache.set(cacheKey, data, 3600); // 1 hour TTL
+        
+        // Persist to Postgres in background (serverless-hardened)
+        try {
+          after(() => {
+            saveIposToDb(data).catch(err => {
+              console.error("[IPO Database Cache Error] Failed to persist IPO data:", err);
+            });
+          });
+        } catch {
+          saveIposToDb(data).catch(err => {
+            console.error("[IPO Database Cache Error] Failed to persist IPO data:", err);
+          });
+        }
+        
         return data;
       } catch {
         throw new Error("Invalid response received from the IndianAPI provider. Rate limit might be exceeded.");
@@ -353,32 +425,5 @@ export class StockDataService {
     });
   }
 
-  /**
-   * Filters screener universe by theme collection
-   */
-  static async getCollectionsData(collectionId: string) {
-    const tickers = THEME_MAP[collectionId.toLowerCase()];
-    if (!tickers) return null;
 
-    const universe = await this.getScreenerUniverse();
-    const stocks = universe.filter(s => tickers.includes(s.symbol));
-
-    const parseVal = (str: string): number | null => {
-      const num = parseFloat(str.replace(/[^0-9.-]/g, ""));
-      return isNaN(num) ? null : num;
-    };
-
-    const peVals = stocks.map(s => parseVal(s.pe)).filter((v): v is number => v !== null);
-    const roeVals = stocks.map(s => parseVal(s.roe)).filter((v): v is number => v !== null);
-    const roceVals = stocks.map(s => parseVal(s.roce)).filter((v): v is number => v !== null);
-
-    const avg = (vals: number[]): number => (vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0);
-
-    return {
-      stocks,
-      averagePE: avg(peVals),
-      averageROE: avg(roeVals),
-      averageROCE: avg(roceVals),
-    };
-  }
 }

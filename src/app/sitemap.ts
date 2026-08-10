@@ -7,7 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "",
     "/stocks/reliance",
-    "/screener",
+
     "/markets",
     "/about",
     "/contact",

@@ -6,6 +6,12 @@ import {
   UpstoxProfileResponseSchema,
   UpstoxKeyRatiosResponseSchema,
   UpstoxHistoricalCandleResponseSchema,
+  UpstoxBalanceSheetResponseSchema,
+  UpstoxIncomeStatementResponseSchema,
+  UpstoxShareholdingsResponseSchema,
+  UpstoxCorporateActionsResponseSchema,
+  UpstoxCompetitorsResponseSchema,
+  UpstoxIposResponseSchema,
 } from "./schemas";
 import { SearchInstrument, StockPrice, StockProfile, StockRatio, Candle } from "../stocks/types";
 
@@ -286,5 +292,96 @@ export async function getHistoricalCandles(instrumentKey: string, range: string)
   } catch (error) {
     console.error(`Error fetching historical candles for ${instrumentKey}:`, error);
     return [];
+  }
+}
+
+/**
+ * Experimental method to fetch detailed balance sheet data (for testing compatibility).
+ */
+export async function getUpstoxBalanceSheet(isin: string) {
+  try {
+    const url = `/v2/fundamentals/${isin}/balance-sheet?type=consolidated&fs=true`;
+    return await fetchUpstox(url, UpstoxBalanceSheetResponseSchema, {
+      next: { revalidate: 21600 },
+    });
+  } catch (error) {
+    console.error(`Error in getUpstoxBalanceSheet for ${isin}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Experimental method to fetch detailed income statement data (for testing compatibility).
+ */
+export async function getUpstoxIncomeStatement(isin: string, quarterly = false) {
+  try {
+    const period = quarterly ? "quarterly" : "yearly";
+    const url = `/v2/fundamentals/${isin}/income-statement?time_period=${period}&type=consolidated&fs=true`;
+    return await fetchUpstox(url, UpstoxIncomeStatementResponseSchema, {
+      next: { revalidate: 21600 },
+    });
+  } catch (error) {
+    console.error(`Error in getUpstoxIncomeStatement for ${isin}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Experimental method to fetch detailed share holdings data (for testing compatibility).
+ */
+export async function getUpstoxShareholdings(isin: string) {
+  try {
+    const url = `/v2/fundamentals/${isin}/share-holdings`;
+    return await fetchUpstox(url, UpstoxShareholdingsResponseSchema, {
+      next: { revalidate: 21600 },
+    });
+  } catch (error) {
+    console.error(`Error in getUpstoxShareholdings for ${isin}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Experimental method to fetch corporate actions data (for testing compatibility).
+ */
+export async function getUpstoxCorporateActions(isin: string) {
+  try {
+    const url = `/v2/fundamentals/${isin}/corporate-actions`;
+    return await fetchUpstox(url, UpstoxCorporateActionsResponseSchema, {
+      next: { revalidate: 21600 },
+    });
+  } catch (error) {
+    console.error(`Error in getUpstoxCorporateActions for ${isin}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Experimental method to fetch competitors data (for testing compatibility).
+ */
+export async function getUpstoxCompetitors(instrumentKey: string) {
+  try {
+    const url = `/v2/fundamentals/${encodeURIComponent(instrumentKey)}/competitors`;
+    return await fetchUpstox(url, UpstoxCompetitorsResponseSchema, {
+      next: { revalidate: 21600 },
+    });
+  } catch (error) {
+    console.error(`Error in getUpstoxCompetitors for ${instrumentKey}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Experimental method to fetch IPO listings (for testing compatibility).
+ */
+export async function getUpstoxIpos(status: string) {
+  try {
+    const url = `/v2/ipos?status=${status}&page_number=1&records=30`;
+    return await fetchUpstox(url, UpstoxIposResponseSchema, {
+      next: { revalidate: 3600 },
+    });
+  } catch (error) {
+    console.error(`Error in getUpstoxIpos for status ${status}:`, error);
+    return null;
   }
 }

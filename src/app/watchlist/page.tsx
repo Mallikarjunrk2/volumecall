@@ -31,9 +31,21 @@ export default function WatchlistPage() {
       }
     };
     init();
+  }, [storage]);
 
-    // Fetch cached universe data
-    fetch("/api/stocks/screener")
+  // Fetch watchlisted stocks details reactively when symbols change
+  useEffect(() => {
+    if (symbols.length === 0) {
+      Promise.resolve().then(() => {
+        setUniverse([]);
+        setLoading(false);
+      });
+      return;
+    }
+    Promise.resolve().then(() => {
+      setLoading(true);
+    });
+    fetch(`/api/stocks/watchlist?symbols=${symbols.join(",")}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -42,7 +54,7 @@ export default function WatchlistPage() {
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  }, [storage]);
+  }, [symbols]);
 
   // Sync symbols when active watchlist changes
   useEffect(() => {
@@ -259,10 +271,10 @@ export default function WatchlistPage() {
                 <div className="py-16 text-center space-y-4">
                   <p className="text-xs text-[var(--text-secondary)] font-normal">This watchlist is currently empty. Add stocks above or check some popular stocks.</p>
                   <Link
-                    href="/screener"
+                    href="/stocks"
                     className="inline-flex items-center gap-1 text-xs font-bold text-teal-600 hover:underline"
                   >
-                    Go to Screener <ArrowRight className="w-3 h-3" />
+                    Browse Stocks <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               )}

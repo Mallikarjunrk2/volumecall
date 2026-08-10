@@ -15,6 +15,8 @@ export interface ProviderCompanyData {
   indianApiYoyPL: RawIndianHistoricalStats | null;
   indianApiQuarterlyPL: RawIndianHistoricalStats | null;
   indianApiShareholding: RawIndianHistoricalStats | null;
+  indianApiBalanceSheet?: RawIndianHistoricalStats | null;
+  indianApiCashFlow?: RawIndianHistoricalStats | null;
 }
 
 export interface IStockDataProvider {
@@ -45,6 +47,8 @@ export class UpstoxProviderAdapter implements IStockDataProvider {
         indianApiYoyPL: null,
         indianApiQuarterlyPL: null,
         indianApiShareholding: null,
+        indianApiBalanceSheet: null,
+        indianApiCashFlow: null,
       };
     } catch (err) {
       console.error(`[UpstoxProviderAdapter] Error loading ${symbol}:`, err);
@@ -56,11 +60,13 @@ export class UpstoxProviderAdapter implements IStockDataProvider {
 export class IndianApiProviderAdapter implements IStockDataProvider {
   async getCompanyData(symbol: string): Promise<ProviderCompanyData | null> {
     try {
-      const [details, yoy, quarterly, shareholding] = await Promise.all([
+      const [details, yoy, quarterly, shareholding, balancesheet, cashflow] = await Promise.all([
         getIndianCompanyDetails(symbol).catch(() => null),
         getIndianFinancialStats(symbol, "yoy_results").catch(() => null),
         getIndianFinancialStats(symbol, "quarter_results").catch(() => null),
         getIndianFinancialStats(symbol, "shareholding_pattern_quarterly").catch(() => null),
+        getIndianFinancialStats(symbol, "balancesheet").catch(() => null),
+        getIndianFinancialStats(symbol, "cashflow").catch(() => null),
       ]);
 
       if (!details) return null;
@@ -81,6 +87,8 @@ export class IndianApiProviderAdapter implements IStockDataProvider {
         indianApiYoyPL: yoy,
         indianApiQuarterlyPL: quarterly,
         indianApiShareholding: shareholding,
+        indianApiBalanceSheet: balancesheet,
+        indianApiCashFlow: cashflow,
       };
     } catch (err) {
       console.error(`[IndianApiProviderAdapter] Error loading ${symbol}:`, err);

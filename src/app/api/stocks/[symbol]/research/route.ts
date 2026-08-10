@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { resolveSymbol, getStockPrice, getStockProfile, searchInstruments } from "@/lib/upstox/service";
 import { getIndianCompanyDetails, getIndianFinancialStats } from "@/lib/providers/indianapi/provider";
@@ -27,6 +28,46 @@ import {
   NormalizedShareholdingQuarter,
   RawIndianCompanyDetails
 } from "@/lib/providers/indianapi/types";
+import { isSectionFresh, SECTION_TTL_DAYS } from "@/lib/stocks/ttl";
+import {
+  getPeersFromDb,
+  savePeersToDb,
+  getShareholdingFromDb,
+  saveShareholdingToDb,
+  getRatiosFromDb,
+  saveRatiosToDb,
+  getDocumentsFromDb,
+  saveDocumentsToDb,
+  getFinancialsRetrievalTime,
+  getQuarterlyResultsFromDb,
+  getAnnualPLFromDb,
+  getBalanceSheetFromDb,
+  getCashFlowFromDb,
+  saveQuarterlyResultsToDb,
+  saveAnnualPLToDb,
+  saveBalanceSheetToDb,
+  saveCashFlowToDb
+} from "@/lib/db/services";
+
+// Concurrency protection map to prevent duplicate in-flight API requests
+const activeResearchRequests = new Map<string, Promise<any>>();
+
+async function orchestrateResearchRequest<T>(
+  key: string,
+  fetchFn: () => Promise<T>
+): Promise<T> {
+  const active = activeResearchRequests.get(key);
+  if (active) {
+    return active as Promise<T>;
+  }
+
+  const promise = fetchFn().finally(() => {
+    activeResearchRequests.delete(key);
+  });
+
+  activeResearchRequests.set(key, promise);
+  return promise;
+}
 
 // Helper mapping for symbol peers
 const PEER_MAP: Record<string, string[]> = {
@@ -203,199 +244,86 @@ export async function GET(
     }
 
     if (section === "overview") {
-      // Parallel loading for ALL profiles, fundamentals, & statements to preload and cache everything
-      const [
-        upstoxPrice,
-        upstoxProfile,
-        rawIndianDetails,
-        quarterStats,
-        annualStats,
-        balanceStats,
-        , // Cash flow stats preloaded in parallel but not directly required by overview
-        shareholdingStats,
-      ] = await Promise.allSettled([
-        getStockPrice(instrument.instrumentKey),
-        getStockProfile(instrument.isin),
-        getIndianCompanyDetails(symbol),
-        getIndianFinancialStats(symbol, "quarter_results"),
-        getIndianFinancialStats(symbol, "yoy_results"),
-        getIndianFinancialStats(symbol, "balancesheet"),
-        getIndianFinancialStats(symbol, "cashflow"),
-        getIndianFinancialStats(symbol, "shareholding_pattern_quarterly"),
-      ]);
+      // 1. Live Market Quote (Always from Upstox, never cached)
+      const upstoxPricePromise = getStockPrice(instrument.instrumentKey).catch(() => null);
+      const upstoxProfilePromise = getStockProfile(instrument.isin).catch(() => null);
 
-      const resolvedPrice = upstoxPrice.status === "fulfilled" ? upstoxPrice.value : null;
-      const resolvedProfile = upstoxProfile.status === "fulfilled" ? upstoxProfile.value : null;
-      
-      let company: NormalizedCompanyIdentity = {
-        tickerId: instrument.symbol,
-        companyName: instrument.name,
-        industry: resolvedProfile?.sector || "N/A",
-        description: "No description available.",
-        isin: instrument.isin,
-        logoUrl: null,
-        website: null,
-      };
-
-      let market: NormalizedMarketSnapshot = {
-        priceBse: null,
-        priceNse: resolvedPrice?.lastPrice ?? null,
-        percentChange: resolvedPrice?.changePercent ?? null,
-        yearHigh: null,
-        yearLow: null,
-        freshness: "LIVE",
-        updatedAt: resolvedPrice?.timestamp || new Date().toISOString(),
-      };
-
+      // 2. Resolve Ratios (PostgreSQL Read-Through)
       let ratios: NormalizedRatios = {
-        pe: null,
-        pb: null,
-        evebitda: null,
-        priceToSales: null,
-        dividendYield: null,
-        roe: null,
-        roce: null,
-        roa: null,
-        debtToEquity: null,
-        currentRatio: null,
-        quickRatio: null,
-        interestCoverage: null,
+        pe: null, pb: null, evebitda: null, priceToSales: null, dividendYield: null,
+        roe: null, roce: null, roa: null, debtToEquity: null, currentRatio: null,
+        quickRatio: null, interestCoverage: null
       };
+      let ratiosRetrievedAt: Date | null = null;
+      let rawIndianDetails: RawIndianCompanyDetails | null = null;
 
+      const cachedRatios = await getRatiosFromDb(symbol);
+      if (cachedRatios && isSectionFresh(cachedRatios.retrievedAt, SECTION_TTL_DAYS.RATIOS)) {
+        ratios = cachedRatios.data;
+        ratiosRetrievedAt = cachedRatios.retrievedAt;
+      } else {
+        // Cache miss/stale ratios: Fetch raw details (will lock concurrently)
+        rawIndianDetails = await orchestrateResearchRequest(`details:${symbol}`, () => getIndianCompanyDetails(symbol));
+        ratios = normalizeRatios(rawIndianDetails);
+        await saveRatiosToDb(symbol, ratios);
+        ratiosRetrievedAt = new Date();
+      }
+
+      // 3. Resolve Documents (PostgreSQL Read-Through)
+      let corporateActions: NormalizedCorporateAction[] = [];
+      let announcements: NormalizedAnnouncement[] = [];
+      
+      const cachedDocs = await getDocumentsFromDb(symbol);
+      if (cachedDocs && isSectionFresh(cachedDocs.retrievedAt, SECTION_TTL_DAYS.DOCUMENTS)) {
+        corporateActions = cachedDocs.corporateActions;
+        announcements = cachedDocs.announcements;
+      } else {
+        // Cache miss/stale documents: Fetch details if not already fetched
+        if (!rawIndianDetails) {
+          rawIndianDetails = await orchestrateResearchRequest(`details:${symbol}`, () => getIndianCompanyDetails(symbol));
+        }
+        corporateActions = normalizeCorporateActions(rawIndianDetails);
+        announcements = normalizeAnnouncements(rawIndianDetails);
+        await saveDocumentsToDb(symbol, { corporateActions, announcements });
+      }
+
+      // 4. Resolve Annual Financials (for CAGR calculations and derived ratios)
+      let annualProfitLoss: FinancialPeriod[] = [];
+      const annualRetrieved = await getFinancialsRetrievalTime(symbol, "ANNUAL");
+      if (annualRetrieved && isSectionFresh(annualRetrieved, SECTION_TTL_DAYS.PROFIT_LOSS)) {
+        const dbAnnual = await getAnnualPLFromDb(symbol);
+        if (dbAnnual) annualProfitLoss = normalizeFinancialPeriods(dbAnnual);
+      } else {
+        const rawAnnual = await orchestrateResearchRequest(`annual:${symbol}`, () => getIndianFinancialStats(symbol, "yoy_results"));
+        annualProfitLoss = normalizeFinancialPeriods(rawAnnual);
+        await saveAnnualPLToDb(symbol, rawAnnual);
+      }
+
+      // 5. Resolve Balance Sheet (for cagr & ratio derivations)
+      let balanceSheet: BalanceSheetPeriod[] = [];
+      const bsRetrieved = await getFinancialsRetrievalTime(symbol, "BALANCESHEET");
+      if (bsRetrieved && isSectionFresh(bsRetrieved, SECTION_TTL_DAYS.BALANCE_SHEET)) {
+        const dbBS = await getBalanceSheetFromDb(symbol);
+        if (dbBS) balanceSheet = normalizeBalanceSheet(dbBS);
+      } else {
+        const rawBS = await orchestrateResearchRequest(`balancesheet:${symbol}`, () => getIndianFinancialStats(symbol, "balancesheet"));
+        balanceSheet = normalizeBalanceSheet(rawBS);
+        await saveBalanceSheetToDb(symbol, rawBS);
+      }
+
+      // 6. Resolve Shareholding Latest
       let shareholdingLatest = {
         promoters: null as number | null,
         fii: null as number | null,
         dii: null as number | null,
         public: null as number | null,
       };
-
-      let corporateActions: NormalizedCorporateAction[] = [];
-      let announcements: NormalizedAnnouncement[] = [];
-
-      let quarterlyResults: FinancialPeriod[] = [];
-      let annualProfitLoss: FinancialPeriod[] = [];
-      let balanceSheet: BalanceSheetPeriod[] = [];
-
-      // Parse financials for growth and CAGR calculations
-      try {
-        if (quarterStats.status === "fulfilled" && quarterStats.value) {
-          quarterlyResults = normalizeFinancialPeriods(quarterStats.value);
-          for (let i = 0; i < quarterlyResults.length; i++) {
-            const cur = quarterlyResults[i];
-            if (i >= 4) {
-              const prev = quarterlyResults[i - 4];
-              cur.yoyGrowth = calculateGrowth(cur.sales, prev.sales);
-            }
-            if (i >= 1) {
-              const prev = quarterlyResults[i - 1];
-              cur.qoqGrowth = calculateGrowth(cur.sales, prev.sales);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} overview quarterly stats parse failed:`, err);
-      }
-
-      try {
-        if (annualStats.status === "fulfilled" && annualStats.value) {
-          annualProfitLoss = normalizeFinancialPeriods(annualStats.value);
-          for (let i = 0; i < annualProfitLoss.length; i++) {
-            const cur = annualProfitLoss[i];
-            if (i >= 1) {
-              const prev = annualProfitLoss[i - 1];
-              cur.yoyGrowth = calculateGrowth(cur.sales, prev.sales);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} overview annual stats parse failed:`, err);
-      }
-
-      try {
-        if (balanceStats.status === "fulfilled" && balanceStats.value) {
-          balanceSheet = normalizeBalanceSheet(balanceStats.value);
-          for (let i = 0; i < balanceSheet.length; i++) {
-            const cur = balanceSheet[i];
-            if (i >= 1) {
-              const prev = balanceSheet[i - 1];
-              cur.yoyGrowth = calculateGrowth(cur.totalAssets, prev.totalAssets);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} overview balance sheet parse failed:`, err);
-      }
-
-      // Overlay IndianAPI details if successful
-      if (rawIndianDetails.status === "fulfilled" && rawIndianDetails.value) {
-        const raw = rawIndianDetails.value;
-        // 1. Resilient parsing of Company Identity
+      
+      // Try to read from shareholding pattern cache
+      const cachedSh = await getShareholdingFromDb(symbol);
+      if (cachedSh && cachedSh.data) {
         try {
-          const normalizedCompany = normalizeCompanyIdentity(raw);
-          company = {
-            ...company,
-            industry: normalizedCompany.industry !== "N/A" ? normalizedCompany.industry : company.industry,
-            description: normalizedCompany.description,
-            isin: normalizedCompany.isin || company.isin,
-          };
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} company identity parse failed:`, err);
-        }
-
-        // 2. Resilient parsing of Market Snapshot
-        try {
-          const normalizedMarket = normalizeMarketSnapshot(raw);
-          market = {
-            ...market,
-            priceBse: normalizedMarket.priceBse,
-            priceNse: market.priceNse ?? normalizedMarket.priceNse,
-            percentChange: market.percentChange ?? normalizedMarket.percentChange,
-            yearHigh: normalizedMarket.yearHigh,
-            yearLow: normalizedMarket.yearLow,
-            freshness: "DELAYED" as const,
-            updatedAt: normalizedMarket.updatedAt,
-          };
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} market snapshot parse failed:`, err);
-        }
-
-        // 3. Resilient parsing of Key Ratios
-        try {
-          ratios = normalizeRatios(raw);
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} ratios parse failed:`, err);
-        }
-
-        // 4. Resilient parsing of Shareholding Snapshot
-        try {
-          shareholdingLatest = normalizeLatestShareholding(raw.shareholding);
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} latest shareholding parse failed:`, err);
-        }
-
-        // 5. Resilient parsing of Corporate Actions
-        try {
-          corporateActions = normalizeCorporateActions(raw);
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} corporate actions parse failed:`, err);
-        }
-
-        // 6. Resilient parsing of Announcements
-        try {
-          announcements = normalizeAnnouncements(raw);
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} announcements parse failed:`, err);
-        }
-      }
-
-      // Shareholding fallback if mainDetails had empty shareholding
-      if (
-        (!shareholdingLatest.promoters && !shareholdingLatest.fii && !shareholdingLatest.dii) &&
-        shareholdingStats.status === "fulfilled" &&
-        shareholdingStats.value
-      ) {
-        try {
-          const history = normalizeShareholdingHistory(shareholdingStats.value);
+          const history = normalizeShareholdingHistory(cachedSh.data);
           if (history.length > 0) {
             const latest = history[history.length - 1];
             shareholdingLatest = {
@@ -405,17 +333,41 @@ export async function GET(
               public: latest.public,
             };
           }
-        } catch (err) {
-          console.warn(`[Research API] ${symbol} shareholdingStats fallback parse failed:`, err);
-        }
+        } catch {}
+      } else if (rawIndianDetails && rawIndianDetails.shareholding) {
+        try {
+          shareholdingLatest = normalizeLatestShareholding(rawIndianDetails.shareholding);
+        } catch {}
       }
 
-      // Resolve derivable ratios & CAGR
+      // 7. Resolve Upstox details and merge with live prices
+      const resolvedPrice = await upstoxPricePromise;
+      const resolvedProfile = await upstoxProfilePromise;
+
+      const company: NormalizedCompanyIdentity = {
+        tickerId: instrument.symbol,
+        companyName: instrument.name,
+        industry: resolvedProfile?.sector || rawIndianDetails?.industry || "N/A",
+        description: rawIndianDetails ? normalizeCompanyIdentity(rawIndianDetails).description : "No description available.",
+        isin: instrument.isin,
+        logoUrl: null,
+        website: null,
+      };
+
+      const market: NormalizedMarketSnapshot = {
+        priceBse: null,
+        priceNse: resolvedPrice?.lastPrice ?? null,
+        percentChange: resolvedPrice?.changePercent ?? null,
+        yearHigh: null,
+        yearLow: null,
+        freshness: "LIVE",
+        updatedAt: resolvedPrice?.timestamp || new Date().toISOString(),
+      };
+
       const marketPrice = market.priceNse || market.priceBse || null;
-      const mCapVal = rawIndianDetails.status === "fulfilled" && rawIndianDetails.value 
-        ? getMetricValue(rawIndianDetails.value.keyMetrics, "marketCap") 
-        : null;
-        
+      
+      // Calculate derivable ratios (PE, PB, Price/Sales) using the live price
+      const mCapVal = rawIndianDetails ? getMetricValue(rawIndianDetails.keyMetrics, "marketCap") : null;
       const resolvedDerivs = calculateDerivableMetrics(
         symbol,
         marketPrice,
@@ -428,11 +380,7 @@ export async function GET(
       const enrichedRatios = resolvedDerivs.ratios;
       const cagr = resolvedDerivs.cagr;
 
-      // Resolve financial snapshot values
-      const latestFinancials = resolveLatestFinancials(
-        rawIndianDetails.status === "fulfilled" ? rawIndianDetails.value : null,
-        annualProfitLoss
-      );
+      const latestFinancials = resolveLatestFinancials(rawIndianDetails, annualProfitLoss);
 
       return NextResponse.json({
         company,
@@ -443,67 +391,69 @@ export async function GET(
         announcements,
         latestFinancials,
         cagr,
-        keyMetrics: rawIndianDetails.status === "fulfilled" && rawIndianDetails.value ? (rawIndianDetails.value as unknown as Record<string, unknown>).keyMetrics : null,
-        source: rawIndianDetails.status === "fulfilled" ? "INDIAN_API" : "UPSTOX",
-        retrievedAt: new Date().toISOString(),
+        keyMetrics: rawIndianDetails ? (rawIndianDetails as any).keyMetrics : null,
+        source: rawIndianDetails ? "INDIAN_API" : "UPSTOX",
+        retrievedAt: ratiosRetrievedAt ? ratiosRetrievedAt.toISOString() : new Date().toISOString(),
       });
     }
 
     if (section === "financials") {
-      // Fetch financial statements in parallel
-      const [rawQuarters, rawAnnual, rawBS, rawCF] = await Promise.allSettled([
-        getIndianFinancialStats(symbol, "quarter_results"),
-        getIndianFinancialStats(symbol, "yoy_results"),
-        getIndianFinancialStats(symbol, "balancesheet"),
-        getIndianFinancialStats(symbol, "cashflow"),
-      ]);
-
       let quarterlyResults: FinancialPeriod[] = [];
       let annualProfitLoss: FinancialPeriod[] = [];
       let balanceSheet: BalanceSheetPeriod[] = [];
       let cashFlow: CashFlowPeriod[] = [];
 
-      try {
-        if (rawQuarters.status === "fulfilled") {
-          quarterlyResults = normalizeFinancialPeriods(rawQuarters.value);
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} quarterly results parse failed:`, err);
+      // 1. Resolve Quarterly Results
+      const quarterRetrieved = await getFinancialsRetrievalTime(symbol, "QUARTERLY");
+      if (quarterRetrieved && isSectionFresh(quarterRetrieved, SECTION_TTL_DAYS.QUARTERLY_RESULTS)) {
+        const dbData = await getQuarterlyResultsFromDb(symbol);
+        if (dbData) quarterlyResults = normalizeFinancialPeriods(dbData);
+      } else {
+        const raw = await orchestrateResearchRequest(`quarters:${symbol}`, () => getIndianFinancialStats(symbol, "quarter_results"));
+        quarterlyResults = normalizeFinancialPeriods(raw);
+        await saveQuarterlyResultsToDb(symbol, raw);
       }
 
-      try {
-        if (rawAnnual.status === "fulfilled") {
-          annualProfitLoss = normalizeFinancialPeriods(rawAnnual.value);
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} annual profit loss parse failed:`, err);
+      // 2. Resolve Annual Profit & Loss
+      const annualRetrieved = await getFinancialsRetrievalTime(symbol, "ANNUAL");
+      if (annualRetrieved && isSectionFresh(annualRetrieved, SECTION_TTL_DAYS.PROFIT_LOSS)) {
+        const dbData = await getAnnualPLFromDb(symbol);
+        if (dbData) annualProfitLoss = normalizeFinancialPeriods(dbData);
+      } else {
+        const raw = await orchestrateResearchRequest(`annual:${symbol}`, () => getIndianFinancialStats(symbol, "yoy_results"));
+        annualProfitLoss = normalizeFinancialPeriods(raw);
+        await saveAnnualPLToDb(symbol, raw);
       }
 
-      try {
-        if (rawBS.status === "fulfilled") {
-          balanceSheet = normalizeBalanceSheet(rawBS.value);
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} balance sheet parse failed:`, err);
+      // 3. Resolve Balance Sheet
+      const bsRetrieved = await getFinancialsRetrievalTime(symbol, "BALANCESHEET");
+      if (bsRetrieved && isSectionFresh(bsRetrieved, SECTION_TTL_DAYS.BALANCE_SHEET)) {
+        const dbData = await getBalanceSheetFromDb(symbol);
+        if (dbData) balanceSheet = normalizeBalanceSheet(dbData);
+      } else {
+        const raw = await orchestrateResearchRequest(`balancesheet:${symbol}`, () => getIndianFinancialStats(symbol, "balancesheet"));
+        balanceSheet = normalizeBalanceSheet(raw);
+        await saveBalanceSheetToDb(symbol, raw);
       }
 
-      try {
-        if (rawCF.status === "fulfilled") {
-          cashFlow = normalizeCashFlow(rawCF.value);
-        }
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} cash flow parse failed:`, err);
+      // 4. Resolve Cash Flow
+      const cfRetrieved = await getFinancialsRetrievalTime(symbol, "CASHFLOW");
+      if (cfRetrieved && isSectionFresh(cfRetrieved, SECTION_TTL_DAYS.CASH_FLOW)) {
+        const dbData = await getCashFlowFromDb(symbol);
+        if (dbData) cashFlow = normalizeCashFlow(dbData);
+      } else {
+        const raw = await orchestrateResearchRequest(`cashflow:${symbol}`, () => getIndianFinancialStats(symbol, "cashflow"));
+        cashFlow = normalizeCashFlow(raw);
+        await saveCashFlowToDb(symbol, raw);
       }
 
       // Calculate YoY and QoQ growth changes for Sales, Profit & Assets
       for (let i = 0; i < quarterlyResults.length; i++) {
         const cur = quarterlyResults[i];
-        // YoY: match same quarter previous year (index - 4)
         if (i >= 4) {
           const prev = quarterlyResults[i - 4];
           cur.yoyGrowth = calculateGrowth(cur.sales, prev.sales);
         }
-        // QoQ: match previous quarter (index - 1)
         if (i >= 1) {
           const prev = quarterlyResults[i - 1];
           cur.qoqGrowth = calculateGrowth(cur.sales, prev.sales);
@@ -526,31 +476,53 @@ export async function GET(
         }
       }
 
+      const latestTime = [quarterRetrieved, annualRetrieved, bsRetrieved, cfRetrieved]
+        .filter((t): t is Date => t !== null)
+        .sort((a, b) => b.getTime() - a.getTime())[0] || new Date();
+
       return NextResponse.json({
         quarterlyResults,
         annualProfitLoss,
         balanceSheet,
         cashFlow,
-        retrievedAt: new Date().toISOString(),
+        retrievedAt: latestTime.toISOString(),
       });
     }
 
     if (section === "shareholding") {
       let history: NormalizedShareholdingQuarter[] = [];
-      try {
-        const rawHistory = await getIndianFinancialStats(symbol, "shareholding_pattern_quarterly");
-        history = normalizeShareholdingHistory(rawHistory);
-      } catch (err) {
-        console.warn(`[Research API] ${symbol} shareholding history parse failed:`, err);
+      let retrievedTime = new Date();
+
+      const cached = await getShareholdingFromDb(symbol);
+      if (cached && isSectionFresh(cached.retrievedAt, SECTION_TTL_DAYS.SHAREHOLDING)) {
+        history = normalizeShareholdingHistory(cached.data);
+        retrievedTime = cached.retrievedAt;
+      } else {
+        try {
+          const rawHistory = await orchestrateResearchRequest(`shareholding:${symbol}`, () => getIndianFinancialStats(symbol, "shareholding_pattern_quarterly"));
+          history = normalizeShareholdingHistory(rawHistory);
+          await saveShareholdingToDb(symbol, rawHistory);
+        } catch (err) {
+          console.warn(`[Research API] ${symbol} shareholding history parse failed:`, err);
+        }
       }
 
       return NextResponse.json({
         history,
-        retrievedAt: new Date().toISOString(),
+        retrievedAt: retrievedTime.toISOString(),
       });
     }
 
     if (section === "peers") {
+      const cachedPeers = await getPeersFromDb(symbol);
+      if (cachedPeers && isSectionFresh(cachedPeers.retrievedAt, SECTION_TTL_DAYS.PEERS)) {
+        return NextResponse.json({
+          peers: cachedPeers.data.peers,
+          medians: cachedPeers.data.medians,
+          retrievedAt: cachedPeers.retrievedAt.toISOString(),
+        });
+      }
+
       interface RawPeerCompany {
         tickerId?: string;
         companyName?: string;
@@ -698,6 +670,9 @@ export async function GET(
         roce: calculateMedian(peerResults.map((p) => p.roce)),
         debtToEquity: calculateMedian(peerResults.map((p) => p.debtToEquity)),
       };
+
+      // Save to PostgreSQL Cache
+      await savePeersToDb(symbol, { peers: peerResults, medians });
 
       return NextResponse.json({
         peers: peerResults,

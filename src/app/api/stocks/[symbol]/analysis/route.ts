@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { getIndianCompanyDetails, getIndianFinancialStats } from "@/lib/providers/indianapi/provider";
 import {
-  normalizeRatios,
   normalizeFinancialPeriods,
   normalizeShareholdingHistory
 } from "@/lib/providers/indianapi/normalize";
 import { getOrFetchWithCache } from "@/lib/providers/indianapi/cache";
-import {
-  RawIndianCompanyDetails,
-  FinancialPeriod,
-  NormalizedShareholdingQuarter
-} from "@/lib/providers/indianapi/types";
+import { FinancialPeriod, NormalizedShareholdingQuarter } from "@/lib/providers/indianapi/types";
+import { StockDataService } from "@/lib/stocks/stockDataService";
+import { resolveFallbackMetric } from "@/lib/stocks/fallback";
+import { getUpstoxIncomeStatement, getUpstoxShareholdings } from "@/lib/upstox/service";
 
 export async function GET(
   request: Request,
@@ -29,65 +26,132 @@ export async function GET(
     }
 
     // 1. Reconstruct verified trends context on server-side with timing instrumentation
-    const [rawDetails, rawAnnual, rawShareholding] = await Promise.allSettled([
-      (async () => {
-        const start = Date.now();
-        const res = await getIndianCompanyDetails(symbol);
-        const elapsed = Date.now() - start;
-        return { res, elapsed };
-      })(),
-      (async () => {
-        const start = Date.now();
-        const res = await getIndianFinancialStats(symbol, "yoy_results");
-        const elapsed = Date.now() - start;
-        return { res, elapsed };
-      })(),
-      (async () => {
-        const start = Date.now();
-        const res = await getIndianFinancialStats(symbol, "shareholding_pattern_quarterly");
-        const elapsed = Date.now() - start;
-        return { res, elapsed };
-      })()
-    ]);
-    let profileTime = 0;
-    let financialsTime = 0;
-    let shareholdingTime = 0;
+    const startData = Date.now();
+    const companyData = await StockDataService.getCompanyData(symbol);
+    const dataElapsed = Date.now() - startData;
 
-    let raw: RawIndianCompanyDetails | null = null;
-    if (rawDetails.status === "fulfilled") {
-      raw = rawDetails.value.res;
-      profileTime = rawDetails.value.elapsed;
-    }
-
-    let annualPL: FinancialPeriod[] = [];
-    if (rawAnnual.status === "fulfilled") {
-      annualPL = normalizeFinancialPeriods(rawAnnual.value.res);
-      financialsTime = rawAnnual.value.elapsed;
-    }
-
-    let shareholding: NormalizedShareholdingQuarter[] = [];
-    if (rawShareholding.status === "fulfilled") {
-      shareholding = normalizeShareholdingHistory(rawShareholding.value.res);
-      shareholdingTime = rawShareholding.value.elapsed;
-    }
-
-    if (rawDetails.status === "rejected" && rawAnnual.status === "rejected") {
+    if (!companyData) {
       throw new Error("Unable to load sufficient company profile or financial details for AI analysis.");
     }
 
-    const ratios = raw ? normalizeRatios(raw) : null;
-
-    // Extract core numbers for prompts
-    const companyName = raw?.companyName || symbol;
-    const industry = raw?.industry || "N/A";
-    
-    let description = "No description available.";
-    if (raw && typeof raw === "object") {
-      const profile = (raw as unknown as Record<string, unknown>).companyProfile;
-      if (profile && typeof profile === "object" && profile !== null) {
-        description = (profile as Record<string, unknown>).companyDescription as string || "No description available.";
+    // Extract financials
+    let annualPL: FinancialPeriod[] = [];
+    if (companyData.indianApiYoyPL) {
+      annualPL = normalizeFinancialPeriods(companyData.indianApiYoyPL);
+    } else if (companyData.isin) {
+      try {
+        const upstoxIS = await getUpstoxIncomeStatement(companyData.isin, false);
+        if (upstoxIS && upstoxIS.status === "success" && upstoxIS.data.income_statement) {
+          const periodsMap: Record<string, { period: string; sales: number | null; netProfit: number | null; eps: number | null }> = {};
+          upstoxIS.data.income_statement.forEach(cat => {
+            const type = cat.category.toLowerCase();
+            cat.history.forEach(item => {
+              const period = item.period;
+              if (!periodsMap[period]) {
+                periodsMap[period] = { period, sales: null, netProfit: null, eps: null };
+              }
+              if (type === "revenue" || type === "sales") {
+                periodsMap[period].sales = item.value ?? null;
+              } else if (type === "net_profit" || type === "profit_after_tax") {
+                periodsMap[period].netProfit = item.value ?? null;
+              } else if (type === "eps" || type === "eps_-_basic" || type === "eps - basic") {
+                periodsMap[period].eps = item.value ?? null;
+              }
+            });
+          });
+          annualPL = Object.values(periodsMap)
+            .map(p => ({
+              period: p.period,
+              sales: p.sales,
+              expenses: null,
+              operatingProfit: null,
+              opmPercent: null,
+              otherIncome: null,
+              interest: null,
+              depreciation: null,
+              profitBeforeTax: null,
+              taxPercent: null,
+              netProfit: p.netProfit,
+              eps: p.eps,
+            }))
+            .sort((a, b) => {
+              const yearA = parseInt(a.period.match(/\d+/)?.[0] || "0");
+              const yearB = parseInt(b.period.match(/\d+/)?.[0] || "0");
+              return yearA - yearB;
+            });
+        }
+      } catch (err) {
+        console.warn("[Analysis Upstox Fallback IS Failed]:", err);
       }
     }
+
+    // Extract shareholdings
+    let shareholding: NormalizedShareholdingQuarter[] = [];
+    if (companyData.indianApiShareholding) {
+      shareholding = normalizeShareholdingHistory(companyData.indianApiShareholding);
+    } else if (companyData.isin) {
+      try {
+        const upstoxSH = await getUpstoxShareholdings(companyData.isin);
+        if (upstoxSH && upstoxSH.status === "success" && Array.isArray(upstoxSH.data)) {
+          const shPeriodsMap: Record<string, { period: string; promoter: number | null; fii: number | null; mutualFunds: number | null; otherDii: number | null; public: number | null }> = {};
+          upstoxSH.data.forEach(cat => {
+            const type = cat.category.toLowerCase();
+            cat.history.forEach(item => {
+              const period = item.period;
+              if (!shPeriodsMap[period]) {
+                shPeriodsMap[period] = { period, promoter: null, fii: null, mutualFunds: null, otherDii: null, public: null };
+              }
+              if (type === "promoters") {
+                shPeriodsMap[period].promoter = item.value ?? null;
+              } else if (type === "fii") {
+                shPeriodsMap[period].fii = item.value ?? null;
+              } else if (type === "mutual_funds") {
+                shPeriodsMap[period].mutualFunds = item.value ?? null;
+              } else if (type === "other_dii") {
+                shPeriodsMap[period].otherDii = item.value ?? null;
+              } else if (type === "retail_and_other" || type === "public") {
+                shPeriodsMap[period].public = item.value ?? null;
+              }
+            });
+          });
+          shareholding = Object.values(shPeriodsMap)
+            .map(p => {
+              const diiVal = (p.mutualFunds !== null || p.otherDii !== null)
+                ? (p.mutualFunds || 0) + (p.otherDii || 0)
+                : null;
+              return {
+                period: p.period,
+                promoter: p.promoter,
+                fii: p.fii,
+                dii: diiVal,
+                public: p.public,
+                pledged: null,
+              };
+            })
+            .sort((a, b) => {
+              const months = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+              const parsePeriod = (p: string) => {
+                const parts = p.toLowerCase().split(" ");
+                const month = months[parts[0] as keyof typeof months] || 0;
+                const year = parseInt(parts[1] || "0");
+                return year * 12 + month;
+              };
+              return parsePeriod(a.period) - parsePeriod(b.period);
+            });
+        }
+      } catch (err) {
+        console.warn("[Analysis Upstox Fallback Shareholding Failed]:", err);
+      }
+    }
+
+    if (!companyData.profile && annualPL.length === 0) {
+      throw new Error("Unable to load sufficient company profile or financial details for AI analysis.");
+    }
+
+    // Extract core numbers for prompts
+    const companyName = companyData.name || symbol;
+    const industry = companyData.profile?.sector || "N/A";
+    const description = companyData.profile?.companyProfile || "No description available.";
 
     const revenueTrend = annualPL.length > 0
       ? annualPL.slice(-4).map(p => `${p.period}: ${p.sales !== null ? `₹${p.sales} Cr` : "—"}`).join(", ")
@@ -99,7 +163,17 @@ export async function GET(
       ? shareholding.slice(-4).map(p => `${p.period}: ${p.promoter !== null ? `${p.promoter}%` : "—"}`).join(", ")
       : "No shareholding quarterly data available.";
     
-    const debtRatio = ratios?.debtToEquity !== null && ratios?.debtToEquity !== undefined ? `${ratios.debtToEquity}` : "N/A";
+    // Resolve ratios via fallback logic
+    const peVal = resolveFallbackMetric("pe", symbol, companyData, companyData);
+    const pbVal = resolveFallbackMetric("pb", symbol, companyData, companyData);
+    const roeVal = resolveFallbackMetric("roe", symbol, companyData, companyData);
+    const roceVal = resolveFallbackMetric("roce", symbol, companyData, companyData);
+    const debtRatio = resolveFallbackMetric("debtToEquity", symbol, companyData, companyData);
+
+    const parseRatio = (val: string): number | null => {
+      const parsed = parseFloat(val.replace(/[^0-9.-]/g, ""));
+      return isNaN(parsed) ? null : parsed;
+    };
 
     // Build the prompt context
     const trendsContext = {
@@ -110,12 +184,12 @@ export async function GET(
       revenueTrend,
       profitTrend,
       promoterTrend,
-      debtToEquity: debtRatio,
+      debtToEquity: debtRatio === "—" ? "N/A" : debtRatio,
       ratios: {
-        pe: ratios?.pe ?? null,
-        pb: ratios?.pb ?? null,
-        roe: ratios?.roe ?? null,
-        roce: ratios?.roce ?? null,
+        pe: parseRatio(peVal),
+        pb: parseRatio(pbVal),
+        roe: parseRatio(roeVal),
+        roce: parseRatio(roceVal),
       }
     };
 
@@ -184,9 +258,7 @@ You must respond with a strictly formatted JSON object matching the following st
     const totalTime = Date.now() - totalStart;
 
     console.log(`\n[analysis]`);
-    console.log(`profile: ${profileTime} ms`);
-    console.log(`financials: ${financialsTime} ms`);
-    console.log(`shareholding: ${shareholdingTime} ms`);
+    console.log(`data load: ${dataElapsed} ms`);
     console.log(`AI generation: ${aiTime} ms`);
     console.log(`TOTAL: ${totalTime} ms\n`);
 

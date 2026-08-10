@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { resolveSymbol, getStockPrice, getStockProfile, getKeyRatios, getHistoricalCandles } from "@/lib/upstox/service";
-import { getIndianCompanyDetails, getIndianFinancialStats } from "@/lib/providers/indianapi/provider";
-import { normalizeRatios, normalizeFinancialPeriods, normalizeShareholdingHistory } from "@/lib/providers/indianapi/normalize";
+import { resolveSymbol, getStockPrice, getStockProfile, getKeyRatios, getHistoricalCandles, getUpstoxIncomeStatement, getUpstoxShareholdings } from "@/lib/upstox/service";
+import { normalizeFinancialPeriods, normalizeShareholdingHistory } from "@/lib/providers/indianapi/normalize";
+import { StockDataService } from "@/lib/stocks/stockDataService";
+import { resolveFallbackMetric } from "@/lib/stocks/fallback";
+import { FinancialPeriod, NormalizedShareholdingQuarter } from "@/lib/providers/indianapi/types";
 import { calculateMetrics } from "@/lib/stocks/calculations";
 import { buildStockComparison, StockCompareInput } from "@/lib/stocks/compare";
 import { newsProvider } from "@/lib/news/provider";
@@ -41,27 +43,127 @@ export async function POST(req: NextRequest) {
     // 1. Context Builders
     if (type === "stock" && symbol) {
       // Reconstruct single stock context using IndianAPI + Upstox fallbacks
-      const [rawDetails, rawAnnual, rawShareholding] = await Promise.allSettled([
-        getIndianCompanyDetails(symbol),
-        getIndianFinancialStats(symbol, "yoy_results"),
-        getIndianFinancialStats(symbol, "shareholding_pattern_quarterly"),
-      ]);
+      const companyData = await StockDataService.getCompanyData(symbol);
+      if (!companyData) {
+        return NextResponse.json(
+          { error: "Unable to load stock context for chat." },
+          { status: 500 }
+        );
+      }
 
-      const raw = rawDetails.status === "fulfilled" ? rawDetails.value : null;
-      const ratios = raw ? normalizeRatios(raw) : null;
-      const annualPL = rawAnnual.status === "fulfilled" ? normalizeFinancialPeriods(rawAnnual.value) : [];
-      const shareholding = rawShareholding.status === "fulfilled" ? normalizeShareholdingHistory(rawShareholding.value) : [];
-
-      const companyName = raw?.companyName || symbol;
-      const industry = raw?.industry || "N/A";
-      
-      let description = "N/A";
-      if (raw && typeof raw === "object") {
-        const profile = (raw as unknown as Record<string, unknown>).companyProfile;
-        if (profile && typeof profile === "object" && profile !== null) {
-          description = (profile as Record<string, unknown>).companyDescription as string || "N/A";
+      // Extract financials
+      let annualPL: FinancialPeriod[] = [];
+      if (companyData.indianApiYoyPL) {
+        annualPL = normalizeFinancialPeriods(companyData.indianApiYoyPL);
+      } else if (companyData.isin) {
+        try {
+          const upstoxIS = await getUpstoxIncomeStatement(companyData.isin, false);
+          if (upstoxIS && upstoxIS.status === "success" && upstoxIS.data.income_statement) {
+            const periodsMap: Record<string, { period: string; sales: number | null; netProfit: number | null; eps: number | null }> = {};
+            upstoxIS.data.income_statement.forEach(cat => {
+              const type = cat.category.toLowerCase();
+              cat.history.forEach(item => {
+                const period = item.period;
+                if (!periodsMap[period]) {
+                  periodsMap[period] = { period, sales: null, netProfit: null, eps: null };
+                }
+                if (type === "revenue" || type === "sales") {
+                  periodsMap[period].sales = item.value ?? null;
+                } else if (type === "net_profit" || type === "profit_after_tax") {
+                  periodsMap[period].netProfit = item.value ?? null;
+                } else if (type === "eps" || type === "eps_-_basic" || type === "eps - basic") {
+                  periodsMap[period].eps = item.value ?? null;
+                }
+              });
+            });
+            annualPL = Object.values(periodsMap)
+              .map(p => ({
+                period: p.period,
+                sales: p.sales,
+                expenses: null,
+                operatingProfit: null,
+                opmPercent: null,
+                otherIncome: null,
+                interest: null,
+                depreciation: null,
+                profitBeforeTax: null,
+                taxPercent: null,
+                netProfit: p.netProfit,
+                eps: p.eps,
+              }))
+              .sort((a, b) => {
+                const yearA = parseInt(a.period.match(/\d+/)?.[0] || "0");
+                const yearB = parseInt(b.period.match(/\d+/)?.[0] || "0");
+                return yearA - yearB;
+              });
+          }
+        } catch (err) {
+          console.warn("[Chat Upstox Fallback IS Failed]:", err);
         }
       }
+
+      // Extract shareholdings
+      let shareholding: NormalizedShareholdingQuarter[] = [];
+      if (companyData.indianApiShareholding) {
+        shareholding = normalizeShareholdingHistory(companyData.indianApiShareholding);
+      } else if (companyData.isin) {
+        try {
+          const upstoxSH = await getUpstoxShareholdings(companyData.isin);
+          if (upstoxSH && upstoxSH.status === "success" && Array.isArray(upstoxSH.data)) {
+            const shPeriodsMap: Record<string, { period: string; promoter: number | null; fii: number | null; mutualFunds: number | null; otherDii: number | null; public: number | null }> = {};
+            upstoxSH.data.forEach(cat => {
+              const type = cat.category.toLowerCase();
+              cat.history.forEach(item => {
+                const period = item.period;
+                if (!shPeriodsMap[period]) {
+                  shPeriodsMap[period] = { period, promoter: null, fii: null, mutualFunds: null, otherDii: null, public: null };
+                }
+                if (type === "promoters") {
+                  shPeriodsMap[period].promoter = item.value ?? null;
+                } else if (type === "fii") {
+                  shPeriodsMap[period].fii = item.value ?? null;
+                } else if (type === "mutual_funds") {
+                  shPeriodsMap[period].mutualFunds = item.value ?? null;
+                } else if (type === "other_dii") {
+                  shPeriodsMap[period].otherDii = item.value ?? null;
+                } else if (type === "retail_and_other" || type === "public") {
+                  shPeriodsMap[period].public = item.value ?? null;
+                }
+              });
+            });
+            shareholding = Object.values(shPeriodsMap)
+              .map(p => {
+                const diiVal = (p.mutualFunds !== null || p.otherDii !== null)
+                  ? (p.mutualFunds || 0) + (p.otherDii || 0)
+                  : null;
+                return {
+                  period: p.period,
+                  promoter: p.promoter,
+                  fii: p.fii,
+                  dii: diiVal,
+                  public: p.public,
+                  pledged: null,
+                };
+              })
+              .sort((a, b) => {
+                const months = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+                const parsePeriod = (p: string) => {
+                  const parts = p.toLowerCase().split(" ");
+                  const month = months[parts[0] as keyof typeof months] || 0;
+                  const year = parseInt(parts[1] || "0");
+                  return year * 12 + month;
+                };
+                return parsePeriod(a.period) - parsePeriod(b.period);
+              });
+          }
+        } catch (err) {
+          console.warn("[Chat Upstox Fallback Shareholding Failed]:", err);
+        }
+      }
+
+      const companyName = companyData.name || symbol;
+      const industry = companyData.profile?.sector || "N/A";
+      const description = companyData.profile?.companyProfile || "N/A";
 
       const revenueTrend = annualPL.length > 0
         ? annualPL.slice(-3).map(p => `${p.period}: ₹${p.sales} Cr`).join(", ")
@@ -73,6 +175,14 @@ export async function POST(req: NextRequest) {
         ? shareholding.slice(-3).map(p => `${p.period}: ${p.promoter}%`).join(", ")
         : "N/A";
 
+      // Resolve ratios via fallback logic
+      const peVal = resolveFallbackMetric("pe", symbol, companyData, companyData);
+      const pbVal = resolveFallbackMetric("pb", symbol, companyData, companyData);
+      const roeVal = resolveFallbackMetric("roe", symbol, companyData, companyData);
+      const roceVal = resolveFallbackMetric("roce", symbol, companyData, companyData);
+      const debtRatio = resolveFallbackMetric("debtToEquity", symbol, companyData, companyData);
+      const currentRatioVal = resolveFallbackMetric("currentratio", symbol, companyData, companyData);
+
       const details = {
         symbol,
         companyName,
@@ -82,12 +192,12 @@ export async function POST(req: NextRequest) {
         profitTrend,
         promoterTrend,
         ratios: {
-          pe: ratios?.pe ?? "N/A",
-          pb: ratios?.pb ?? "N/A",
-          roe: ratios?.roe ?? "N/A",
-          roce: ratios?.roce ?? "N/A",
-          debtToEquity: ratios?.debtToEquity ?? "N/A",
-          currentRatio: ratios?.currentRatio ?? "N/A",
+          pe: peVal === "—" ? "N/A" : peVal,
+          pb: pbVal === "—" ? "N/A" : pbVal,
+          roe: roeVal === "—" ? "N/A" : roeVal,
+          roce: roceVal === "—" ? "N/A" : roceVal,
+          debtToEquity: debtRatio === "—" ? "N/A" : debtRatio,
+          currentRatio: currentRatioVal === "—" ? "N/A" : currentRatioVal,
         }
       };
 
