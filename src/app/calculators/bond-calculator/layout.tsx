@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Bond Calculator – Calculate Bond Price & Yield to Maturity (YTM) | VolumeCall",
+  title: "Bond Calculator – Bond Price & YTM Calculator | VolumeCall",
   description:
-    "Free Bond Calculator to calculate bond price, Yield to Maturity (YTM), and coupon cash flows for corporate and government bonds in India.",
+    "Calculate bond market prices, Yield to Maturity (YTM), and coupon cash flows for Indian government securities (G-Secs) and corporate bonds.",
   alternates: {
     canonical: "https://volumecall.in/calculators/bond-calculator",
   },
   openGraph: {
-    title: "Bond Calculator – Calculate Bond Price & Yield to Maturity (YTM) | VolumeCall",
+    title: "Bond Calculator – Bond Price & YTM Calculator | VolumeCall",
     description:
-      "Free Bond Calculator to calculate bond price, Yield to Maturity (YTM), and coupon cash flows for corporate and government bonds in India.",
+      "Calculate bond market prices, Yield to Maturity (YTM), and coupon cash flows for Indian government securities (G-Secs) and corporate bonds.",
     url: "https://volumecall.in/calculators/bond-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Bond Calculator – Calculate Bond Price & Yield to Maturity (YTM) | VolumeCall",
+    title: "Bond Calculator – Bond Price & YTM Calculator | VolumeCall",
     description:
-      "Free Bond Calculator to calculate bond price, Yield to Maturity (YTM), and coupon cash flows for corporate and government bonds in India.",
+      "Calculate bond market prices, Yield to Maturity (YTM), and coupon cash flows for Indian government securities (G-Secs) and corporate bonds.",
   },
 };
 

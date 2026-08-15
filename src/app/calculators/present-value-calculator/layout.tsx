@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Present Value (PV) Calculator – Calculate Current Value of Future Sum Online | VolumeCall",
+  title: "Present Value (PV) Calculator – Calculate PV | VolumeCall",
   description:
-    "Free Present Value Calculator to calculate the current lump-sum amount required today to reach a target future financial goal based on discount rates and time horizon.",
+    "Calculate the present lump-sum amount required today to reach a target future financial sum based on discount rates and time horizon.",
   alternates: {
     canonical: "https://volumecall.in/calculators/present-value-calculator",
   },
   openGraph: {
-    title: "Present Value (PV) Calculator – Calculate Current Value of Future Sum Online | VolumeCall",
+    title: "Present Value (PV) Calculator – Calculate PV | VolumeCall",
     description:
-      "Free Present Value Calculator to calculate the current lump-sum amount required today to reach a target future financial goal based on discount rates and time horizon.",
+      "Calculate the present lump-sum amount required today to reach a target future financial sum based on discount rates and time horizon.",
     url: "https://volumecall.in/calculators/present-value-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Present Value (PV) Calculator – Calculate Current Value of Future Sum Online | VolumeCall",
+    title: "Present Value (PV) Calculator – Calculate PV | VolumeCall",
     description:
-      "Free Present Value Calculator to calculate the current lump-sum amount required today to reach a target future financial goal based on discount rates and time horizon.",
+      "Calculate the present lump-sum amount required today to reach a target future financial sum based on discount rates and time horizon.",
   },
 };
 

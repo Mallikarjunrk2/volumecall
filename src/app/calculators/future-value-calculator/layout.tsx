@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Future Value (FV) Calculator – Calculate Future Investment Value Online | VolumeCall",
+  title: "Future Value Calculator – Calculate FV of Investment | VolumeCall",
   description:
-    "Free Future Value Calculator to calculate the future worth of lump sum cash deposits and investments based on compound growth rates and time horizon.",
+    "Calculate the future value (FV) of lump-sum cash deposits and investments based on annual compound growth rates and investment time horizon.",
   alternates: {
     canonical: "https://volumecall.in/calculators/future-value-calculator",
   },
   openGraph: {
-    title: "Future Value (FV) Calculator – Calculate Future Investment Value Online | VolumeCall",
+    title: "Future Value Calculator – Calculate FV of Investment | VolumeCall",
     description:
-      "Free Future Value Calculator to calculate the future worth of lump sum cash deposits and investments based on compound growth rates and time horizon.",
+      "Calculate the future value (FV) of lump-sum cash deposits and investments based on annual compound growth rates and investment time horizon.",
     url: "https://volumecall.in/calculators/future-value-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Future Value (FV) Calculator – Calculate Future Investment Value Online | VolumeCall",
+    title: "Future Value Calculator – Calculate FV of Investment | VolumeCall",
     description:
-      "Free Future Value Calculator to calculate the future worth of lump sum cash deposits and investments based on compound growth rates and time horizon.",
+      "Calculate the future value (FV) of lump-sum cash deposits and investments based on annual compound growth rates and investment time horizon.",
   },
 };
 

@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "EMI Calculator – Calculate Home, Car & Personal Loan EMIs Online | VolumeCall",
+  title: "EMI Calculator – Calculate Home & Personal Loan EMI | VolumeCall",
   description:
-    "Free Loan EMI Calculator to calculate monthly loan installments, total interest payable, and loan amortization breakdown for home, car, and personal loans in India.",
+    "Calculate monthly loan EMIs, total interest payable, and amortization schedules for home, car, and personal loans using reducing balance rates.",
   alternates: {
     canonical: "https://volumecall.in/calculators/emi-calculator",
   },
   openGraph: {
-    title: "EMI Calculator – Calculate Home, Car & Personal Loan EMIs Online | VolumeCall",
+    title: "EMI Calculator – Calculate Home & Personal Loan EMI | VolumeCall",
     description:
-      "Free Loan EMI Calculator to calculate monthly loan installments, total interest payable, and loan amortization breakdown for home, car, and personal loans in India.",
+      "Calculate monthly loan EMIs, total interest payable, and amortization schedules for home, car, and personal loans using reducing balance rates.",
     url: "https://volumecall.in/calculators/emi-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "EMI Calculator – Calculate Home, Car & Personal Loan EMIs Online | VolumeCall",
+    title: "EMI Calculator – Calculate Home & Personal Loan EMI | VolumeCall",
     description:
-      "Free Loan EMI Calculator to calculate monthly loan installments, total interest payable, and loan amortization breakdown for home, car, and personal loans in India.",
+      "Calculate monthly loan EMIs, total interest payable, and amortization schedules for home, car, and personal loans using reducing balance rates.",
   },
 };
 

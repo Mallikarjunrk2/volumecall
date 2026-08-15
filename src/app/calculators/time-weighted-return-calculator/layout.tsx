@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Time-Weighted Return (TWR) Calculator – Strategy Performance Independent of Cash Flows | VolumeCall",
+  title: "Time-Weighted Return (TWR) Calculator | VolumeCall",
   description:
-    "Free Time-Weighted Return (TWR) Calculator to measure investment portfolio manager performance independently of deposits and withdrawals across sub-periods.",
+    "Measure investment portfolio performance independently of external cash flow timing across multiple sub-periods using our free TWR calculator.",
   alternates: {
     canonical: "https://volumecall.in/calculators/time-weighted-return-calculator",
   },
   openGraph: {
-    title: "Time-Weighted Return (TWR) Calculator – Strategy Performance Independent of Cash Flows | VolumeCall",
+    title: "Time-Weighted Return (TWR) Calculator | VolumeCall",
     description:
-      "Free Time-Weighted Return (TWR) Calculator to measure investment portfolio manager performance independently of deposits and withdrawals across sub-periods.",
+      "Measure investment portfolio performance independently of external cash flow timing across multiple sub-periods using our free TWR calculator.",
     url: "https://volumecall.in/calculators/time-weighted-return-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Time-Weighted Return (TWR) Calculator – Strategy Performance Independent of Cash Flows | VolumeCall",
+    title: "Time-Weighted Return (TWR) Calculator | VolumeCall",
     description:
-      "Free Time-Weighted Return (TWR) Calculator to measure investment portfolio manager performance independently of deposits and withdrawals across sub-periods.",
+      "Measure investment portfolio performance independently of external cash flow timing across multiple sub-periods using our free TWR calculator.",
   },
 };
 

@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dividend Discount Model (DDM) Calculator – Gordon Growth Stock Valuation | VolumeCall",
+  title: "DDM Calculator – Dividend Valuation Model | VolumeCall",
   description:
-    "Free Dividend Discount Model (DDM) Calculator to estimate the intrinsic value of dividend-paying stocks using the Gordon Growth formula, Cost of Equity (Ke), and dividend growth rate.",
+    "Estimate the intrinsic fair value of dividend-paying stocks using the Gordon Growth Dividend Discount Model (DDM) and Cost of Equity (Ke).",
   alternates: {
     canonical: "https://volumecall.in/calculators/ddm-calculator",
   },
   openGraph: {
-    title: "Dividend Discount Model (DDM) Calculator – Gordon Growth Stock Valuation | VolumeCall",
+    title: "DDM Calculator – Dividend Valuation Model | VolumeCall",
     description:
-      "Free Dividend Discount Model (DDM) Calculator to estimate the intrinsic value of dividend-paying stocks using the Gordon Growth formula, Cost of Equity (Ke), and dividend growth rate.",
+      "Estimate the intrinsic fair value of dividend-paying stocks using the Gordon Growth Dividend Discount Model (DDM) and Cost of Equity (Ke).",
     url: "https://volumecall.in/calculators/ddm-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Dividend Discount Model (DDM) Calculator – Gordon Growth Stock Valuation | VolumeCall",
+    title: "DDM Calculator – Dividend Valuation Model | VolumeCall",
     description:
-      "Free Dividend Discount Model (DDM) Calculator to estimate the intrinsic value of dividend-paying stocks using the Gordon Growth formula, Cost of Equity (Ke), and dividend growth rate.",
+      "Estimate the intrinsic fair value of dividend-paying stocks using the Gordon Growth Dividend Discount Model (DDM) and Cost of Equity (Ke).",
   },
 };
 

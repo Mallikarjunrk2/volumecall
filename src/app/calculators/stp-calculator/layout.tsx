@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "STP Calculator – Calculate Systematic Transfer Plan Returns | VolumeCall",
+  title: "STP Calculator – Calculate Systematic Transfers | VolumeCall",
   description:
-    "Free STP Calculator to simulate systematic transfers from debt/liquid funds to equity mutual funds. Calculate source balance, target growth, and combined portfolio value.",
+    "Simulate systematic transfers from debt/liquid funds to equity mutual funds. Calculate source balance, target growth, and combined portfolio value.",
   alternates: {
     canonical: "https://volumecall.in/calculators/stp-calculator",
   },
   openGraph: {
-    title: "STP Calculator – Calculate Systematic Transfer Plan Returns | VolumeCall",
+    title: "STP Calculator – Calculate Systematic Transfers | VolumeCall",
     description:
-      "Free STP Calculator to simulate systematic transfers from debt/liquid funds to equity mutual funds. Calculate source balance, target growth, and combined portfolio value.",
+      "Simulate systematic transfers from debt/liquid funds to equity mutual funds. Calculate source balance, target growth, and combined portfolio value.",
     url: "https://volumecall.in/calculators/stp-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "STP Calculator – Calculate Systematic Transfer Plan Returns | VolumeCall",
+    title: "STP Calculator – Calculate Systematic Transfers | VolumeCall",
     description:
-      "Free STP Calculator to simulate systematic transfers from debt/liquid funds to equity mutual funds. Calculate source balance, target growth, and combined portfolio value.",
+      "Simulate systematic transfers from debt/liquid funds to equity mutual funds. Calculate source balance, target growth, and combined portfolio value.",
   },
 };
 

@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Absolute Return Calculator – Calculate Total Percentage Capital Gain | VolumeCall",
+  title: "Absolute Return Calculator – Calculate Total Gain | VolumeCall",
   description:
-    "Free Absolute Return Calculator to calculate total percentage profit, point-to-point capital gain, and multiple of money on stocks, mutual funds, and assets.",
+    "Calculate total percentage gains and losses on your investments instantly. Easily compute simple absolute returns without annualizing.",
   alternates: {
     canonical: "https://volumecall.in/calculators/absolute-return-calculator",
   },
   openGraph: {
-    title: "Absolute Return Calculator – Calculate Total Percentage Capital Gain | VolumeCall",
+    title: "Absolute Return Calculator – Calculate Total Gain | VolumeCall",
     description:
-      "Free Absolute Return Calculator to calculate total percentage profit, point-to-point capital gain, and multiple of money on stocks, mutual funds, and assets.",
+      "Calculate total percentage gains and losses on your investments instantly. Easily compute simple absolute returns without annualizing.",
     url: "https://volumecall.in/calculators/absolute-return-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Absolute Return Calculator – Calculate Total Percentage Capital Gain | VolumeCall",
+    title: "Absolute Return Calculator – Calculate Total Gain | VolumeCall",
     description:
-      "Free Absolute Return Calculator to calculate total percentage profit, point-to-point capital gain, and multiple of money on stocks, mutual funds, and assets.",
+      "Calculate total percentage gains and losses on your investments instantly. Easily compute simple absolute returns without annualizing.",
   },
 };
 

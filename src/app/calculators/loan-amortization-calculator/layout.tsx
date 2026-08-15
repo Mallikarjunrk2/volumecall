@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Loan Amortization Calculator – Detailed Monthly Schedule & Payment Breakdown | VolumeCall",
+  title: "Loan Amortization Calculator – Payment Schedule | VolumeCall",
   description:
-    "Free Loan Amortization Calculator to generate month-by-month and annual payment schedules with principal, interest, and remaining balance breakdown for Indian loans.",
+    "Generate detailed month-by-month loan amortization schedules showing principal breakdown, interest component, and remaining balance for loans.",
   alternates: {
     canonical: "https://volumecall.in/calculators/loan-amortization-calculator",
   },
   openGraph: {
-    title: "Loan Amortization Calculator – Detailed Monthly Schedule & Payment Breakdown | VolumeCall",
+    title: "Loan Amortization Calculator – Payment Schedule | VolumeCall",
     description:
-      "Free Loan Amortization Calculator to generate month-by-month and annual payment schedules with principal, interest, and remaining balance breakdown for Indian loans.",
+      "Generate detailed month-by-month loan amortization schedules showing principal breakdown, interest component, and remaining balance for loans.",
     url: "https://volumecall.in/calculators/loan-amortization-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Loan Amortization Calculator – Detailed Monthly Schedule & Payment Breakdown | VolumeCall",
+    title: "Loan Amortization Calculator – Payment Schedule | VolumeCall",
     description:
-      "Free Loan Amortization Calculator to generate month-by-month and annual payment schedules with principal, interest, and remaining balance breakdown for Indian loans.",
+      "Generate detailed month-by-month loan amortization schedules showing principal breakdown, interest component, and remaining balance for loans.",
   },
 };
 

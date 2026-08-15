@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "XIRR Calculator – Calculate Extended Internal Rate of Return Online | VolumeCall",
+  title: "XIRR Calculator – Calculate Mutual Fund XIRR | VolumeCall",
   description:
-    "Free XIRR Calculator to calculate Extended Internal Rate of Return for SIP investments, mutual fund transactions, and irregular cash flow portfolios in India.",
+    "Calculate Extended Internal Rate of Return (XIRR) for SIP investments, mutual fund transactions, and irregular cash flow portfolios in India.",
   alternates: {
     canonical: "https://volumecall.in/calculators/xirr-calculator",
   },
   openGraph: {
-    title: "XIRR Calculator – Calculate Extended Internal Rate of Return Online | VolumeCall",
+    title: "XIRR Calculator – Calculate Mutual Fund XIRR | VolumeCall",
     description:
-      "Free XIRR Calculator to calculate Extended Internal Rate of Return for SIP investments, mutual fund transactions, and irregular cash flow portfolios in India.",
+      "Calculate Extended Internal Rate of Return (XIRR) for SIP investments, mutual fund transactions, and irregular cash flow portfolios in India.",
     url: "https://volumecall.in/calculators/xirr-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "XIRR Calculator – Calculate Extended Internal Rate of Return Online | VolumeCall",
+    title: "XIRR Calculator – Calculate Mutual Fund XIRR | VolumeCall",
     description:
-      "Free XIRR Calculator to calculate Extended Internal Rate of Return for SIP investments, mutual fund transactions, and irregular cash flow portfolios in India.",
+      "Calculate Extended Internal Rate of Return (XIRR) for SIP investments, mutual fund transactions, and irregular cash flow portfolios in India.",
   },
 };
 

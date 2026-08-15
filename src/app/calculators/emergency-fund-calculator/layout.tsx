@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Emergency Fund Calculator – Calculate Safety Net & Rainy Day Savings | VolumeCall",
+  title: "Emergency Fund Calculator – Calculate Safety Net | VolumeCall",
   description:
-    "Free Emergency Fund Calculator to calculate how many months of living expenses you need in liquid savings to protect against medical emergencies and job loss in India.",
+    "Calculate how many months of essential living expenses you need in liquid savings to protect against job loss and medical emergencies in India.",
   alternates: {
     canonical: "https://volumecall.in/calculators/emergency-fund-calculator",
   },
   openGraph: {
-    title: "Emergency Fund Calculator – Calculate Safety Net & Rainy Day Savings | VolumeCall",
+    title: "Emergency Fund Calculator – Calculate Safety Net | VolumeCall",
     description:
-      "Free Emergency Fund Calculator to calculate how many months of living expenses you need in liquid savings to protect against medical emergencies and job loss in India.",
+      "Calculate how many months of essential living expenses you need in liquid savings to protect against job loss and medical emergencies in India.",
     url: "https://volumecall.in/calculators/emergency-fund-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Emergency Fund Calculator – Calculate Safety Net & Rainy Day Savings | VolumeCall",
+    title: "Emergency Fund Calculator – Calculate Safety Net | VolumeCall",
     description:
-      "Free Emergency Fund Calculator to calculate how many months of living expenses you need in liquid savings to protect against medical emergencies and job loss in India.",
+      "Calculate how many months of essential living expenses you need in liquid savings to protect against job loss and medical emergencies in India.",
   },
 };
 

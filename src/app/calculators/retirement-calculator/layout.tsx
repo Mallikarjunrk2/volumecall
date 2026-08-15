@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Retirement Calculator – Calculate Retirement Corpus & Monthly SIP in India | VolumeCall",
+  title: "Retirement Calculator – Calculate Retirement Corpus | VolumeCall",
   description:
-    "Free Retirement Calculator to calculate total retirement corpus required, future inflated living expenses, and monthly SIP investment needed for a financially secure retirement in India.",
+    "Calculate the total retirement corpus required, inflation-adjusted monthly expenses, and required monthly SIP for a secure retirement in India.",
   alternates: {
     canonical: "https://volumecall.in/calculators/retirement-calculator",
   },
   openGraph: {
-    title: "Retirement Calculator – Calculate Retirement Corpus & Monthly SIP in India | VolumeCall",
+    title: "Retirement Calculator – Calculate Retirement Corpus | VolumeCall",
     description:
-      "Free Retirement Calculator to calculate total retirement corpus required, future inflated living expenses, and monthly SIP investment needed for a financially secure retirement in India.",
+      "Calculate the total retirement corpus required, inflation-adjusted monthly expenses, and required monthly SIP for a secure retirement in India.",
     url: "https://volumecall.in/calculators/retirement-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Retirement Calculator – Calculate Retirement Corpus & Monthly SIP in India | VolumeCall",
+    title: "Retirement Calculator – Calculate Retirement Corpus | VolumeCall",
     description:
-      "Free Retirement Calculator to calculate total retirement corpus required, future inflated living expenses, and monthly SIP investment needed for a financially secure retirement in India.",
+      "Calculate the total retirement corpus required, inflation-adjusted monthly expenses, and required monthly SIP for a secure retirement in India.",
   },
 };
 

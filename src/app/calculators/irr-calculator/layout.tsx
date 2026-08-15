@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "IRR Calculator – Calculate Internal Rate of Return Online | VolumeCall",
+  title: "IRR Calculator – Internal Rate of Return & NPV | VolumeCall",
   description:
-    "Free IRR Calculator to calculate the Internal Rate of Return and Net Present Value (NPV) for investment projects, business ventures, and cash flows.",
+    "Calculate the Internal Rate of Return (IRR) and Net Present Value (NPV) for capital budgeting, investment projects, and irregular cash flows.",
   alternates: {
     canonical: "https://volumecall.in/calculators/irr-calculator",
   },
   openGraph: {
-    title: "IRR Calculator – Calculate Internal Rate of Return Online | VolumeCall",
+    title: "IRR Calculator – Internal Rate of Return & NPV | VolumeCall",
     description:
-      "Free IRR Calculator to calculate the Internal Rate of Return and Net Present Value (NPV) for investment projects, business ventures, and cash flows.",
+      "Calculate the Internal Rate of Return (IRR) and Net Present Value (NPV) for capital budgeting, investment projects, and irregular cash flows.",
     url: "https://volumecall.in/calculators/irr-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "IRR Calculator – Calculate Internal Rate of Return Online | VolumeCall",
+    title: "IRR Calculator – Internal Rate of Return & NPV | VolumeCall",
     description:
-      "Free IRR Calculator to calculate the Internal Rate of Return and Net Present Value (NPV) for investment projects, business ventures, and cash flows.",
+      "Calculate the Internal Rate of Return (IRR) and Net Present Value (NPV) for capital budgeting, investment projects, and irregular cash flows.",
   },
 };
 

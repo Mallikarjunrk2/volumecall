@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "SIP Calculator – Calculate SIP Returns Online | VolumeCall",
   description:
-    "Use our free SIP Calculator to estimate SIP returns, total investment and potential maturity value. Calculate monthly SIP growth using an effective annual return methodology.",
+    "Estimate monthly SIP returns, total investment capital, and maturity value using an effective annual return (EAR) compounding methodology.",
   alternates: {
     canonical: "https://volumecall.in/calculators/sip-calculator",
   },
   openGraph: {
     title: "SIP Calculator – Calculate SIP Returns Online | VolumeCall",
     description:
-      "Use our free SIP Calculator to estimate SIP returns, total investment and potential maturity value. Calculate monthly SIP growth using an effective annual return methodology.",
+      "Estimate monthly SIP returns, total investment capital, and maturity value using an effective annual return (EAR) compounding methodology.",
     url: "https://volumecall.in/calculators/sip-calculator",
     type: "website",
     siteName: "VolumeCall",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "SIP Calculator – Calculate SIP Returns Online | VolumeCall",
     description:
-      "Use our free SIP Calculator to estimate SIP returns, total investment and potential maturity value. Calculate monthly SIP growth using an effective annual return methodology.",
+      "Estimate monthly SIP returns, total investment capital, and maturity value using an effective annual return (EAR) compounding methodology.",
   },
 };
 

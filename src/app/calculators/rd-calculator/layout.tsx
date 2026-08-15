@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "RD Calculator – Calculate Recurring Deposit Maturity & Interest Online | VolumeCall",
+  title: "RD Calculator – Calculate Recurring Deposit Maturity | VolumeCall",
   description:
-    "Free Recurring Deposit (RD) Calculator to calculate monthly deposit maturity value and quarterly compound interest for bank and Post Office RDs in India.",
+    "Calculate monthly Recurring Deposit (RD) maturity values and quarterly compound interest for bank and Post Office RD schemes in India.",
   alternates: {
     canonical: "https://volumecall.in/calculators/rd-calculator",
   },
   openGraph: {
-    title: "RD Calculator – Calculate Recurring Deposit Maturity & Interest Online | VolumeCall",
+    title: "RD Calculator – Calculate Recurring Deposit Maturity | VolumeCall",
     description:
-      "Free Recurring Deposit (RD) Calculator to calculate monthly deposit maturity value and quarterly compound interest for bank and Post Office RDs in India.",
+      "Calculate monthly Recurring Deposit (RD) maturity values and quarterly compound interest for bank and Post Office RD schemes in India.",
     url: "https://volumecall.in/calculators/rd-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "RD Calculator – Calculate Recurring Deposit Maturity & Interest Online | VolumeCall",
+    title: "RD Calculator – Calculate Recurring Deposit Maturity | VolumeCall",
     description:
-      "Free Recurring Deposit (RD) Calculator to calculate monthly deposit maturity value and quarterly compound interest for bank and Post Office RDs in India.",
+      "Calculate monthly Recurring Deposit (RD) maturity values and quarterly compound interest for bank and Post Office RD schemes in India.",
   },
 };
 

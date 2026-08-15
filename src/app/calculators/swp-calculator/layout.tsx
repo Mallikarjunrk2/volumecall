@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "SWP Calculator – Calculate Systematic Withdrawal Plan Returns | VolumeCall",
+  title: "SWP Calculator – Calculate Systematic Withdrawals | VolumeCall",
   description:
-    "Free SWP Calculator to calculate monthly mutual fund withdrawals, total income payouts, and remaining corpus longevity for retirement planning. Compare SWP vs FD.",
+    "Calculate monthly mutual fund withdrawals, total income payouts, and remaining corpus longevity for retirement planning. Compare SWP vs FD.",
   alternates: {
     canonical: "https://volumecall.in/calculators/swp-calculator",
   },
   openGraph: {
-    title: "SWP Calculator – Calculate Systematic Withdrawal Plan Returns | VolumeCall",
+    title: "SWP Calculator – Calculate Systematic Withdrawals | VolumeCall",
     description:
-      "Free SWP Calculator to calculate monthly mutual fund withdrawals, total income payouts, and remaining corpus longevity for retirement planning. Compare SWP vs FD.",
+      "Calculate monthly mutual fund withdrawals, total income payouts, and remaining corpus longevity for retirement planning. Compare SWP vs FD.",
     url: "https://volumecall.in/calculators/swp-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "SWP Calculator – Calculate Systematic Withdrawal Plan Returns | VolumeCall",
+    title: "SWP Calculator – Calculate Systematic Withdrawals | VolumeCall",
     description:
-      "Free SWP Calculator to calculate monthly mutual fund withdrawals, total income payouts, and remaining corpus longevity for retirement planning. Compare SWP vs FD.",
+      "Calculate monthly mutual fund withdrawals, total income payouts, and remaining corpus longevity for retirement planning. Compare SWP vs FD.",
   },
 };
 

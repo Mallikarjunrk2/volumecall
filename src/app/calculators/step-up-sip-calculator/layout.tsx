@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Step-Up SIP Calculator – Calculate Top-Up SIP Growth Online | VolumeCall",
+  title: "Step-Up SIP Calculator – Top-Up SIP Calculator | VolumeCall",
   description:
-    "Free Step-Up SIP Calculator to estimate wealth creation when increasing your monthly mutual fund SIP annually by percentage or fixed amount. Compare Step-Up vs Regular SIP.",
+    "Estimate wealth creation when increasing your monthly mutual fund SIP annually by percentage or fixed amount. Compare Step-Up vs Regular SIP.",
   alternates: {
     canonical: "https://volumecall.in/calculators/step-up-sip-calculator",
   },
   openGraph: {
-    title: "Step-Up SIP Calculator – Calculate Top-Up SIP Growth Online | VolumeCall",
+    title: "Step-Up SIP Calculator – Top-Up SIP Calculator | VolumeCall",
     description:
-      "Free Step-Up SIP Calculator to estimate wealth creation when increasing your monthly mutual fund SIP annually by percentage or fixed amount. Compare Step-Up vs Regular SIP.",
+      "Estimate wealth creation when increasing your monthly mutual fund SIP annually by percentage or fixed amount. Compare Step-Up vs Regular SIP.",
     url: "https://volumecall.in/calculators/step-up-sip-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Step-Up SIP Calculator – Calculate Top-Up SIP Growth Online | VolumeCall",
+    title: "Step-Up SIP Calculator – Top-Up SIP Calculator | VolumeCall",
     description:
-      "Free Step-Up SIP Calculator to estimate wealth creation when increasing your monthly mutual fund SIP annually by percentage or fixed amount. Compare Step-Up vs Regular SIP.",
+      "Estimate wealth creation when increasing your monthly mutual fund SIP annually by percentage or fixed amount. Compare Step-Up vs Regular SIP.",
   },
 };
 

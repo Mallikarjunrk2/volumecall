@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Loan Prepayment Calculator – Calculate Interest Savings & Tenure Reduction | VolumeCall",
+  title: "Loan Prepayment Calculator – Interest Savings | VolumeCall",
   description:
-    "Free Home Loan Prepayment Calculator to calculate total interest savings, tenure reduction, and new EMI amounts when making part-prepayments on Indian loans.",
+    "Calculate total interest savings, tenure reduction in months, and new reduced EMI amounts when making partial prepayments on home loans.",
   alternates: {
     canonical: "https://volumecall.in/calculators/loan-prepayment-calculator",
   },
   openGraph: {
-    title: "Loan Prepayment Calculator – Calculate Interest Savings & Tenure Reduction | VolumeCall",
+    title: "Loan Prepayment Calculator – Interest Savings | VolumeCall",
     description:
-      "Free Home Loan Prepayment Calculator to calculate total interest savings, tenure reduction, and new EMI amounts when making part-prepayments on Indian loans.",
+      "Calculate total interest savings, tenure reduction in months, and new reduced EMI amounts when making partial prepayments on home loans.",
     url: "https://volumecall.in/calculators/loan-prepayment-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Loan Prepayment Calculator – Calculate Interest Savings & Tenure Reduction | VolumeCall",
+    title: "Loan Prepayment Calculator – Interest Savings | VolumeCall",
     description:
-      "Free Home Loan Prepayment Calculator to calculate total interest savings, tenure reduction, and new EMI amounts when making part-prepayments on Indian loans.",
+      "Calculate total interest savings, tenure reduction in months, and new reduced EMI amounts when making partial prepayments on home loans.",
   },
 };
 

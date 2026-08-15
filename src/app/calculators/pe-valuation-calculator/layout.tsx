@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "P/E Valuation & PEG Calculator – Calculate Fair Stock Price | VolumeCall",
+  title: "P/E Valuation & PEG Calculator – Fair Share Price | VolumeCall",
   description:
-    "Free P/E Ratio & PEG Ratio Valuation Calculator to determine target fair stock prices based on forward EPS, historical sector P/E multiples, and earnings growth.",
+    "Determine target fair stock prices and valuation multiples based on forward EPS, historical sector P/E ratios, and earnings growth rates.",
   alternates: {
     canonical: "https://volumecall.in/calculators/pe-valuation-calculator",
   },
   openGraph: {
-    title: "P/E Valuation & PEG Calculator – Calculate Fair Stock Price | VolumeCall",
+    title: "P/E Valuation & PEG Calculator – Fair Share Price | VolumeCall",
     description:
-      "Free P/E Ratio & PEG Ratio Valuation Calculator to determine target fair stock prices based on forward EPS, historical sector P/E multiples, and earnings growth.",
+      "Determine target fair stock prices and valuation multiples based on forward EPS, historical sector P/E ratios, and earnings growth rates.",
     url: "https://volumecall.in/calculators/pe-valuation-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "P/E Valuation & PEG Calculator – Calculate Fair Stock Price | VolumeCall",
+    title: "P/E Valuation & PEG Calculator – Fair Share Price | VolumeCall",
     description:
-      "Free P/E Ratio & PEG Ratio Valuation Calculator to determine target fair stock prices based on forward EPS, historical sector P/E multiples, and earnings growth.",
+      "Determine target fair stock prices and valuation multiples based on forward EPS, historical sector P/E ratios, and earnings growth rates.",
   },
 };
 

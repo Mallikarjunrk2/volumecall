@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CAGR Calculator – Calculate Compound Annual Growth Rate Online | VolumeCall",
+  title: "CAGR Calculator – Calculate Compound Growth Rate | VolumeCall",
   description:
-    "Free CAGR Calculator to calculate Compound Annual Growth Rate for investments in stocks, mutual funds, real estate, and gold over multi-year periods.",
+    "Calculate the Compound Annual Growth Rate (CAGR) of your stocks, mutual funds, real estate, and gold investments over multi-year periods.",
   alternates: {
     canonical: "https://volumecall.in/calculators/cagr-calculator",
   },
   openGraph: {
-    title: "CAGR Calculator – Calculate Compound Annual Growth Rate Online | VolumeCall",
+    title: "CAGR Calculator – Calculate Compound Growth Rate | VolumeCall",
     description:
-      "Free CAGR Calculator to calculate Compound Annual Growth Rate for investments in stocks, mutual funds, real estate, and gold over multi-year periods.",
+      "Calculate the Compound Annual Growth Rate (CAGR) of your stocks, mutual funds, real estate, and gold investments over multi-year periods.",
     url: "https://volumecall.in/calculators/cagr-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "CAGR Calculator – Calculate Compound Annual Growth Rate Online | VolumeCall",
+    title: "CAGR Calculator – Calculate Compound Growth Rate | VolumeCall",
     description:
-      "Free CAGR Calculator to calculate Compound Annual Growth Rate for investments in stocks, mutual funds, real estate, and gold over multi-year periods.",
+      "Calculate the Compound Annual Growth Rate (CAGR) of your stocks, mutual funds, real estate, and gold investments over multi-year periods.",
   },
 };
 

@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reverse DCF Calculator – Calculate Implied Growth Rate Priced into Stocks | VolumeCall",
+  title: "Reverse DCF Calculator – Implied Stock Growth Rate | VolumeCall",
   description:
-    "Free Reverse DCF Calculator to calculate the implied Free Cash Flow (FCF) growth rate priced into a company's current stock price or market capitalization.",
+    "Calculate the implied Free Cash Flow (FCF) growth rate priced into a stock's current market price using our Reverse DCF valuation model.",
   alternates: {
     canonical: "https://volumecall.in/calculators/reverse-dcf-calculator",
   },
   openGraph: {
-    title: "Reverse DCF Calculator – Calculate Implied Growth Rate Priced into Stocks | VolumeCall",
+    title: "Reverse DCF Calculator – Implied Stock Growth Rate | VolumeCall",
     description:
-      "Free Reverse DCF Calculator to calculate the implied Free Cash Flow (FCF) growth rate priced into a company's current stock price or market capitalization.",
+      "Calculate the implied Free Cash Flow (FCF) growth rate priced into a stock's current market price using our Reverse DCF valuation model.",
     url: "https://volumecall.in/calculators/reverse-dcf-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Reverse DCF Calculator – Calculate Implied Growth Rate Priced into Stocks | VolumeCall",
+    title: "Reverse DCF Calculator – Implied Stock Growth Rate | VolumeCall",
     description:
-      "Free Reverse DCF Calculator to calculate the implied Free Cash Flow (FCF) growth rate priced into a company's current stock price or market capitalization.",
+      "Calculate the implied Free Cash Flow (FCF) growth rate priced into a stock's current market price using our Reverse DCF valuation model.",
   },
 };
 

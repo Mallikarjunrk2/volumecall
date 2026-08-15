@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Inflation Calculator – Calculate Future Cost & Purchasing Power in India | VolumeCall",
+  title: "Inflation Calculator – Calculate Future Costs | VolumeCall",
   description:
-    "Free Inflation Calculator to calculate future cost of living, purchasing power erosion, and real inflation-adjusted returns using the Fisher equation.",
+    "Calculate future cost of living, purchasing power erosion over time, and real inflation-adjusted investment returns using Indian inflation rates.",
   alternates: {
     canonical: "https://volumecall.in/calculators/inflation-calculator",
   },
   openGraph: {
-    title: "Inflation Calculator – Calculate Future Cost & Purchasing Power in India | VolumeCall",
+    title: "Inflation Calculator – Calculate Future Costs | VolumeCall",
     description:
-      "Free Inflation Calculator to calculate future cost of living, purchasing power erosion, and real inflation-adjusted returns using the Fisher equation.",
+      "Calculate future cost of living, purchasing power erosion over time, and real inflation-adjusted investment returns using Indian inflation rates.",
     url: "https://volumecall.in/calculators/inflation-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Inflation Calculator – Calculate Future Cost & Purchasing Power in India | VolumeCall",
+    title: "Inflation Calculator – Calculate Future Costs | VolumeCall",
     description:
-      "Free Inflation Calculator to calculate future cost of living, purchasing power erosion, and real inflation-adjusted returns using the Fisher equation.",
+      "Calculate future cost of living, purchasing power erosion over time, and real inflation-adjusted investment returns using Indian inflation rates.",
   },
 };
 

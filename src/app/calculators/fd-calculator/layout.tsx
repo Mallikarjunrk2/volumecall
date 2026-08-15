@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FD Calculator – Calculate Fixed Deposit Maturity & Interest Online | VolumeCall",
+  title: "FD Calculator – Calculate Fixed Deposit Maturity | VolumeCall",
   description:
-    "Free Fixed Deposit (FD) Calculator to calculate cumulative and non-cumulative FD maturity amounts, quarterly compound interest earned, and periodic payouts for Indian bank FDs.",
+    "Calculate cumulative and non-cumulative FD maturity amounts, quarterly compound interest earned, and monthly payouts for Indian bank deposits.",
   alternates: {
     canonical: "https://volumecall.in/calculators/fd-calculator",
   },
   openGraph: {
-    title: "FD Calculator – Calculate Fixed Deposit Maturity & Interest Online | VolumeCall",
+    title: "FD Calculator – Calculate Fixed Deposit Maturity | VolumeCall",
     description:
-      "Free Fixed Deposit (FD) Calculator to calculate cumulative and non-cumulative FD maturity amounts, quarterly compound interest earned, and periodic payouts for Indian bank FDs.",
+      "Calculate cumulative and non-cumulative FD maturity amounts, quarterly compound interest earned, and monthly payouts for Indian bank deposits.",
     url: "https://volumecall.in/calculators/fd-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "FD Calculator – Calculate Fixed Deposit Maturity & Interest Online | VolumeCall",
+    title: "FD Calculator – Calculate Fixed Deposit Maturity | VolumeCall",
     description:
-      "Free Fixed Deposit (FD) Calculator to calculate cumulative and non-cumulative FD maturity amounts, quarterly compound interest earned, and periodic payouts for Indian bank FDs.",
+      "Calculate cumulative and non-cumulative FD maturity amounts, quarterly compound interest earned, and monthly payouts for Indian bank deposits.",
   },
 };
 

@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Compound Interest Calculator – Calculate Compounding Growth & Interest Online | VolumeCall",
+  title: "Compound Interest Calculator – Calculate Growth | VolumeCall",
   description:
-    "Free Compound Interest Calculator to calculate total compound growth, interest on interest, and effective annual rates with daily, monthly, quarterly, or annual compounding.",
+    "Calculate total compound growth, interest on interest, and effective annual rates with daily, monthly, quarterly, or annual compounding frequency.",
   alternates: {
     canonical: "https://volumecall.in/calculators/compound-interest-calculator",
   },
   openGraph: {
-    title: "Compound Interest Calculator – Calculate Compounding Growth & Interest Online | VolumeCall",
+    title: "Compound Interest Calculator – Calculate Growth | VolumeCall",
     description:
-      "Free Compound Interest Calculator to calculate total compound growth, interest on interest, and effective annual rates with daily, monthly, quarterly, or annual compounding.",
+      "Calculate total compound growth, interest on interest, and effective annual rates with daily, monthly, quarterly, or annual compounding frequency.",
     url: "https://volumecall.in/calculators/compound-interest-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Compound Interest Calculator – Calculate Compounding Growth & Interest Online | VolumeCall",
+    title: "Compound Interest Calculator – Calculate Growth | VolumeCall",
     description:
-      "Free Compound Interest Calculator to calculate total compound growth, interest on interest, and effective annual rates with daily, monthly, quarterly, or annual compounding.",
+      "Calculate total compound growth, interest on interest, and effective annual rates with daily, monthly, quarterly, or annual compounding frequency.",
   },
 };
 

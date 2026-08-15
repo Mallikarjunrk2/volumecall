@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "EV/EBITDA Calculator – Enterprise Value & Fair Share Price Valuation | VolumeCall",
+  title: "EV/EBITDA Calculator – Enterprise Value Model | VolumeCall",
   description:
-    "Free EV/EBITDA Calculator to determine Enterprise Value, Equity Value, and target Fair Value Per Share using operating EBITDA multiples and Net Debt.",
+    "Determine Enterprise Value (EV), Equity Value, and target fair share price using operating EBITDA multiples and company Net Debt.",
   alternates: {
     canonical: "https://volumecall.in/calculators/ev-ebitda-calculator",
   },
   openGraph: {
-    title: "EV/EBITDA Calculator – Enterprise Value & Fair Share Price Valuation | VolumeCall",
+    title: "EV/EBITDA Calculator – Enterprise Value Model | VolumeCall",
     description:
-      "Free EV/EBITDA Calculator to determine Enterprise Value, Equity Value, and target Fair Value Per Share using operating EBITDA multiples and Net Debt.",
+      "Determine Enterprise Value (EV), Equity Value, and target fair share price using operating EBITDA multiples and company Net Debt.",
     url: "https://volumecall.in/calculators/ev-ebitda-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "EV/EBITDA Calculator – Enterprise Value & Fair Share Price Valuation | VolumeCall",
+    title: "EV/EBITDA Calculator – Enterprise Value Model | VolumeCall",
     description:
-      "Free EV/EBITDA Calculator to determine Enterprise Value, Equity Value, and target Fair Value Per Share using operating EBITDA multiples and Net Debt.",
+      "Determine Enterprise Value (EV), Equity Value, and target fair share price using operating EBITDA multiples and company Net Debt.",
   },
 };
 

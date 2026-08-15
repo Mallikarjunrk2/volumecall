@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "DCF Calculator – Discounted Cash Flow Intrinsic Value Model | VolumeCall",
+  title: "DCF Calculator – Stock Intrinsic Value Model | VolumeCall",
   description:
-    "Free DCF Calculator to calculate intrinsic stock valuation, enterprise value, and fair price per share using Free Cash Flow projections, WACC, and Terminal Value.",
+    "Calculate intrinsic stock valuation, enterprise value, and fair share price using Free Cash Flow (FCF) projections, WACC, and Terminal Value.",
   alternates: {
     canonical: "https://volumecall.in/calculators/dcf-calculator",
   },
   openGraph: {
-    title: "DCF Calculator – Discounted Cash Flow Intrinsic Value Model | VolumeCall",
+    title: "DCF Calculator – Stock Intrinsic Value Model | VolumeCall",
     description:
-      "Free DCF Calculator to calculate intrinsic stock valuation, enterprise value, and fair price per share using Free Cash Flow projections, WACC, and Terminal Value.",
+      "Calculate intrinsic stock valuation, enterprise value, and fair share price using Free Cash Flow (FCF) projections, WACC, and Terminal Value.",
     url: "https://volumecall.in/calculators/dcf-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "DCF Calculator – Discounted Cash Flow Intrinsic Value Model | VolumeCall",
+    title: "DCF Calculator – Stock Intrinsic Value Model | VolumeCall",
     description:
-      "Free DCF Calculator to calculate intrinsic stock valuation, enterprise value, and fair price per share using Free Cash Flow projections, WACC, and Terminal Value.",
+      "Calculate intrinsic stock valuation, enterprise value, and fair share price using Free Cash Flow (FCF) projections, WACC, and Terminal Value.",
   },
 };
 

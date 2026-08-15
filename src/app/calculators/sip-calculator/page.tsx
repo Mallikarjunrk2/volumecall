@@ -577,44 +577,67 @@ export default function SipCalculatorPage() {
           </div>
         </div>
 
-        {/* Expandable Amortization Schedule */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xs mb-8">
-          <button
-            onClick={() => setShowSchedule(!showSchedule)}
-            className="w-full px-6 py-4 flex items-center justify-between text-sm font-bold text-neutral-900 dark:text-white bg-neutral-50/50 dark:bg-[#121212]/30 hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors border-b border-[var(--border)] focus:outline-none"
-            aria-expanded={showSchedule}
-          >
-            <span>MONTH-ON-MONTH AMORTIZATION SCHEDULE ({parsedYears * 12} MONTHS)</span>
-            {showSchedule ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
-          
-          {showSchedule && (
-            <div className="max-h-[500px] overflow-y-auto">
-              <table className="financial-table min-w-full">
-                <thead>
-                  <tr className="sticky top-0 bg-neutral-50 dark:bg-[#161616] border-b border-[var(--border)] z-10">
-                    <th className="px-6 py-3 text-left">Period</th>
-                    <th className="px-6 py-3 text-right">Investment</th>
-                    <th className="px-6 py-3 text-right">Interest Earned</th>
-                    <th className="px-6 py-3 text-right">Total Invested</th>
-                    <th className="px-6 py-3 text-right">Closing Balance</th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs divide-y divide-[var(--border)] tabular-nums">
-                  {schedule.map((row) => (
-                    <tr key={row.period} className="hover:bg-neutral-50/50 dark:hover:bg-[#121212]/20">
-                      <td className="px-6 py-2.5 text-left font-medium text-[var(--text-secondary)]">Month {row.period}</td>
-                      <td className="px-6 py-2.5 text-right font-medium">₹{formatIndianNumber(row.deposit)}</td>
-                      <td className="px-6 py-2.5 text-right text-teal-650 dark:text-teal-400 font-medium">₹{formatIndianNumber(row.interestEarned, true)}</td>
-                      <td className="px-6 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(row.totalInvested)}</td>
-                      <td className="px-6 py-2.5 text-right font-bold">₹{formatIndianNumber(row.closingBalance, true)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Month-on-Month Amortization Schedule with Preview */}
+        {schedule.length > 0 && (
+          <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xs mb-8">
+            <div className="px-6 py-4 flex items-center justify-between text-xs sm:text-sm font-bold text-neutral-900 dark:text-white bg-neutral-50/50 dark:bg-[#121212]/30 border-b border-[var(--border)]">
+              <span className="uppercase tracking-wider">
+                MONTH-ON-MONTH AMORTIZATION SCHEDULE ({schedule.length} MONTHS)
+              </span>
+              {schedule.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowSchedule(!showSchedule)}
+                  className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 flex items-center gap-1.5 transition-colors focus:outline-none cursor-pointer"
+                  aria-expanded={showSchedule}
+                >
+                  <span>{showSchedule ? "Hide Full Schedule" : "View Full Schedule"}</span>
+                  {showSchedule ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
+              )}
             </div>
-          )}
-        </div>
+            
+            <div className="overflow-x-auto">
+              <div className={showSchedule ? "max-h-[500px] overflow-y-auto" : ""}>
+                <table className="financial-table min-w-full">
+                  <thead>
+                    <tr className="sticky top-0 bg-neutral-50 dark:bg-[#161616] border-b border-[var(--border)] z-10 text-[11px] font-semibold text-[var(--text-secondary)]">
+                      <th className="px-6 py-3 text-left">Period</th>
+                      <th className="px-6 py-3 text-right">Investment</th>
+                      <th className="px-6 py-3 text-right">Interest Earned</th>
+                      <th className="px-6 py-3 text-right">Total Invested</th>
+                      <th className="px-6 py-3 text-right">Closing Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-xs divide-y divide-[var(--border)] tabular-nums">
+                    {(showSchedule ? schedule : schedule.slice(0, 5)).map((row) => (
+                      <tr key={row.period} className="hover:bg-neutral-50/50 dark:hover:bg-[#121212]/20">
+                        <td className="px-6 py-2.5 text-left font-medium text-[var(--text-secondary)]">Month {row.period}</td>
+                        <td className="px-6 py-2.5 text-right font-medium">₹{formatIndianNumber(row.deposit)}</td>
+                        <td className="px-6 py-2.5 text-right text-teal-650 dark:text-teal-400 font-medium">₹{formatIndianNumber(row.interestEarned, true)}</td>
+                        <td className="px-6 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(row.totalInvested)}</td>
+                        <td className="px-6 py-2.5 text-right font-bold">₹{formatIndianNumber(row.closingBalance, true)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {schedule.length > 5 && (
+              <div className="p-3 border-t border-[var(--border)] bg-neutral-50/30 dark:bg-[#121212]/20 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowSchedule(!showSchedule)}
+                  className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 py-1.5 px-4 rounded-lg hover:bg-neutral-100 dark:hover:bg-[#1a1a1a] transition-colors focus:outline-none cursor-pointer"
+                  aria-expanded={showSchedule}
+                >
+                  <span>{showSchedule ? "Hide Full Schedule ↑" : `View Full Schedule (${schedule.length} Months) ↓`}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Goal SIP CTA Card */}
         <div className="my-8 p-6 sm:p-8 bg-neutral-50 dark:bg-[#0a0a0a]/60 border border-[var(--border)] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xs">

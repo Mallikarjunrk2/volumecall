@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Goal SIP Calculator – Calculate SIP Required for Your Financial Goal | VolumeCall",
+  title: "Goal SIP Calculator – Calculate Required Monthly SIP | VolumeCall",
   description:
-    "Use our Goal SIP Calculator to estimate how much you may need to invest monthly, quarterly or yearly to reach a target amount based on your investment period and assumed return.",
+    "Calculate the required monthly, quarterly, or annual SIP investment needed to reach your target financial goal corpus within your timeline.",
   alternates: {
     canonical: "https://volumecall.in/calculators/goal-sip-calculator",
   },
   openGraph: {
-    title: "Goal SIP Calculator – Calculate SIP Required for Your Financial Goal | VolumeCall",
+    title: "Goal SIP Calculator – Calculate Required Monthly SIP | VolumeCall",
     description:
-      "Use our Goal SIP Calculator to estimate how much you may need to invest monthly, quarterly or yearly to reach a target amount based on your investment period and assumed return.",
+      "Calculate the required monthly, quarterly, or annual SIP investment needed to reach your target financial goal corpus within your timeline.",
     url: "https://volumecall.in/calculators/goal-sip-calculator",
     type: "website",
     siteName: "VolumeCall",
   },
   twitter: {
     card: "summary",
-    title: "Goal SIP Calculator – Calculate SIP Required for Your Financial Goal | VolumeCall",
+    title: "Goal SIP Calculator – Calculate Required Monthly SIP | VolumeCall",
     description:
-      "Use our Goal SIP Calculator to estimate how much you may need to invest monthly, quarterly or yearly to reach a target amount based on your investment period and assumed return.",
+      "Calculate the required monthly, quarterly, or annual SIP investment needed to reach your target financial goal corpus within your timeline.",
   },
 };
 
