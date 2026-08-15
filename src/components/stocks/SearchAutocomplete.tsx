@@ -117,7 +117,7 @@ export function SearchAutocomplete({
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       <div className="relative flex items-center">
-        <Search className={`absolute text-neutral-400 pointer-events-none ${searchIconClass}`} />
+        <Search className={`absolute text-neutral-400 pointer-events-none ${searchIconClass}`} size={16} strokeWidth={1.8} aria-hidden="true" />
         <input
           ref={inputRef}
           type="text"
@@ -137,7 +137,7 @@ export function SearchAutocomplete({
           className={`w-full bg-[var(--background-secondary)] border border-[var(--border)] rounded-md focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-600 placeholder:text-neutral-400 text-[var(--foreground)] transition-all duration-150 ${inputPaddingClass}`}
         />
         {loading && (
-          <Loader2 className={`absolute text-neutral-400 animate-spin ${spinnerClass}`} />
+          <Loader2 className={`absolute text-neutral-400 animate-spin ${spinnerClass}`} size={16} strokeWidth={1.8} aria-hidden="true" />
         )}
       </div>
 
@@ -145,7 +145,7 @@ export function SearchAutocomplete({
         <div className={`absolute top-full left-0 right-0 z-50 bg-[var(--background)] border border-[var(--border)] rounded-md shadow-lg max-h-60 overflow-y-auto ${dropdownMarginClass}`}>
           {error ? (
             <div className="px-3 py-4 text-xs text-red-500 flex items-center justify-center space-x-1.5">
-              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" size={14} strokeWidth={1.8} aria-hidden="true" />
               <span>{error}</span>
             </div>
           ) : results.length > 0 ? (

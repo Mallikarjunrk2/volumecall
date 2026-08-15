@@ -145,7 +145,7 @@ export default function VolumeCallAIDrawer({ isOpen, onClose, context }: AIDrawe
         <div className="p-5 border-b border-neutral-800 flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-teal-400 font-extrabold flex items-center gap-1.5 text-base tracking-wide uppercase">
-              <Sparkles className="h-4 w-4 fill-teal-400" />
+              <Sparkles className="h-4 w-4 text-teal-400" size={16} strokeWidth={1.8} aria-hidden="true" />
               VolumeCall AI
             </span>
             <span className="text-xs text-neutral-450 mt-1 uppercase tracking-wider font-mono">
@@ -154,9 +154,10 @@ export default function VolumeCallAIDrawer({ isOpen, onClose, context }: AIDrawe
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg border border-neutral-800 hover:bg-neutral-900 transition-colors cursor-pointer"
+            aria-label="Close Assistant"
+            className="p-1.5 rounded-lg border border-neutral-800 hover:bg-neutral-900 transition-colors cursor-pointer text-neutral-400 hover:text-white"
           >
-            <X className="h-4 w-4 text-neutral-400" />
+            <X className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
 
@@ -250,9 +251,10 @@ export default function VolumeCallAIDrawer({ isOpen, onClose, context }: AIDrawe
             <button
               type="submit"
               disabled={loading || !input.trim()}
+              aria-label="Send message"
               className="p-3 bg-teal-705 hover:bg-teal-700 disabled:opacity-50 text-white rounded-xl transition-all cursor-pointer flex items-center justify-center"
             >
-              <Send className="h-3.5 w-3.5" />
+              <Send className="h-3.5 w-3.5" size={14} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </form>
         </div>
