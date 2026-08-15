@@ -6,8 +6,13 @@ import { SearchAutocomplete } from "../stocks/SearchAutocomplete";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { MarketTicker } from "./MarketTicker";
 
-export function Header() {
+interface HeaderProps {
+  showTicker?: boolean;
+}
+
+export function Header({ showTicker }: HeaderProps) {
   const pathname = usePathname();
+  const shouldShowTicker = showTicker !== undefined ? showTicker : pathname === "/";
 
   const isActive = (href: string) => {
     if (href === "/stocks") {
@@ -103,12 +108,13 @@ export function Header() {
         </div>
       </div>
 
-      {/* ─── LEVEL 2: STOCK MARKET TICKER RUNNER (~32–34px) ─────────────── */}
-      <MarketTicker />
+      {/* ─── LEVEL 2: STOCK MARKET TICKER RUNNER (Homepage only) ─────────── */}
+      {shouldShowTicker && <MarketTicker />}
     </header>
   );
 }
 
 export default Header;
+
 
 
