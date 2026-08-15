@@ -1,44 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: #0f766e;
+  --color-primary: #0d9488;
   --color-primary-dark: #2dd4bf;
   --color-positive: #10b981;
   --color-negative: #ef4444;
   
-  --font-sans: var(--font-geist-sans), "Inter", system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), "Courier New", Courier, monospace;
 }
 
+/* ─── Semantic Design System Tokens (Visual Source of Truth) ─────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --background-secondary: #fafafa;
-  --text-secondary: #666666;
-  --text-muted: #999999;
-  --border: #e5e5e5;
+  /* Surface Scale (Light Mode) */
+  --bg-base: #ffffff;
+  --bg-surface: #f8fafc;
+  --bg-surface-elevated: #ffffff;
+  --bg-subtle: #f1f5f9;
+
+  /* Border Scale */
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+
+  /* Typography Scale */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Accent & Status */
+  --accent-teal: #0d9488;
+  --accent-teal-strong: #0f766e;
+  --accent-teal-subtle: #f0fdfa;
+  --accent-teal-border: #99f6e4;
+
+  --color-positive: #059669;
+  --color-positive-subtle: #ecfdf5;
+  --color-negative: #dc2626;
+  --color-negative-subtle: #fef2f2;
+  --color-warning: #d97706;
+  --color-warning-subtle: #fffbeb;
+
+  --ring-focus: #0d9488;
+
+  /* Backward Compatibility Aliases */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --background-secondary: var(--bg-surface);
+  --text-secondary-alias: var(--text-secondary);
+  --text-muted-alias: var(--text-muted);
+  --border: var(--border-subtle);
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #ffffff;
-  --background-secondary: #0a0a0a;
-  --text-secondary: #a3a3a3;
-  --text-muted: #666666;
-  --border: #1f1f1f;
+  /* Surface Scale (Pure Black Terminal Reference) */
+  --bg-base: #000000;
+  --bg-surface: #0a0a0a;
+  --bg-surface-elevated: #0f0f0f;
+  --bg-subtle: #141414;
+
+  /* Border Scale */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.13);
+  --border-strong: rgba(255, 255, 255, 0.20);
+
+  /* Typography Scale */
+  --text-primary: #ededed;
+  --text-secondary: #96969c;
+  --text-muted: #57575d;
+
+  /* Accent & Status */
+  --accent-teal: #2dd4bf;
+  --accent-teal-strong: #5eead4;
+  --accent-teal-subtle: #091e1c;
+  --accent-teal-border: rgba(45, 212, 191, 0.25);
+
+  --color-positive: #34d399;
+  --color-positive-subtle: rgba(52, 211, 153, 0.12);
+  --color-negative: #f87171;
+  --color-negative-subtle: rgba(248, 113, 113, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-subtle: rgba(251, 191, 36, 0.12);
+
+  --ring-focus: #2dd4bf;
+
+  /* Backward Compatibility Aliases */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --background-secondary: var(--bg-surface);
+  --text-secondary-alias: var(--text-secondary);
+  --text-muted-alias: var(--text-muted);
+  --border: var(--border-subtle);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* Custom scrollbars for a cleaner, precise aesthetic */
+/* ─── Scrollbars ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -49,169 +113,64 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e5e5e5;
+  background: var(--border-subtle);
   border-radius: 2px;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #1f1f1f;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-default);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a3a3a3;
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #333333;
+  background: var(--border-default);
 }
 
-/* Tabular numbers class */
+/* ─── Numeric & Tabular Utilities (IBM Plex Mono Driven) ─────────────────── */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Ensure focus states are accessible and clean */
-*:focus-visible {
-  outline: 1.5px solid #0f766e;
-  outline-offset: 1.5px;
-}
-
-.dark *:focus-visible {
-  outline: 1.5px solid #2dd4bf;
-}
-
-/* Premium Financial Table Classes */
-.financial-table {
-  width: 100%;
-  text-align: left;
-  border-collapse: collapse;
-  font-family: var(--font-sans);
-}
-
-.financial-table thead tr {
-  border-bottom: 1px solid var(--border);
-  background-color: #f8fafc; /* Light theme year header bg */
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b; /* slate-500 */
-}
-.dark .financial-table thead tr {
-  border-bottom: 1px solid #202020;
-  background-color: #0c0c0c; /* Dark theme year header bg */
-  color: #94a3b8; /* slate-400 */
-}
-
-/* Year Header border & padding */
-.financial-table th {
-  padding: 10px 16px;
-  font-weight: 600;
-}
-
-/* Metric Column Header sticky left-0 */
-.financial-table th.sticky-metric {
-  position: sticky;
-  left: 0;
-  background-color: #f8fafc;
-  z-index: 20;
-  border-right: 1px solid #e2e8f0;
-}
-.dark .financial-table th.sticky-metric {
-  background-color: #0c0c0c;
-  border-right: 1px solid #202020;
-}
-
-/* alternating zebra colors */
-.financial-table tbody tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-.financial-table tbody tr:nth-child(even) {
-  background-color: #f7f8fa; /* Row 2, 4 alternating */
-}
-
-.dark .financial-table tbody tr:nth-child(odd) {
-  background-color: #090909;
-}
-.dark .financial-table tbody tr:nth-child(even) {
-  background-color: #111111;
-}
-
-/* hover states */
-.financial-table tbody tr:hover {
-  background-color: #f1f5f4 !important;
-}
-.dark .financial-table tbody tr:hover {
-  background-color: #151a19 !important;
-}
-
-/* cells */
-.financial-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
-}
-.dark .financial-table td {
-  border-bottom: 1px solid #202020;
-}
-
-/* Sticky metrics cell in table rows */
-.financial-table td.sticky-metric {
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  border-right: 1px solid #e2e8f0;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.015);
-}
-.dark .financial-table td.sticky-metric {
-  border-right: 1px solid #202020;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Make sure the sticky column inherits the zebra background */
-.financial-table tbody tr:nth-child(odd) td.sticky-metric {
-  background-color: #ffffff;
-}
-.financial-table tbody tr:nth-child(even) td.sticky-metric {
-  background-color: #f7f8fa;
-}
-.dark .financial-table tbody tr:nth-child(odd) td.sticky-metric {
-  background-color: #090909;
-}
-.dark .financial-table tbody tr:nth-child(even) td.sticky-metric {
-  background-color: #111111;
-}
-
-/* Hover cell inheritance */
-.financial-table tbody tr:hover td.sticky-metric {
-  background-color: #f1f5f4 !important;
-}
-.dark .financial-table tbody tr:hover td.sticky-metric {
-  background-color: #151a19 !important;
-}
-
-/* Font styles for numbers */
 .num-val {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.015em;
-  font-weight: 500; /* Table numbers default 500 */
+  letter-spacing: -0.01em;
+  font-weight: 400;
 }
 
 .num-important {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.015em;
-  font-weight: 600; /* Important numbers 600 */
+  letter-spacing: -0.01em;
+  font-weight: 500;
 }
 
 .num-kpi {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.012em;
-  font-weight: 600; /* KPI / card numbers 600-650 */
+  letter-spacing: -0.02em;
+  font-weight: 600;
 }
 
-/* Remove native browser number input spinner arrows */
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ─── Focus States ────────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 1.5px solid var(--ring-focus);
+  outline-offset: 1.5px;
+}
+
+/* ─── Number Input Controls ──────────────────────────────────────────────── */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -220,15 +179,86 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
-/* ─── Calculator two-column grid: equal-height cards ───────────────────────
-   Replaces inline `items-start` on every calculator page.
-   - Mobile (< lg): block stacking — natural heights, no stretch forced.
-   - Desktop (lg+): `align-items: stretch` so the shorter result/projection
-     card grows to match the taller input card automatically.
-   Both cards must use `h-full` to fill the stretched cell.
-──────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Institutional Financial Table Classes ───────────────────────────────── */
+.financial-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+}
+
+.financial-table thead tr {
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.financial-table th {
+  padding: 8px 14px;
+  font-weight: 500;
+}
+
+/* Sticky metric column header (left-0) */
+.financial-table th.sticky-metric {
+  position: sticky;
+  left: 0;
+  background-color: var(--bg-surface);
+  z-index: 20;
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Zebra row striping */
+.financial-table tbody tr:nth-child(odd) {
+  background-color: var(--bg-base);
+}
+.financial-table tbody tr:nth-child(even) {
+  background-color: var(--bg-surface);
+}
+
+/* Hover crosshairs */
+.financial-table tbody tr:hover {
+  background-color: var(--bg-subtle) !important;
+}
+
+.financial-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Sticky metric column cell in rows */
+.financial-table td.sticky-metric {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-right: 1px solid var(--border-subtle);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.02);
+}
+
+.dark .financial-table td.sticky-metric {
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Sticky column zebra inheritance */
+.financial-table tbody tr:nth-child(odd) td.sticky-metric {
+  background-color: var(--bg-base);
+}
+.financial-table tbody tr:nth-child(even) td.sticky-metric {
+  background-color: var(--bg-surface);
+}
+
+.financial-table tbody tr:hover td.sticky-metric {
+  background-color: var(--bg-subtle) !important;
+}
+
+/* ─── Calculator Grid System ─────────────────────────────────────────────── */
 .calc-grid {
-  align-items: start; /* mobile default */
+  align-items: start;
 }
 @media (min-width: 1024px) {
   .calc-grid {
@@ -236,3 +266,23 @@ input[type="number"] {
   }
 }
 
+/* ─── Financial Ticker Marquee ────────────────────────────────────────────── */
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker-marquee:hover {
+  animation-play-state: paused;
+}
