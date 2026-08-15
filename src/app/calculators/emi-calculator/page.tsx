@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateEmi } from "@/lib/financial/loans/emi";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Home, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Home, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -175,11 +175,8 @@ export default function EmiCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-            {/* Input 1: Loan Amount */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -219,7 +216,6 @@ export default function EmiCalculatorPage() {
               />
             </div>
 
-            {/* Input 2: Rate */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -253,7 +249,6 @@ export default function EmiCalculatorPage() {
               />
             </div>
 
-            {/* Input 3: Tenure */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -291,8 +286,7 @@ export default function EmiCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Monthly Loan EMI</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
@@ -328,165 +322,74 @@ export default function EmiCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is an Equated Monthly Installment (EMI)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              An <strong>Equated Monthly Installment (EMI)</strong> is a fixed monthly cash amount paid by a borrower to a bank or financial institution on a specified date each month. It repays both the principal loan amount and accrued interest in a steady, predictable schedule over a designated loan tenure.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              EMIs are universally used in India for home loans, car loans, personal loans, and education loans. Using an EMI calculator allows borrowers to test various loan amounts and tenures to find a comfortable monthly payment before applying with lenders.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an EMI Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              An EMI calculator models reducing balance loan accounting using three basic inputs:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Loan Principal (P):</strong> The total amount borrowed from the bank.</li>
-              <li><strong>Annual Interest Rate (R):</strong> The contracted interest rate per annum.</li>
-              <li><strong>Loan Tenure (N):</strong> The repayment duration in years or months.</li>
-            </ol>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              The calculator computes the exact monthly installment, splits the total cost between principal and interest, and determines the total repayment burden.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Loan EMI Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              The standard reducing balance formula used by Indian banks and NBFCs is:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">E = P × r × (1 + r)<sup>n</sup> / [ (1 + r)<sup>n</sup> - 1 ]</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>E</strong> = Equated Monthly Installment (EMI)</div>
-                <div><strong>P</strong> = Principal Loan Amount</div>
-                <div><strong>r</strong> = Monthly interest rate = (Annual Interest Rate / 12) / 100</div>
-                <div><strong>n</strong> = Total number of monthly installments (Tenure in Years × 12)</div>
-              </div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              Our financial calculation engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateEmi</code>) executes this exact reducing balance formula with full precision.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Loan EMI Calculation Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Let us evaluate a typical Indian home loan scenario:
-            </p>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1 list-disc list-inside mb-4">
-              <li><strong>Loan Principal:</strong> ₹50,00,000 (50 Lakhs)</li>
-              <li><strong>Interest Rate:</strong> 8.5% p.a. (reducing balance)</li>
-              <li><strong>Loan Tenure:</strong> 20 Years (240 months)</li>
-            </ul>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Monthly EMI</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹43,391 / month</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Total Principal Repaid</span>
-                <span className="font-bold tabular-nums">₹50,00,000</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Total Interest Paid to Bank</span>
-                <span className="font-bold tabular-nums text-amber-600 dark:text-amber-400">₹54,13,879</span>
-              </div>
-              <div className="flex justify-between pt-1 font-bold text-sm">
-                <span>Total Loan Repayment Burden</span>
-                <span className="tabular-nums">₹1,04,13,879</span>
-              </div>
-            </div>
-            <p className="text-xs text-[var(--text-muted)] mt-2">
-              Notice that over a 20-year term at 8.5%, the total interest paid (₹54.13 Lakhs) actually exceeds the original borrowed principal (₹50 Lakhs). Making occasional partial prepayments can save tens of lakhs in interest.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Home Loan vs Personal Loan vs Car Loan EMIs</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Loan Type</th>
-                    <th className="px-4 py-3 text-left">Typical Interest Rate</th>
-                    <th className="px-4 py-3 text-left">Typical Tenure</th>
-                    <th className="px-4 py-3 text-left">Collateral Requirement</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Home Loan</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">8.3% – 9.5% p.a.</td>
-                    <td className="px-4 py-2.5">15 to 30 Years</td>
-                    <td className="px-4 py-2.5">Secured (Property mortgage)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Car Loan</td>
-                    <td className="px-4 py-2.5">8.7% – 11.0% p.a.</td>
-                    <td className="px-4 py-2.5">3 to 7 Years</td>
-                    <td className="px-4 py-2.5">Secured (Vehicle hypothecation)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Personal Loan</td>
-                    <td className="px-4 py-2.5">10.5% – 18.0% p.a.</td>
-                    <td className="px-4 py-2.5">1 to 5 Years</td>
-                    <td className="px-4 py-2.5 text-amber-600 dark:text-amber-400">Unsecured (Income-based)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Loan Factors to Consider</h2>
-            <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
-              <p>
-                <strong>1. 50% FOIR Rule:</strong> Fixed Obligation to Income Ratio (FOIR) is used by banks to assess loan eligibility. Ensure all your EMIs combined do not exceed 40%–50% of your net monthly income.
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is an Equated Monthly Installment (EMI)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                An <strong>Equated Monthly Installment (EMI)</strong> is a fixed monthly cash amount paid by a borrower to a bank or financial institution on a specified date each month. It repays both the principal loan amount and accrued interest in a steady, predictable schedule over a designated loan tenure.
               </p>
-              <p>
-                <strong>2. Floating vs Fixed Interest Rates:</strong> Floating rate loans adjust with RBI benchmark rate revisions. If the repo rate drops, your tenure or EMI decreases.
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                EMIs are universally used in India for home loans, car loans, personal loans, and education loans. Using an EMI calculator allows borrowers to test various loan amounts and tenures to find a comfortable monthly payment before applying with lenders.
               </p>
-              <p>
-                <strong>3. Tax Deductions on Home Loans:</strong> Under the Old Tax Regime in India, borrowers can claim up to ₹1.5 Lakh under Section 80C for principal repayment, and up to ₹2.0 Lakh under Section 24(b) for interest paid on self-occupied property.
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an EMI Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                An EMI calculator models reducing balance loan accounting using three basic inputs:
               </p>
-            </div>
-          </section>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Loan Principal (P):</strong> The total amount borrowed from the bank.</li>
+                <li><strong>Annual Interest Rate (R):</strong> The contracted interest rate per annum.</li>
+                <li><strong>Loan Tenure (N):</strong> The repayment duration in years or months.</li>
+              </ol>
+            </section>
 
-        </div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Loan EMI Calculated?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                The standard reducing balance formula used by Indian banks and NBFCs is:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">E = P × r × (1 + r)<sup>n</sup> / [ (1 + r)<sup>n</sup> - 1 ]</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>E</strong> = Equated Monthly Installment (EMI)</div>
+                  <div><strong>P</strong> = Principal Loan Amount</div>
+                  <div><strong>r</strong> = Monthly interest rate = (Annual Interest Rate / 12) / 100</div>
+                  <div><strong>n</strong> = Total number of monthly installments (Tenure in Years × 12)</div>
+                </div>
+              </div>
+            </section>
 
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/emi-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/emi-calculator" />
       </main>
       <Footer />
     </div>

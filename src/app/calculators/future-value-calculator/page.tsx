@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateFutureValue } from "@/lib/financial/compounding/futureValue";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Sparkles, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Sparkles, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -174,10 +174,10 @@ export default function FutureValueCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Present Value */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -252,14 +252,14 @@ export default function FutureValueCalculatorPage() {
               />
             </div>
 
-            {/* Input 3: Tenure */}
+            {/* Input 3: Years */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="fv-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Duration (Years)
+                    Time Horizon (Years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Investment holding timeframe</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Future period in years</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
@@ -290,10 +290,10 @@ export default function FutureValueCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Future Value</span>
+              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Future Value (FV)</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(result.futureValue))}
               </span>
@@ -327,56 +327,59 @@ export default function FutureValueCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Future Value (FV)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>Future Value (FV)</strong> measures how much a current sum of money will be worth in the future given an assumed interest rate or rate of return. It is a cornerstone of the Time Value of Money (TVM) theory.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Future Value (FV)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>Future Value (FV)</strong> measures how much a current sum of money will be worth in the future given an assumed interest rate or rate of return. It is a cornerstone of the Time Value of Money (TVM) theory.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Future Value Calculated?</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">FV = PV × ( 1 + r )<sup>n</sup></div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>PV</strong> = Present Value (initial deposit)</div>
+                  <div><strong>r</strong> = Rate of return per period</div>
+                  <div><strong>n</strong> = Number of compounding periods (years)</div>
+                </div>
+              </div>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Future Value Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">FV = PV × ( 1 + r )<sup>n</sup></div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>PV</strong> = Present Value (initial deposit)</div>
-                <div><strong>r</strong> = Rate of return per period</div>
-                <div><strong>n</strong> = Number of compounding periods (years)</div>
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/future-value-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/future-value-calculator" />
       </main>
       <Footer />
     </div>

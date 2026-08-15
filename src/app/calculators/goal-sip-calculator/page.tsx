@@ -257,12 +257,10 @@ export default function GoalSipCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          
-          {/* Left Column: Input Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-            
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Left Sub-card: Input Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Target Goal Amount */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -285,7 +283,6 @@ export default function GoalSipCalculatorPage() {
                       className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
                     />
                   </div>
-                  {/* Live Number Words directly underneath input box aligned to right */}
                   {goalWords && (
                     <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
                       {goalWords}
@@ -317,7 +314,6 @@ export default function GoalSipCalculatorPage() {
                     />
                     <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
                   </div>
-                  {/* Live Number Words directly underneath input box aligned to right */}
                   {yearsWords && (
                     <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
                       {yearsWords}
@@ -326,105 +322,117 @@ export default function GoalSipCalculatorPage() {
                 </div>
               </div>
 
-              {/* Horizontal Range Slider starting at min=0 */}
               <input
                 type="range"
-                min="0"
+                min="1"
                 max="40"
                 step="1"
                 autoComplete="off"
-                value={Math.min(40, Math.max(0, parsedYears))}
+                value={Math.min(40, Math.max(1, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
                 className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
               />
             </div>
 
-            {/* Input 3: Return Scenario Buttons */}
+            {/* Input 3: Assumed Annual Return Rate */}
             <div className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                  What return should we assume?
-                </label>
-                <span className="text-[11px] text-[var(--text-muted)]">Assumed return rate for calculation. Actual market returns can be higher or lower.</span>
+              <div className="flex justify-between items-start">
+                <div>
+                  <label htmlFor="goal-return-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                    Assumed Rate of Return (p.a.)
+                  </label>
+                  <span className="text-[11px] text-[var(--text-muted)]">Select a standard scenario or type a custom return rate</span>
+                </div>
               </div>
-              
-              <div className="flex flex-wrap gap-2 pt-1">
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 {[
-                  { label: "10%", value: "10" },
-                  { label: "12%", value: "12" },
-                  { label: "15%", value: "15" },
-                  { label: "Custom", value: "custom" },
-                ].map((sc) => (
+                  { label: "10% p.a. (Conservative)", val: "10" },
+                  { label: "12% p.a. (Moderate)", val: "12" },
+                  { label: "15% p.a. (Aggressive)", val: "15" },
+                ].map((btn) => (
                   <button
-                    key={sc.value}
-                    onClick={() => setScenarioMode(sc.value as "10" | "12" | "15" | "custom")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                      scenarioMode === sc.value
-                        ? "bg-teal-700 border-teal-700 text-white shadow-xs"
-                        : "bg-neutral-50 dark:bg-[#121212] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--foreground)]"
+                    key={btn.val}
+                    type="button"
+                    onClick={() => setScenarioMode(btn.val as "10" | "12" | "15")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                      scenarioMode === btn.val
+                        ? "bg-teal-700 text-white border-teal-700 shadow-xs"
+                        : "bg-neutral-50 dark:bg-[#121212] text-[var(--text-secondary)] border-[var(--border)] hover:bg-neutral-100 dark:hover:bg-[#1a1a1a]"
                     }`}
                   >
-                    {sc.label}
+                    {btn.label}
                   </button>
                 ))}
               </div>
 
-              {scenarioMode === "custom" && (
-                <div className="pt-2 flex items-center space-x-2">
-                  <span className="text-xs font-semibold text-[var(--text-secondary)]">Custom Return Rate:</span>
+              <div className="pt-2">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">Custom Return Rate</span>
                   <div className="relative flex items-center">
                     <input
-                      id="goal-custom-return"
+                      id="goal-return-rate"
                       type="text"
                       inputMode="decimal"
                       autoComplete="off"
                       value={customReturnInput}
                       onChange={handleCustomReturnChange}
-                      className="w-28 pr-6 pl-2.5 py-1 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                      className="w-24 pr-6 pl-2.5 py-1 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
                     />
-                    <span className="absolute right-2 text-xs text-[var(--text-secondary)]">%</span>
+                    <span className="absolute right-2 text-xs text-[var(--text-secondary)] font-medium">%</span>
                   </div>
                 </div>
-              )}
+
+                <input
+                  type="range"
+                  min="1"
+                  max="30"
+                  step="0.5"
+                  autoComplete="off"
+                  value={Math.min(30, Math.max(1, activeReturnPercent))}
+                  onChange={(e) => {
+                    setScenarioMode("custom");
+                    setCustomReturnInput(e.target.value);
+                  }}
+                  className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                />
+              </div>
             </div>
 
-            {/* Input 4: Investment Frequency Segmented Control */}
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                How often do you want to invest?
+            {/* Input 4: Investment Frequency Toggle */}
+            <div className="pt-2 border-t border-[var(--border)]">
+              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-2">
+                Investment Frequency
               </label>
-              <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs">
+              <div className="grid grid-cols-3 gap-2">
                 {[
-                  { label: "Monthly", value: "monthly" },
-                  { label: "Quarterly", value: "quarterly" },
-                  { label: "Yearly", value: "annual" },
-                ].map((f) => (
+                  { id: "monthly", label: "Monthly" },
+                  { id: "quarterly", label: "Quarterly" },
+                  { id: "annual", label: "Yearly" },
+                ].map((item) => (
                   <button
-                    key={f.value}
-                    onClick={() => setFrequency(f.value as InvestmentFrequency)}
-                    className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      frequency === f.value
-                        ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs"
-                        : "text-[var(--text-secondary)] hover:text-[var(--foreground)]"
+                    key={item.id}
+                    type="button"
+                    onClick={() => setFrequency(item.id as InvestmentFrequency)}
+                    className={`py-2 px-3 rounded-lg text-xs font-semibold text-center transition-all border ${
+                      frequency === item.id
+                        ? "bg-teal-700 text-white border-teal-700 shadow-xs"
+                        : "bg-neutral-50 dark:bg-[#121212] text-[var(--text-secondary)] border-[var(--border)] hover:bg-neutral-100 dark:hover:bg-[#1a1a1a]"
                     }`}
                   >
-                    {f.label}
+                    {item.label}
                   </button>
                 ))}
               </div>
             </div>
-
           </div>
 
-          {/* Right Column: Primary Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Right Sub-card: Primary Result Display */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
-              <div className="text-[11px] font-bold text-teal-700 dark:text-teal-400 uppercase tracking-wider mb-1">
-                At {activeReturnPercent}% Assumed Return
-              </div>
-              <h3 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                YOUR ESTIMATED INVESTMENT
-              </h3>
+              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
+                Required Regular Investment
+              </span>
 
               <div className="mt-3">
                 <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block">
@@ -453,11 +461,10 @@ export default function GoalSipCalculatorPage() {
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Return Scenario Comparison Table */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-4 mb-12 shadow-xs">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-4 shadow-xs mb-12">
           <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">
             See how the assumed return changes the required investment
           </h3>
@@ -512,171 +519,173 @@ export default function GoalSipCalculatorPage() {
           </div>
         </div>
 
-        {/* Educational Content Section */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Goal SIP Calculator?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              If you know that you want ₹1 Crore after 15 years, a normal SIP calculator tells you what a given monthly deposit could grow into over time. A <strong>Goal SIP Calculator</strong> works in the opposite direction — it estimates how much you may need to invest regularly (monthly, quarterly, or yearly) to target a specific financial goal.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Whether you are planning for a child&apos;s higher education, purchasing a home, building a retirement corpus, or accumulating ₹5 Crore, a Goal SIP Calculator eliminates guesswork by computing the precise periodic investment required.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does a Goal SIP Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              A Goal SIP Calculator solves the compound interest annuity equation in reverse based on five primary parameters:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Target Goal Amount:</strong> The future wealth corpus you wish to accumulate (e.g. ₹5,00,00,000).</li>
-              <li><strong>Investment Duration:</strong> The number of years available before you need the funds (e.g. 10 Years).</li>
-              <li><strong>Assumed Return Rate:</strong> The annualized rate of return expected from your selected mutual fund asset class (e.g. 12% p.a.).</li>
-              <li><strong>Investment Frequency:</strong> Your deposit schedule (Monthly, Quarterly, or Yearly).</li>
-              <li><strong>Required Periodic Contribution:</strong> The exact deposit amount calculated by solving the annuity future value equation.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is the Required Goal SIP Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              The calculator uses the inverse of the ordinary annuity future value formula:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">P = Target Corpus / [ ((1 + r)<sup>n</sup> - 1) / r ]</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>P</strong> = Required periodic investment contribution (e.g., Monthly SIP)</div>
-                <div><strong>Target Corpus</strong> = Target future financial goal</div>
-                <div><strong>r</strong> = Periodic interest rate = (1 + Annual Rate)<sup>1/periodsPerYear</sup> - 1</div>
-                <div><strong>n</strong> = Total number of investment deposits (Years × periodsPerYear)</div>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much SIP Do I Need to Reach ₹1 Crore?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              The monthly SIP needed to accumulate ₹1 Crore depends heavily on your investment period and assumed return rate. Here are benchmark estimates at an assumed <strong>12% p.a.</strong> return:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium my-4">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
-                <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">10-Year Horizon</span>
-                <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹43,000 / mo</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹51.6 Lakhs</span>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
-                <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">15-Year Horizon</span>
-                <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹15,000 / mo</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹27.0 Lakhs</span>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
-                <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">20-Year Horizon</span>
-                <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹6,500 / mo</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹15.6 Lakhs</span>
-              </div>
-            </div>
-            <p className="text-xs text-[var(--text-muted)]">
-              Notice how extending your investment horizon from 10 years to 20 years reduces your required monthly contribution from ₹43,000 down to ₹6,500.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much SIP Do I Need to Reach ₹5 Crore?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Accumulating a target goal of ₹5 Crore requires dedicated wealth planning. Benchmark estimated requirements at <strong>12% p.a.</strong> return:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium my-4">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
-                <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">10-Year Horizon</span>
-                <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹2,15,000 / mo</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹2.58 Crore</span>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
-                <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">15-Year Horizon</span>
-                <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹75,000 / mo</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹1.35 Crore</span>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
-                <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">20-Year Horizon</span>
-                <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹32,000 / mo</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹76.8 Lakhs</span>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Goal SIP vs Regular SIP</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Feature</th>
-                    <th className="px-4 py-3 text-left">Goal SIP Calculator</th>
-                    <th className="px-4 py-3 text-left">Standard SIP Calculator</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Starting Point</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Target Goal Amount (₹1 Cr, ₹5 Cr)</td>
-                    <td className="px-4 py-2.5">Monthly Investment Amount (₹5,000/mo)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Calculation Direction</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Reverse (Solves for required installment)</td>
-                    <td className="px-4 py-2.5">Forward (Solves for future maturity value)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Primary Use Case</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Milestone-based financial planning</td>
-                    <td className="px-4 py-2.5">General wealth estimation</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Things to Remember</h2>
-            <div className="flex items-start space-x-2.5 p-4 bg-amber-500/5 border border-amber-200/40 dark:border-amber-900/20 rounded-xl text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
-              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <p>
-                <strong>Disclaimer:</strong> Goal SIP calculator outputs are illustrative projections based on assumed return rates. Mutual fund investments are subject to market risks, and actual market returns fluctuate. Capital gains taxes, fund expense ratios, and inflation are not deducted in standard projections.
+        {/* Educational Content & Related Calculators Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Goal SIP Calculator?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                If you know that you want ₹1 Crore after 15 years, a normal SIP calculator tells you what a given monthly deposit could grow into over time. A <strong>Goal SIP Calculator</strong> works in the opposite direction — it estimates how much you may need to invest regularly (monthly, quarterly, or yearly) to target a specific financial goal.
               </p>
-            </div>
-          </section>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Whether you are planning for a child&apos;s higher education, purchasing a home, building a retirement corpus, or accumulating ₹5 Crore, a Goal SIP Calculator eliminates guesswork by computing the precise periodic investment required.
+              </p>
+            </section>
 
-        </div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does a Goal SIP Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                A Goal SIP Calculator solves the compound interest annuity equation in reverse based on five primary parameters:
+              </p>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Target Goal Amount:</strong> The future wealth corpus you wish to accumulate (e.g. ₹5,00,00,000).</li>
+                <li><strong>Investment Duration:</strong> The number of years available before you need the funds (e.g. 10 Years).</li>
+                <li><strong>Assumed Return Rate:</strong> The annualized rate of return expected from your selected mutual fund asset class (e.g. 12% p.a.).</li>
+                <li><strong>Investment Frequency:</strong> Your deposit schedule (Monthly, Quarterly, or Yearly).</li>
+                <li><strong>Required Periodic Contribution:</strong> The exact deposit amount calculated by solving the annuity future value equation.</li>
+              </ol>
+            </section>
 
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is the Required Goal SIP Calculated?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                The calculator uses the inverse of the ordinary annuity future value formula:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">P = Target Corpus / [ ((1 + r)<sup>n</sup> - 1) / r ]</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>P</strong> = Required periodic investment contribution (e.g., Monthly SIP)</div>
+                  <div><strong>Target Corpus</strong> = Target future financial goal</div>
+                  <div><strong>r</strong> = Periodic interest rate = (1 + Annual Rate)<sup>1/periodsPerYear</sup> - 1</div>
+                  <div><strong>n</strong> = Total number of investment deposits (Years × periodsPerYear)</div>
+                </div>
               </div>
-            ))}
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much SIP Do I Need to Reach ₹1 Crore?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                The monthly SIP needed to accumulate ₹1 Crore depends heavily on your investment period and assumed return rate. Here are benchmark estimates at an assumed <strong>12% p.a.</strong> return:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium my-4">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
+                  <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">10-Year Horizon</span>
+                  <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹43,000 / mo</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹51.6 Lakhs</span>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
+                  <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">15-Year Horizon</span>
+                  <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹15,000 / mo</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹27.0 Lakhs</span>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
+                  <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">20-Year Horizon</span>
+                  <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹6,500 / mo</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹15.6 Lakhs</span>
+                </div>
+              </div>
+              <p className="text-xs text-[var(--text-muted)]">
+                Notice how extending your investment horizon from 10 years to 20 years reduces your required monthly contribution from ₹43,000 down to ₹6,500.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much SIP Do I Need to Reach ₹5 Crore?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Accumulating a target goal of ₹5 Crore requires dedicated wealth planning. Benchmark estimated requirements at <strong>12% p.a.</strong> return:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium my-4">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
+                  <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">10-Year Horizon</span>
+                  <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹2,15,000 / mo</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹2.58 Crore</span>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
+                  <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">15-Year Horizon</span>
+                  <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹75,000 / mo</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹1.35 Crore</span>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1">
+                  <span className="text-[var(--text-muted)] text-[10px] uppercase font-bold block">20-Year Horizon</span>
+                  <span className="text-lg font-extrabold text-neutral-950 dark:text-neutral-50 block">~₹32,000 / mo</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">Total Invested: ~₹76.8 Lakhs</span>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Goal SIP vs Regular SIP</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Feature</th>
+                      <th className="px-4 py-3 text-left">Goal SIP Calculator</th>
+                      <th className="px-4 py-3 text-left">Standard SIP Calculator</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Starting Point</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Target Goal Amount (₹1 Cr, ₹5 Cr)</td>
+                      <td className="px-4 py-2.5">Monthly Investment Amount (₹5,000/mo)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Calculation Direction</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Reverse (Solves for required installment)</td>
+                      <td className="px-4 py-2.5">Forward (Solves for future maturity value)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Primary Use Case</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Milestone-based financial planning</td>
+                      <td className="px-4 py-2.5">General wealth estimation</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Things to Remember</h2>
+              <div className="flex items-start space-x-2.5 p-4 bg-amber-500/5 border border-amber-200/40 dark:border-amber-900/20 rounded-xl text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p>
+                  <strong>Disclaimer:</strong> Goal SIP calculator outputs are illustrative projections based on assumed return rates. Mutual fund investments are subject to market risks, and actual market returns fluctuate. Capital gains taxes, fund expense ratios, and inflation are not deducted in standard projections.
+                </p>
+              </div>
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/goal-sip-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/goal-sip-calculator" />
-
       </main>
 
       <Footer />

@@ -220,5 +220,19 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
-
+/* ─── Calculator two-column grid: equal-height cards ───────────────────────
+   Replaces inline `items-start` on every calculator page.
+   - Mobile (< lg): block stacking — natural heights, no stretch forced.
+   - Desktop (lg+): `align-items: stretch` so the shorter result/projection
+     card grows to match the taller input card automatically.
+   Both cards must use `h-full` to fill the stretched cell.
+──────────────────────────────────────────────────────────────────────────── */
+.calc-grid {
+  align-items: start; /* mobile default */
+}
+@media (min-width: 1024px) {
+  .calc-grid {
+    align-items: stretch;
+  }
+}
 

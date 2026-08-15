@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculatePrepayment } from "@/lib/financial/loans/prepayment";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Zap, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Zap, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -192,10 +192,10 @@ export default function LoanPrepaymentPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Mode Switcher */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
@@ -221,20 +221,20 @@ export default function LoanPrepaymentPage() {
               </div>
             </div>
 
-            {/* Input 1: Outstanding Balance */}
+            {/* Input 1: Outstanding Loan Balance */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <label htmlFor="prepay-balance" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Outstanding Loan Balance
+                  <label htmlFor="lp-balance" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                    Outstanding Principal Balance (₹)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Current remaining principal balance</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Current remaining loan principal</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
                     <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
                     <input
-                      id="prepay-balance"
+                      id="lp-balance"
                       type="text"
                       inputMode="numeric"
                       autoComplete="off"
@@ -261,20 +261,20 @@ export default function LoanPrepaymentPage() {
               />
             </div>
 
-            {/* Input 2: Prepayment Amount */}
+            {/* Input 2: Prepayment Lump Sum */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <label htmlFor="prepay-amount" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Prepayment Amount
+                  <label htmlFor="lp-prepay" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                    Part-Prepayment Lump Sum (₹)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Lump sum part-payment toward principal</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Extra payment toward principal</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
                     <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
                     <input
-                      id="prepay-amount"
+                      id="lp-prepay"
                       type="text"
                       inputMode="numeric"
                       autoComplete="off"
@@ -305,14 +305,14 @@ export default function LoanPrepaymentPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <label htmlFor="prepay-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                  <label htmlFor="lp-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                     Interest Rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Annual reducing balance interest rate</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Annual loan interest rate</span>
                 </div>
                 <div className="relative flex items-center">
                   <input
-                    id="prepay-rate"
+                    id="lp-rate"
                     type="text"
                     inputMode="decimal"
                     autoComplete="off"
@@ -325,11 +325,11 @@ export default function LoanPrepaymentPage() {
               </div>
               <input
                 type="range"
-                min="0"
-                max="25"
+                min="1"
+                max="20"
                 step="0.1"
                 autoComplete="off"
-                value={Math.min(25, Math.max(0, parsedRate))}
+                value={Math.min(20, Math.max(1, parsedRate))}
                 onChange={(e) => setRateInput(e.target.value)}
                 className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
               />
@@ -339,15 +339,15 @@ export default function LoanPrepaymentPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <label htmlFor="prepay-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Remaining Tenure (Years)
+                  <label htmlFor="lp-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                    Remaining Loan Tenure (Years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Time left on scheduled loan</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Time left on loan</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
                     <input
-                      id="prepay-tenure"
+                      id="lp-years"
                       type="text"
                       inputMode="numeric"
                       autoComplete="off"
@@ -373,8 +373,8 @@ export default function LoanPrepaymentPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Output Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Total Interest Saved</span>
               <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
@@ -409,91 +409,94 @@ export default function LoanPrepaymentPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Loan Prepayment Calculator?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Loan Prepayment Calculator</strong> helps borrowers estimate the substantial financial savings achieved by paying a lump sum toward their loan principal. It calculates the exact reduction in total interest payable and shows how much earlier your loan will close if you choose to reduce your tenure.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Loan Prepayment Calculator?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Loan Prepayment Calculator</strong> helps borrowers estimate the substantial financial savings achieved by paying a lump sum toward their loan principal. It calculates the exact reduction in total interest payable and shows how much earlier your loan will close if you choose to reduce your tenure.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Reduce Tenure vs Reduce EMI: Which Is Better?</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Strategy</th>
-                    <th className="px-4 py-3 text-left">How It Works</th>
-                    <th className="px-4 py-3 text-left">Total Interest Savings</th>
-                    <th className="px-4 py-3 text-left">Best For</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Reduce Tenure (Recommended)</td>
-                    <td className="px-4 py-2.5">Keep monthly EMI same, shorten tenure</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-bold">Maximum (saves lakhs in interest)</td>
-                    <td className="px-4 py-2.5">Borrowers with stable monthly cash flow</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Reduce EMI</td>
-                    <td className="px-4 py-2.5">Keep tenure same, lower monthly EMI</td>
-                    <td className="px-4 py-2.5 text-[var(--text-secondary)]">Moderate</td>
-                    <td className="px-4 py-2.5">Borrowers needing immediate monthly budget relief</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Prepayment Calculation Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Consider an outstanding home loan balance of ₹40 Lakhs at <strong>8.5% p.a.</strong> with 15 years remaining. Making a single lump-sum prepayment of <strong>₹5,00,000</strong> and choosing to reduce tenure results in:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Interest Saved over Remaining Life</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹7,83,492</span>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Reduce Tenure vs Reduce EMI: Which Is Better?</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Strategy</th>
+                      <th className="px-4 py-3 text-left">How It Works</th>
+                      <th className="px-4 py-3 text-left">Total Interest Savings</th>
+                      <th className="px-4 py-3 text-left">Best For</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Reduce Tenure (Recommended)</td>
+                      <td className="px-4 py-2.5">Keep monthly EMI same, shorten tenure</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-bold">Maximum (saves lakhs in interest)</td>
+                      <td className="px-4 py-2.5">Borrowers with stable monthly cash flow</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Reduce EMI</td>
+                      <td className="px-4 py-2.5">Keep tenure same, lower monthly EMI</td>
+                      <td className="px-4 py-2.5 text-[var(--text-secondary)]">Moderate</td>
+                      <td className="px-4 py-2.5">Borrowers needing immediate monthly budget relief</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Tenure Cut</span>
-                <span className="font-bold tabular-nums">41 Months (~3.4 Years earlier!)</span>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Prepayment Calculation Example</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Consider an outstanding home loan balance of ₹40 Lakhs at <strong>8.5% p.a.</strong> with 15 years remaining. Making a single lump-sum prepayment of <strong>₹5,00,000</strong> and choosing to reduce tenure results in:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Interest Saved over Remaining Life</span>
+                  <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹7,83,492</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Tenure Cut</span>
+                  <span className="font-bold tabular-nums">41 Months (~3.4 Years earlier!)</span>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/loan-prepayment-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/loan-prepayment-calculator" />
       </main>
       <Footer />
     </div>

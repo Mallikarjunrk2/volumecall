@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateEvEbitdaValuation } from "@/lib/financial/valuation/evEbitda";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { BarChart3, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 const pageFaqItems = [
   {
@@ -124,10 +124,10 @@ export default function EvEbitdaCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: EBITDA */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -172,25 +172,16 @@ export default function EvEbitdaCalculatorPage() {
                   <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">x</span>
                 </div>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="50"
-                step="0.5"
-                value={Math.min(50, Math.max(0, parsedMultiple))}
-                onChange={(e) => setMultipleInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
-              />
             </div>
 
             {/* Input 3 & 4: Net Debt & Shares */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[var(--border)] text-xs">
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)] text-xs">
               <div>
-                <label htmlFor="ev-netdebt" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
+                <label htmlFor="ev-debt" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
                   Net Debt (₹ Cr)
                 </label>
                 <input
-                  id="ev-netdebt"
+                  id="ev-debt"
                   type="text"
                   inputMode="decimal"
                   value={netDebtInput}
@@ -201,7 +192,7 @@ export default function EvEbitdaCalculatorPage() {
 
               <div>
                 <label htmlFor="ev-shares" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Diluted Shares Outstanding (Cr)
+                  Shares Outstanding (Cr Shares)
                 </label>
                 <input
                   id="ev-shares"
@@ -215,8 +206,8 @@ export default function EvEbitdaCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Fair Value Per Share</span>
               <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
@@ -249,53 +240,56 @@ export default function EvEbitdaCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is EV/EBITDA Valuation?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>EV/EBITDA</strong> (Enterprise Value to Earnings Before Interest, Taxes, Depreciation, and Amortization) is a key financial metric used by investment bankers and analysts to compare the value of companies across identical industries, regardless of their capital structure (debt vs equity) or taxation regimes.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is EV/EBITDA Valuation?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>EV/EBITDA</strong> (Enterprise Value to Earnings Before Interest, Taxes, Depreciation, and Amortization) is a key financial metric used by investment bankers and analysts to compare the value of companies across identical industries, regardless of their capital structure (debt vs equity) or taxation regimes.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">EV/EBITDA Valuation Formulas</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div>Enterprise Value = EBITDA × Target Multiple</div>
-              <div>Equity Value = Enterprise Value - Net Debt</div>
-              <div>Fair Share Price = Equity Value / Diluted Shares Outstanding</div>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">EV/EBITDA Valuation Formulas</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div>Enterprise Value = EBITDA × Target Multiple</div>
+                <div>Equity Value = Enterprise Value - Net Debt</div>
+                <div>Fair Share Price = Equity Value / Diluted Shares Outstanding</div>
               </div>
-            ))}
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/ev-ebitda-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/ev-ebitda-calculator" />
       </main>
       <Footer />
     </div>

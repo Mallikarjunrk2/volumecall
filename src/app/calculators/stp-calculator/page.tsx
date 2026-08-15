@@ -189,9 +189,9 @@ export default function StpCalculatorPage() {
         </div>
 
         {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
           {/* Left Column: Input Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Source Fund Initial */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -346,7 +346,7 @@ export default function StpCalculatorPage() {
           </div>
 
           {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Combined Portfolio Value</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
@@ -382,214 +382,217 @@ export default function StpCalculatorPage() {
           </p>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Systematic Transfer Plan (STP)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Systematic Transfer Plan (STP)</strong> is an automated mutual fund strategy that allows an investor to periodically shift a predetermined amount of money from one mutual fund scheme (the <em>source fund</em>) to another scheme (the <em>target fund</em>) within the same Asset Management Company (AMC).
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              STP is most commonly utilized when an investor receives a significant lump sum (such as an annual bonus, property sale proceeds, or retirement gratuity). Rather than risking all the capital in the equity market at once or leaving it in a low-yield bank savings account, the investor parks the lump sum in a liquid or short-term debt fund (yielding 6%–7% p.a.) and sets up an automated monthly STP into diversified equity funds over 12 to 36 months.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an STP Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              An STP calculator models dual-fund financial mechanics across every month of the transfer timeline:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Track Source Fund Balance:</strong> Accrues monthly interest on the un-transferred balance in the liquid/debt fund.</li>
-              <li><strong>Execute Monthly Transfer:</strong> Deducts the fixed monthly installment from the source fund.</li>
-              <li><strong>Credit Target Fund:</strong> Adds the installment to the equity target fund and compounds accumulated units at the equity return rate.</li>
-              <li><strong>Compute Combined Valuation:</strong> Evaluates the total combined wealth (Source Balance + Target Equity Value) at every monthly milestone.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is an STP Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              For each month <em>m</em> from 1 to the duration:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div>Source<sub>m</sub> = Source<sub>m-1</sub> × (1 + r<sub>source</sub>) - TransferAmount</div>
-              <div>Target<sub>m</sub> = Target<sub>m-1</sub> × (1 + r<sub>target</sub>) + TransferAmount</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>r<sub>source</sub></strong> = Monthly effective rate of source fund = (1 + Source Return)<sup>1/12</sup> - 1</div>
-                <div><strong>r<sub>target</sub></strong> = Monthly effective rate of target fund = (1 + Target Return)<sup>1/12</sup> - 1</div>
-                <div><strong>Combined Portfolio</strong> = Source<sub>m</sub> + Target<sub>m</sub></div>
-              </div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              Our financial calculation engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateStp</code>) executes this dual-fund simulation month by month to provide exact portfolio balances.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">STP Calculation Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Consider an investor with a ₹10 Lakh lump sum setting up a 3-year (36 months) STP:
-            </p>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1 list-disc list-inside mb-4">
-              <li><strong>Source Fund (Liquid Fund):</strong> ₹10,00,000 initial, assumed 6% return p.a.</li>
-              <li><strong>Monthly Transfer Amount:</strong> ₹25,000 / month</li>
-              <li><strong>Target Fund (Equity Fund):</strong> Assumed 12% return p.a.</li>
-              <li><strong>Duration:</strong> 36 Months</li>
-            </ul>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Total Capital Transferred (₹25,000 × 36)</span>
-                <span className="font-bold tabular-nums">₹9,00,000</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Source Liquid Fund Remaining Balance</span>
-                <span className="font-bold tabular-nums">₹2,09,926</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-teal-700 dark:text-teal-400">Target Equity Fund Final Value</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹10,87,358</span>
-              </div>
-              <div className="flex justify-between pt-1 font-bold text-sm">
-                <span>Combined Final Portfolio Value</span>
-                <span className="tabular-nums">₹12,97,284</span>
-              </div>
-            </div>
-            <p className="text-xs text-[var(--text-muted)] mt-2">
-              By using an STP, the investor achieved complete rupee-cost averaging in equities while earning over <strong>₹2.97 Lakhs in cumulative growth</strong> across both funds.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the STP Calculator</h2>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Enter Source Fund Initial Balance:</strong> Input the lump sum cash parked in your liquid/debt mutual fund.</li>
-              <li><strong>Specify Monthly Transfer:</strong> Enter the tranche amount you wish transferred to equity each month.</li>
-              <li><strong>Set Source Return (%):</strong> Input expected return on the debt/liquid fund (typically 6% to 7% p.a.).</li>
-              <li><strong>Set Target Return (%):</strong> Input expected long-term return on the equity fund (typically 12% to 15% p.a.).</li>
-              <li><strong>Choose Duration:</strong> Enter the number of months for the transfer plan.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of a Systematic Transfer Plan</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-normal">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Rupee Cost Averaging for Lump Sums</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Eliminates the fear of investing a large lump sum right before a market correction by spreading entry over multiple months.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Higher Yield on Idle Cash</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Liquid and ultra-short debt funds historically yield 6%–7% p.a., significantly outperforming regular bank savings interest (2.5%–3.5%).
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Automated Discipline</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Avoids emotional hesitation during market volatility by executing fixed monthly transfers automatically without manual intervention.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Dual Compounding Engine</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Both your source debt fund and target equity fund work simultaneously, maximizing capital efficiency across the entire tenure.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">STP vs SIP vs Direct Lumpsum</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Compare how STP fits into your broader asset allocation and cash deployment strategy:
-            </p>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Feature</th>
-                    <th className="px-4 py-3 text-left">Systematic Transfer Plan (STP)</th>
-                    <th className="px-4 py-3 text-left">Systematic Investment Plan (SIP)</th>
-                    <th className="px-4 py-3 text-left">Direct Lumpsum</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Source of Funds</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Liquid / Debt mutual fund</td>
-                    <td className="px-4 py-2.5">Bank Savings Account</td>
-                    <td className="px-4 py-2.5">Bank Account (Single debit)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Yield on Idle Funds</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">6.0% – 7.0% p.a.</td>
-                    <td className="px-4 py-2.5">2.5% – 3.5% p.a.</td>
-                    <td className="px-4 py-2.5">N/A (invested immediately)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Best Suited For</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Deploying large windfalls safely</td>
-                    <td className="px-4 py-2.5">Monthly salaried savings</td>
-                    <td className="px-4 py-2.5">Long-term cash with high risk tolerance</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Market Timing Risk</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Low (Rupee-cost averaged)</td>
-                    <td className="px-4 py-2.5">Low (Rupee-cost averaged)</td>
-                    <td className="px-4 py-2.5">High (Vulnerable to market peaks)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Factors & Taxation Considerations</h2>
-            <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
-              <p>
-                <strong>1. Intra-AMC Rule:</strong> In India, automated STP is only permitted between mutual fund schemes within the same fund house (AMC). You cannot STP directly from an AMC &apos;A&apos; debt fund to an AMC &apos;B&apos; equity fund.
+        {/* Comprehensive Educational Content & Related Calculators Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Systematic Transfer Plan (STP)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Systematic Transfer Plan (STP)</strong> is an automated mutual fund strategy that allows an investor to periodically shift a predetermined amount of money from one mutual fund scheme (the <em>source fund</em>) to another scheme (the <em>target fund</em>) within the same Asset Management Company (AMC).
               </p>
-              <p>
-                <strong>2. Taxation on Source Fund Redemptions:</strong> Each monthly transfer is technically a redemption of units from the source debt fund and an investment into the target equity fund. Capital gains on debt fund units are taxed as per your applicable income tax slab rate.
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                STP is most commonly utilized when an investor receives a significant lump sum (such as an annual bonus, property sale proceeds, or retirement gratuity). Rather than risking all the capital in the equity market at once or leaving it in a low-yield bank savings account, the investor parks the lump sum in a liquid or short-term debt fund (yielding 6%–7% p.a.) and sets up an automated monthly STP into diversified equity funds over 12 to 36 months.
               </p>
-              <p>
-                <strong>3. Exit Loads:</strong> Choose a liquid fund with zero exit load after 7 days as your source scheme to avoid premature exit penalty charges.
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an STP Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                An STP calculator models dual-fund financial mechanics across every month of the transfer timeline:
               </p>
-            </div>
-          </section>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Track Source Fund Balance:</strong> Accrues monthly interest on the un-transferred balance in the liquid/debt fund.</li>
+                <li><strong>Execute Monthly Transfer:</strong> Deducts the fixed monthly installment from the source fund.</li>
+                <li><strong>Credit Target Fund:</strong> Adds the installment to the equity target fund and compounds accumulated units at the equity return rate.</li>
+                <li><strong>Compute Combined Valuation:</strong> Evaluates the total combined wealth (Source Balance + Target Equity Value) at every monthly milestone.</li>
+              </ol>
+            </section>
 
-        </div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is an STP Calculated?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                For each month <em>m</em> from 1 to the duration:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div>Source<sub>m</sub> = Source<sub>m-1</sub> × (1 + r<sub>source</sub>) - TransferAmount</div>
+                <div>Target<sub>m</sub> = Target<sub>m-1</sub> × (1 + r<sub>target</sub>) + TransferAmount</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>r<sub>source</sub></strong> = Monthly effective rate of source fund = (1 + Source Return)<sup>1/12</sup> - 1</div>
+                  <div><strong>r<sub>target</sub></strong> = Monthly effective rate of target fund = (1 + Target Return)<sup>1/12</sup> - 1</div>
+                  <div><strong>Combined Portfolio</strong> = Source<sub>m</sub> + Target<sub>m</sub></div>
+                </div>
+              </div>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                Our financial calculation engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateStp</code>) executes this dual-fund simulation month by month to provide exact portfolio balances.
+              </p>
+            </section>
 
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">STP Calculation Example</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Consider an investor with a ₹10 Lakh lump sum setting up a 3-year (36 months) STP:
+              </p>
+              <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1 list-disc list-inside mb-4">
+                <li><strong>Source Fund (Liquid Fund):</strong> ₹10,00,000 initial, assumed 6% return p.a.</li>
+                <li><strong>Monthly Transfer Amount:</strong> ₹25,000 / month</li>
+                <li><strong>Target Fund (Equity Fund):</strong> Assumed 12% return p.a.</li>
+                <li><strong>Duration:</strong> 36 Months</li>
+              </ul>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Total Capital Transferred (₹25,000 × 36)</span>
+                  <span className="font-bold tabular-nums">₹9,00,000</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Source Liquid Fund Remaining Balance</span>
+                  <span className="font-bold tabular-nums">₹2,09,926</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-teal-700 dark:text-teal-400">Target Equity Fund Final Value</span>
+                  <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹10,87,358</span>
+                </div>
+                <div className="flex justify-between pt-1 font-bold text-sm">
+                  <span>Combined Final Portfolio Value</span>
+                  <span className="tabular-nums">₹12,97,284</span>
+                </div>
+              </div>
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                By using an STP, the investor achieved complete rupee-cost averaging in equities while earning over <strong>₹2.97 Lakhs in cumulative growth</strong> across both funds.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the STP Calculator</h2>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Enter Source Fund Initial Balance:</strong> Input the lump sum cash parked in your liquid/debt mutual fund.</li>
+                <li><strong>Specify Monthly Transfer:</strong> Enter the tranche amount you wish transferred to equity each month.</li>
+                <li><strong>Set Source Return (%):</strong> Input expected return on the debt/liquid fund (typically 6% to 7% p.a.).</li>
+                <li><strong>Set Target Return (%):</strong> Input expected long-term return on the equity fund (typically 12% to 15% p.a.).</li>
+                <li><strong>Choose Duration:</strong> Enter the number of months for the transfer plan.</li>
+              </ol>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of a Systematic Transfer Plan</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-normal">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Rupee Cost Averaging for Lump Sums</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Eliminates the fear of investing a large lump sum right before a market correction by spreading entry over multiple months.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Higher Yield on Idle Cash</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Liquid and ultra-short debt funds historically yield 6%–7% p.a., significantly outperforming regular bank savings interest (2.5%–3.5%).
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Automated Discipline</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Avoids emotional hesitation during market volatility by executing fixed monthly transfers automatically without manual intervention.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Dual Compounding Engine</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Both your source debt fund and target equity fund work simultaneously, maximizing capital efficiency across the entire tenure.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">STP vs SIP vs Direct Lumpsum</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Compare how STP fits into your broader asset allocation and cash deployment strategy:
+              </p>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Feature</th>
+                      <th className="px-4 py-3 text-left">Systematic Transfer Plan (STP)</th>
+                      <th className="px-4 py-3 text-left">Systematic Investment Plan (SIP)</th>
+                      <th className="px-4 py-3 text-left">Direct Lumpsum</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Source of Funds</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Liquid / Debt mutual fund</td>
+                      <td className="px-4 py-2.5">Bank Savings Account</td>
+                      <td className="px-4 py-2.5">Bank Account (Single debit)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Yield on Idle Funds</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">6.0% – 7.0% p.a.</td>
+                      <td className="px-4 py-2.5">2.5% – 3.5% p.a.</td>
+                      <td className="px-4 py-2.5">N/A (invested immediately)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Best Suited For</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Deploying large windfalls safely</td>
+                      <td className="px-4 py-2.5">Monthly salaried savings</td>
+                      <td className="px-4 py-2.5">Long-term cash with high risk tolerance</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Market Timing Risk</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Low (Rupee-cost averaged)</td>
+                      <td className="px-4 py-2.5">Low (Rupee-cost averaged)</td>
+                      <td className="px-4 py-2.5">High (Vulnerable to market peaks)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Factors & Taxation Considerations</h2>
+              <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
+                <p>
+                  <strong>1. Intra-AMC Rule:</strong> In India, automated STP is only permitted between mutual fund schemes within the same fund house (AMC). You cannot STP directly from an AMC &apos;A&apos; debt fund to an AMC &apos;B&apos; equity fund.
+                </p>
+                <p>
+                  <strong>2. Taxation on Source Fund Redemptions:</strong> Each monthly transfer is technically a redemption of units from the source debt fund and an investment into the target equity fund. Capital gains on debt fund units are taxed as per your applicable income tax slab rate.
+                </p>
+                <p>
+                  <strong>3. Exit Loads:</strong> Choose a liquid fund with zero exit load after 7 days as your source scheme to avoid premature exit penalty charges.
+                </p>
+              </div>
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/stp-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/stp-calculator" />
       </main>
       <Footer />
     </div>

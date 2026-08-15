@@ -115,6 +115,8 @@ export default function SipCalculatorPage() {
 
   // 2. Schedule & FAQ Toggle State
   const [showSchedule, setShowSchedule] = useState<boolean>(false);
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+  const [paymentTiming, setPaymentTiming] = useState<"end" | "beginning">("end");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Helper to format raw integer digits into Indian number format
@@ -338,9 +340,9 @@ export default function SipCalculatorPage() {
         </div>
 
         {/* Calculator Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
           {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             
             {/* Input 1: Monthly Investment */}
             <div className="space-y-3">
@@ -480,7 +482,7 @@ export default function SipCalculatorPage() {
           </div>
 
           {/* Right Column: Visual Summary and Analytics */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#0a0a0a]/50 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between min-h-[380px] shadow-xs">
+          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#0a0a0a]/50 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between min-h-[380px] shadow-xs">
             <div>
               <h3 className="text-sm font-bold text-neutral-850 dark:text-neutral-150 uppercase tracking-wider mb-6">
                 Investment Summary
@@ -645,218 +647,249 @@ export default function SipCalculatorPage() {
           </p>
         </div>
 
-        {/* Educational Content Section */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Educational Content & Related Calculators Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a SIP?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A Systematic Investment Plan (SIP) is a disciplined method of investing a fixed sum of money at regular monthly intervals into mutual funds or equity products. Rather than attempting to time the stock market with a single large deposit, a SIP allows retail investors to build wealth gradually over time.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Monthly SIP investing leverages two fundamental wealth-creation principles: <strong>compounding</strong> and <strong>rupee-cost averaging</strong>. By investing consistently through market ups and downs, you automatically purchase more mutual fund units when market prices are low and fewer units when prices are high, lowering your average cost per unit over long investment horizons.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a SIP?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A Systematic Investment Plan (SIP) is a disciplined method of investing a fixed sum of money at regular monthly intervals into mutual funds or equity products. Rather than attempting to time the stock market with a single large deposit, a SIP allows retail investors to build wealth gradually over time.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Monthly SIP investing leverages two fundamental wealth-creation principles: <strong>compounding</strong> and <strong>rupee-cost averaging</strong>. By investing consistently through market ups and downs, you automatically purchase more mutual fund units when market prices are low and fewer units when prices are high, lowering your average cost per unit over long investment horizons.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a SIP Calculator?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A SIP calculator is an online financial estimation tool that helps you project the potential future value of your recurring monthly investments. By entering three simple inputs — your monthly SIP amount, expected annual return rate, and investment duration — the calculator computes your total out-of-pocket investment, estimated returns earned, and final maturity value.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Using a SIP return calculator makes goal planning easy. It allows you to simulate how small changes in your monthly contribution or investment period can significantly increase your final portfolio value.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a SIP Calculator?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A SIP calculator is an online financial estimation tool that helps you project the potential future value of your recurring monthly investments. By entering three simple inputs — your monthly SIP amount, expected annual return rate, and investment duration — the calculator computes your total out-of-pocket investment, estimated returns earned, and final maturity value.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Using a SIP return calculator makes goal planning easy. It allows you to simulate how small changes in your monthly contribution or investment period can significantly increase your final portfolio value.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does a SIP Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Calculating your estimated SIP maturity value follows a clear, step-by-step process:
+              </p>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Input Monthly SIP Amount:</strong> Specify how much capital you plan to invest each month (e.g., ₹10,000).</li>
+                <li><strong>Specify Expected Annual Return:</strong> Enter your assumed annual rate of return (e.g., 12% p.a.).</li>
+                <li><strong>Set Investment Duration:</strong> Choose how many years you intend to continue the SIP (e.g., 10 years).</li>
+                <li><strong>Convert Return Rate:</strong> The calculator converts the annual expected return into an exact monthly compounded rate.</li>
+                <li><strong>Apply Future Value Annuity Formula:</strong> Compound interest is calculated month-by-month for each deposit.</li>
+                <li><strong>Generate Output Summary:</strong> Display total invested capital, cumulative interest earned, and final estimated maturity value.</li>
+              </ol>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does a SIP Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Calculating your estimated SIP maturity value follows a clear, step-by-step process:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Input Monthly SIP Amount:</strong> Specify how much capital you plan to invest each month (e.g., ₹10,000).</li>
-              <li><strong>Specify Expected Annual Return:</strong> Enter your assumed annual rate of return (e.g., 12% p.a.).</li>
-              <li><strong>Set Investment Duration:</strong> Choose how many years you intend to continue the SIP (e.g., 10 years).</li>
-              <li><strong>Convert Return Rate:</strong> The calculator converts the annual expected return into an exact monthly compounded rate.</li>
-              <li><strong>Apply Future Value Annuity Formula:</strong> Compound interest is calculated month-by-month for each deposit.</li>
-              <li><strong>Generate Output Summary:</strong> Display total invested capital, cumulative interest earned, and final estimated maturity value.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP Calculator Formula</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              The potential maturity value of a SIP is computed using the future value of an ordinary annuity formula:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-1.5 mb-3">
-              <div className="font-bold text-sm">M = P × [ (1 + r)<sup>n</sup> - 1 ] / r</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>M (or FV)</strong> = Estimated Maturity Value (Future Value)</div>
-                <div><strong>P</strong> = Monthly SIP investment amount</div>
-                <div><strong>r</strong> = Monthly periodic rate of return</div>
-                <div><strong>n</strong> = Total number of monthly contributions (Years × 12)</div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP Calculator Formula</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                The potential maturity value of a SIP is computed using the future value of an ordinary annuity formula:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-1.5 mb-3">
+                <div className="font-bold text-sm">M = P × [ (1 + r)<sup>n</sup> - 1 ] / r</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>M (or FV)</strong> = Estimated Maturity Value (Future Value)</div>
+                  <div><strong>P</strong> = Monthly SIP investment amount</div>
+                  <div><strong>r</strong> = Monthly periodic rate of return</div>
+                  <div><strong>n</strong> = Total number of monthly contributions (Years × 12)</div>
+                </div>
               </div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              In our implementation, this formula is executed directly by our underlying financial engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateSip</code>), maintaining high mathematical precision without formula duplication.
-            </p>
-          </section>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                In our implementation, this formula is executed directly by our underlying financial engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateSip</code>), maintaining high mathematical precision without formula duplication.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is the Monthly SIP Return Rate Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              An annual return expectation must be converted into an equivalent monthly rate for periodic compounding. This calculator uses the mathematically precise <strong>Effective Annual Rate (EAR)</strong> conversion formula:
-            </p>
-            <div className="p-3 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-lg text-center font-mono text-xs text-teal-800 dark:text-teal-400 my-3">
-              Monthly Rate = (1 + Annual Return)<sup>(1 / 12)</sup> - 1
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-2">
-              For example, if your expected annual return is <strong>12%</strong> (0.12):
-            </p>
-            <div className="p-3 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-lg font-mono text-xs text-neutral-700 dark:text-neutral-300 space-y-1 mb-3">
-              <div>Monthly Rate = (1 + 0.12)<sup>(1/12)</sup> - 1</div>
-              <div>Monthly Rate ≈ 0.00948879 (or <strong>~0.95%</strong> per month)</div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              Simply dividing 12% by 12 gives 1% per month, but compounding 1% every month produces an annualized return higher than 12% (12.68% p.a.). Therefore, this calculator converts the annual effective return into its equivalent monthly compounded rate, ensuring compounding 12 times yields exactly the 12% annualized return.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP Calculator Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Let us analyze a practical benchmark calculation for a monthly equity mutual fund SIP:
-            </p>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1 list-disc list-inside mb-4">
-              <li><strong>Monthly Investment (P):</strong> ₹10,000</li>
-              <li><strong>Expected Annual Return:</strong> 12% p.a.</li>
-              <li><strong>Investment Duration:</strong> 10 Years (120 months)</li>
-            </ul>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Total Invested (₹10,000 × 120)</span>
-                <span className="font-bold tabular-nums">₹12,00,000</span>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is the Monthly SIP Return Rate Calculated?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                An annual return expectation must be converted into an equivalent monthly rate for periodic compounding. This calculator uses the mathematically precise <strong>Effective Annual Rate (EAR)</strong> conversion formula:
+              </p>
+              <div className="p-3 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-lg text-center font-mono text-xs text-teal-800 dark:text-teal-400 my-3">
+                Monthly Rate = (1 + Annual Return)<sup>(1 / 12)</sup> - 1
               </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-teal-700 dark:text-teal-400">Estimated Returns</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹10,19,300.41</span>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-2">
+                For example, if your expected annual return is <strong>12%</strong> (0.12):
+              </p>
+              <div className="p-3 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-lg font-mono text-xs text-neutral-700 dark:text-neutral-300 space-y-1 mb-3">
+                <div>Monthly Rate = (1 + 0.12)<sup>(1/12)</sup> - 1</div>
+                <div>Monthly Rate ≈ 0.00948879 (or <strong>~0.95%</strong> per month)</div>
               </div>
-              <div className="flex justify-between pt-1 font-bold text-sm">
-                <span>Total Maturity Value</span>
-                <span className="tabular-nums">₹22,19,300.41</span>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                Simply dividing 12% by 12 gives 1% per month, but compounding 1% every month produces an annualized return higher than 12% (12.68% p.a.). Therefore, this calculator converts the annual effective return into its equivalent monthly compounded rate, ensuring compounding 12 times yields exactly the 12% annualized return.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP Calculator Example</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Let us analyze a practical benchmark calculation for a monthly equity mutual fund SIP:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Monthly SIP Contribution</span>
+                  <span className="font-bold tabular-nums">₹10,000 / month</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Investment Horizon</span>
+                  <span className="font-bold tabular-nums">10 Years (120 Months)</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Expected Return Rate</span>
+                  <span className="font-bold tabular-nums">12.0% p.a.</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Total Amount Invested</span>
+                  <span className="font-bold tabular-nums">₹12,00,000</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-teal-700 dark:text-teal-400">Estimated Returns Earned</span>
+                  <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹10,19,000</span>
+                </div>
+                <div className="flex justify-between pt-1 font-bold text-sm">
+                  <span>Estimated Maturity Value</span>
+                  <span className="tabular-nums">₹22,19,000</span>
+                </div>
               </div>
-            </div>
-            <p className="text-xs text-[var(--text-muted)] mt-2">
-              Notice how in 10 years, the estimated wealth generated (₹10.19 Lakhs) almost equals the principal amount invested (₹12 Lakhs). Over 15 or 20 years, compound interest causes returns to far exceed total principal.
-            </p>
-          </section>
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                Notice how in 10 years, the estimated wealth generated (₹10.19 Lakhs) almost equals the principal amount invested (₹12 Lakhs). Over 15 or 20 years, compound interest causes returns to far exceed total principal.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of Using a SIP Calculator</h2>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-disc list-inside">
-              <li><strong>Goal-Based Wealth Planning:</strong> Calculate how much monthly SIP is needed to buy a home, fund higher education, or build a retirement fund.</li>
-              <li><strong>Understanding Compounding Power:</strong> Visualize how extending your investment tenure by a few years multiplies your maturity capital.</li>
-              <li><strong>Comparing Scenarios:</strong> Instantly compare how different monthly deposit amounts or return rates impact wealth accumulation.</li>
-              <li><strong>Disciplined Investing:</strong> Encourages long-term investment discipline by showing realistic future growth prospects.</li>
-              <li><strong>Instant Results:</strong> Replaces manual spreadsheet calculations with immediate, error-free results.</li>
-            </ul>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of Using a SIP Calculator</h2>
+              <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-disc list-inside">
+                <li><strong>Goal-Based Wealth Planning:</strong> Calculate how much monthly SIP is needed to buy a home, fund higher education, or build a retirement fund.</li>
+                <li><strong>Understanding Compounding Power:</strong> Visualize how extending your investment tenure by a few years multiplies your maturity capital.</li>
+                <li><strong>Comparing Scenarios:</strong> Instantly compare how different monthly deposit amounts or return rates impact wealth accumulation.</li>
+                <li><strong>Disciplined Investing:</strong> Encourages long-term investment discipline by showing realistic future growth prospects.</li>
+                <li><strong>Instant Results:</strong> Replaces manual spreadsheet calculations with immediate, error-free results.</li>
+              </ul>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much Should I Invest in a SIP?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              There is no universal SIP amount suitable for everyone. Your ideal monthly investment depends on your personal income, essential household expenses, existing debt obligations, emergency funds, and specific financial goals.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              A financial best practice is to follow the 50/30/20 budget rule — allocating at least 20% of your net monthly income toward savings and SIP investments. Start with an affordable amount and systematically increase your monthly SIP as your annual salary grows.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much Should I Invest in a SIP?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                There is no universal SIP amount suitable for everyone. Your ideal monthly investment depends on your personal income, essential household expenses, existing debt obligations, emergency funds, and specific financial goals.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                A financial best practice is to follow the 50/30/20 budget rule — allocating at least 20% of your net monthly income toward savings and SIP investments. Start with an affordable amount and systematically increase your monthly SIP as your annual salary grows.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Long Should I Invest Through SIP?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              SIP investments produce the most dramatic wealth creation when held over long time horizons — ideally 5 to 20 years or longer. In equity mutual funds, short-term horizons (under 3 years) carry higher market volatility risks.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Over long periods, equity markets tend to trend upward, allowing compound growth to accelerate while rupee-cost averaging neutralizes market downturns.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Long Should I Invest Through SIP?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                SIP investments produce the most dramatic wealth creation when held over long time horizons — ideally 5 to 20 years or longer. In equity mutual funds, short-term horizons (under 3 years) carry higher market volatility risks.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Over long periods, equity markets tend to trend upward, allowing compound growth to accelerate while rupee-cost averaging neutralizes market downturns.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP vs Lump Sum Investment</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mt-3">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
-                <h3 className="font-bold text-sm text-neutral-900 dark:text-white">SIP (Systematic Investment)</h3>
-                <ul className="space-y-1.5 text-[var(--text-secondary)] list-disc list-inside">
-                  <li>Invests fixed monthly amounts regularly.</li>
-                  <li>Averages out market entry price (rupee-cost averaging).</li>
-                  <li>Ideal for salaried investors with monthly cash inflows.</li>
-                  <li>Lower impact from short-term market timing errors.</li>
-                </ul>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP vs Lump Sum Investment</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mt-3">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
+                  <h3 className="font-bold text-sm text-neutral-900 dark:text-white">SIP (Systematic Investment)</h3>
+                  <ul className="space-y-1.5 text-[var(--text-secondary)] list-disc list-inside">
+                    <li>Invests fixed monthly amounts regularly.</li>
+                    <li>Averages out market entry price (rupee-cost averaging).</li>
+                    <li>Ideal for salaried investors with monthly cash inflows.</li>
+                    <li>Lower impact from short-term market timing errors.</li>
+                  </ul>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
+                  <h3 className="font-bold text-sm text-neutral-900 dark:text-white">Lump Sum Investment</h3>
+                  <ul className="space-y-1.5 text-[var(--text-secondary)] list-disc list-inside">
+                    <li>Invests entire principal amount at once on day one.</li>
+                    <li>Full capital compounds from the initial date.</li>
+                    <li>Ideal for investors with sudden capital (bonus, property sale).</li>
+                    <li>Higher risk if market drops immediately after investing.</li>
+                  </ul>
+                </div>
               </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
-                <h3 className="font-bold text-sm text-neutral-900 dark:text-white">Lump Sum Investment</h3>
-                <ul className="space-y-1.5 text-[var(--text-secondary)] list-disc list-inside">
-                  <li>Invests entire principal amount at once on day one.</li>
-                  <li>Full capital compounds from the initial date.</li>
-                  <li>Ideal for investors with sudden capital (bonus, property sale).</li>
-                  <li>Higher risk if market drops immediately after investing.</li>
-                </ul>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Affects SIP Returns?</h2>
+              <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1.5 list-disc list-inside">
+                <li><strong>Monthly Investment Capital:</strong> Larger monthly deposits increase total portfolio value linearly.</li>
+                <li><strong>Investment Horizon:</strong> Longer investment durations increase maturity value exponentially due to compounding.</li>
+                <li><strong>Asset Allocation:</strong> Equity funds carry higher return potential (10-15%) with higher risk, while debt funds offer lower risk (6-8%).</li>
+                <li><strong>Market Cycles & Volatility:</strong> Market trends affect mutual fund NAVs and short-term portfolio valuations.</li>
+                <li><strong>Expense Ratios & Fees:</strong> Mutual fund management charges (expense ratio) slightly reduce net actual investor returns.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Key Benefits of SIP Mutual Fund Investing</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Rupee-Cost Averaging</h3>
+                  <p className="text-[var(--text-secondary)]">Automated regular buying eliminates market timing stress and lowers average acquisition cost over volatility cycles.</p>
+                </div>
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Power of Compounding</h3>
+                  <p className="text-[var(--text-secondary)]">Reinvested returns generate exponential portfolio growth over long multi-year investment horizons.</p>
+                </div>
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Financial Discipline</h3>
+                  <p className="text-[var(--text-secondary)]">Auto-debit mandates enforce regular monthly savings commitment directly from your bank account.</p>
+                </div>
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Flexible Capital</h3>
+                  <p className="text-[var(--text-secondary)]">Start with as little as ₹500/month, and pause, increase, or redeem open-ended funds without heavy lock-in penalties.</p>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Affects SIP Returns?</h2>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1.5 list-disc list-inside">
-              <li><strong>Monthly Investment Capital:</strong> Larger monthly deposits increase total portfolio value linearly.</li>
-              <li><strong>Investment Horizon:</strong> Longer investment durations increase maturity value exponentially due to compounding.</li>
-              <li><strong>Asset Allocation:</strong> Equity funds carry higher return potential (10-15%) with higher risk, while debt funds offer lower risk (6-8%).</li>
-              <li><strong>Market Cycles & Volatility:</strong> Market trends affect mutual fund NAVs and short-term portfolio valuations.</li>
-              <li><strong>Expense Ratios & Fees:</strong> Mutual fund management charges (expense ratio) slightly reduce net actual investor returns.</li>
-            </ul>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Things to Know About SIP Calculations</h2>
+              <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-disc list-inside">
+                <li>SIP calculator outputs are statistical projections based on assumed return rates.</li>
+                <li>Mutual fund investments are subject to market risks, and actual returns are not guaranteed.</li>
+                <li>Calculations assume a constant rate of return, whereas real market returns vary year to year.</li>
+                <li>Taxes (such as LTCG tax on equity funds above ₹1.25 Lakh) and fund expense ratios are not deducted in standard SIP tools.</li>
+                <li>You can explore stock fundamentals and market benchmarks using VolumeCall&apos;s research tools like our <Link href="/stocks" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Stock Screener</Link>, <Link href="/compare" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Stock Comparison</Link>, and <Link href="/markets" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Market Indices</Link>.</li>
+              </ul>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Things to Know About SIP Calculations</h2>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-disc list-inside">
-              <li>SIP calculator outputs are statistical projections based on assumed return rates.</li>
-              <li>Mutual fund investments are subject to market risks, and actual returns are not guaranteed.</li>
-              <li>Calculations assume a constant rate of return, whereas real market returns vary year to year.</li>
-              <li>Taxes (such as LTCG tax on equity funds above ₹1.25 Lakh) and fund expense ratios are not deducted in standard SIP tools.</li>
-              <li>You can explore stock fundamentals and market benchmarks using VolumeCall&apos;s research tools like our <Link href="/stocks" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Stock Screener</Link>, <Link href="/compare" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Stock Comparison</Link>, and <Link href="/markets" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Market Indices</Link>.</li>
-            </ul>
-          </section>
-
-        </div>
-
-        {/* FAQ Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {faqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.q}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.a}
+            {/* FAQ Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {faqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.q}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.a}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/sip-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators & Tools */}
-        <RelatedCalculators currentRoute="/calculators/sip-calculator" />
-
       </main>
 
       <Footer />

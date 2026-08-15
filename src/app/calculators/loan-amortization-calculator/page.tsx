@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { generateAmortizationSchedule } from "@/lib/financial/loans/amortization";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Banknote, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Banknote, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -215,300 +215,287 @@ export default function LoanAmortizationPage() {
             Generate an exact month-by-month and annual amortization schedule for your loan with detailed principal, interest, and remaining balance tracking.
           </p>
         </div>
-
-        {/* Form Controls & Summary */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-            {/* Input 1: Principal */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <label htmlFor="amort-principal" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Loan Amount
-                  </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total loan principal borrowed</span>
-                </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
-                    <input
-                      id="amort-principal"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      value={principalInput}
-                      onChange={(e) => {
-                        const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
-                        setPrincipalInput(clean === "" ? "" : formatRawDigits(clean));
-                      }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
-                    />
+        {/* Top Calculator Section: Input, Summary & Amortization Schedule Table */}
+        <div className="space-y-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+            {/* Inputs Form */}
+            <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+              {/* Input 1: Principal */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <label htmlFor="amort-principal" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                      Loan Amount
+                    </label>
+                    <span className="text-[11px] text-[var(--text-muted)]">Total loan principal borrowed</span>
                   </div>
-                  {principalWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{principalWords}</div>}
+                  <div className="flex flex-col items-end space-y-1">
+                    <div className="relative flex items-center">
+                      <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                      <input
+                        id="amort-principal"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        value={principalInput}
+                        onChange={(e) => {
+                          const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
+                          setPrincipalInput(clean === "" ? "" : formatRawDigits(clean));
+                        }}
+                        className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      />
+                    </div>
+                    {principalWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{principalWords}</div>}
+                  </div>
                 </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="20000000"
+                  step="50000"
+                  autoComplete="off"
+                  value={Math.min(20000000, Math.max(0, parsedPrincipal))}
+                  onChange={(e) => setPrincipalInput(formatIndianNumber(Number(e.target.value)))}
+                  className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                />
               </div>
-              <input
-                type="range"
-                min="0"
-                max="20000000"
-                step="50000"
-                autoComplete="off"
-                value={Math.min(20000000, Math.max(0, parsedPrincipal))}
-                onChange={(e) => setPrincipalInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
-              />
-            </div>
 
-            {/* Input 2: Rate */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <label htmlFor="amort-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Interest Rate (% p.a.)
-                  </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Annual reducing balance rate</span>
-                </div>
-                <div className="relative flex items-center">
-                  <input
-                    id="amort-rate"
-                    type="text"
-                    inputMode="decimal"
-                    autoComplete="off"
-                    value={rateInput}
-                    onChange={(e) => setRateInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
-                  />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
-                </div>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="25"
-                step="0.1"
-                autoComplete="off"
-                value={Math.min(25, Math.max(0, parsedRate))}
-                onChange={(e) => setRateInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
-              />
-            </div>
-
-            {/* Input 3: Tenure */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <label htmlFor="amort-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Loan Tenure (Years)
-                  </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total loan repayment period</span>
-                </div>
-                <div className="flex flex-col items-end space-y-1">
+              {/* Input 2: Rate */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <label htmlFor="amort-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                      Interest Rate (% p.a.)
+                    </label>
+                    <span className="text-[11px] text-[var(--text-muted)]">Annual reducing balance interest rate</span>
+                  </div>
                   <div className="relative flex items-center">
                     <input
-                      id="amort-tenure"
+                      id="amort-rate"
                       type="text"
-                      inputMode="numeric"
+                      inputMode="decimal"
                       autoComplete="off"
-                      value={yearsInput}
-                      onChange={(e) => setYearsInput(e.target.value.replace(/[^0-9]/g, ""))}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      value={rateInput}
+                      onChange={(e) => setRateInput(e.target.value)}
+                      className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
                   </div>
-                  {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="25"
+                  step="0.1"
+                  autoComplete="off"
+                  value={Math.min(25, Math.max(0, parsedRate))}
+                  onChange={(e) => setRateInput(e.target.value)}
+                  className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                />
+              </div>
+
+              {/* Input 3: Tenure */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <label htmlFor="amort-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                      Loan Tenure (Years)
+                    </label>
+                    <span className="text-[11px] text-[var(--text-muted)]">Total loan duration</span>
+                  </div>
+                  <div className="flex flex-col items-end space-y-1">
+                    <div className="relative flex items-center">
+                      <input
+                        id="amort-tenure"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        value={yearsInput}
+                        onChange={(e) => setYearsInput(e.target.value.replace(/[^0-9]/g, ""))}
+                        className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      />
+                      <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    </div>
+                    {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="30"
+                  step="1"
+                  autoComplete="off"
+                  value={Math.min(30, Math.max(0, parsedYears))}
+                  onChange={(e) => setYearsInput(e.target.value)}
+                  className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                />
+              </div>
+            </div>
+
+            {/* Output Summary Card */}
+            <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+              <div>
+                <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Equated Monthly Installment</span>
+                <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+                  ₹{formatIndianNumber(Math.round(result.monthlyEmi))}
+                </span>
+                <span className="text-xs font-semibold text-[var(--text-secondary)] mt-1 block">
+                  for {parsedYears * 12} monthly installments
+                </span>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-secondary)] font-medium">Principal Amount</span>
+                  <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.principal))}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-teal-700 dark:text-teal-400 font-medium">Total Interest Payable</span>
+                  <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result.totalInterest))}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-[var(--border)] font-bold text-sm">
+                  <span>Total Repayment Amount</span>
+                  <span className="tabular-nums">₹{formatIndianNumber(Math.round(result.totalPayment))}</span>
                 </div>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="30"
-                step="1"
-                autoComplete="off"
-                value={Math.min(30, Math.max(0, parsedYears))}
-                onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
-              />
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
-            <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Monthly Loan EMI</span>
-              <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
-                ₹{formatIndianNumber(Math.round(result.monthlyEmi))}
-              </span>
-            </div>
-
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Principal Repaid</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.principal))}</span>
+          {/* Amortization Schedule Table */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-4 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-neutral-950 dark:text-neutral-50">
+                  Amortization Schedule Breakdown
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Track how each payment reduces principal versus interest over time.
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Total Interest Paid</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result.totalInterest))}</span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-[var(--border)] font-bold text-sm">
-                <span>Total Payment</span>
-                <span className="tabular-nums">₹{formatIndianNumber(Math.round(result.totalPayment))}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Amortization Schedule Table */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-4 mb-12 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-bold text-neutral-950 dark:text-neutral-50">
-                Amortization Schedule Breakdown
-              </h3>
-              <p className="text-xs text-[var(--text-secondary)]">
-                Track how each payment reduces principal versus interest over time.
-              </p>
-            </div>
-            <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs shrink-0">
-              <button
-                onClick={() => setViewMode("yearly")}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === "yearly" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
-                }`}
-              >
-                Annual Summary
-              </button>
-              <button
-                onClick={() => setViewMode("monthly")}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === "monthly" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
-                }`}
-              >
-                Monthly Schedule ({result.schedule.length} Months)
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto max-h-[460px] overflow-y-auto">
-            {viewMode === "yearly" ? (
-              <table className="financial-table text-xs w-full">
-                <thead className="sticky top-0 bg-neutral-50 dark:bg-[#121212] z-10">
-                  <tr className="border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Year</th>
-                    <th className="px-4 py-3 text-right">Opening Balance</th>
-                    <th className="px-4 py-3 text-right">Principal Paid</th>
-                    <th className="px-4 py-3 text-right">Interest Paid</th>
-                    <th className="px-4 py-3 text-right">Total Payment</th>
-                    <th className="px-4 py-3 text-right">Closing Balance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)] tabular-nums">
-                  {result.yearlySummary.map((yr: YearlyRow) => (
-                    <tr key={yr.year} className="hover:bg-neutral-50 dark:hover:bg-[#121212]">
-                      <td className="px-4 py-2.5 font-bold">Year {yr.year}</td>
-                      <td className="px-4 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(Math.round(yr.openingBalance))}</td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(yr.principalPaid))}</td>
-                      <td className="px-4 py-2.5 text-right text-amber-600 dark:text-amber-400">₹{formatIndianNumber(Math.round(yr.interestPaid))}</td>
-                      <td className="px-4 py-2.5 text-right">₹{formatIndianNumber(Math.round(yr.totalPayment))}</td>
-                      <td className="px-4 py-2.5 text-right font-bold">₹{formatIndianNumber(Math.round(yr.closingBalance))}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <table className="financial-table text-xs w-full">
-                <thead className="sticky top-0 bg-neutral-50 dark:bg-[#121212] z-10">
-                  <tr className="border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Month</th>
-                    <th className="px-4 py-3 text-right">Opening Balance</th>
-                    <th className="px-4 py-3 text-right">Monthly EMI</th>
-                    <th className="px-4 py-3 text-right">Principal Paid</th>
-                    <th className="px-4 py-3 text-right">Interest Paid</th>
-                    <th className="px-4 py-3 text-right">Closing Balance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)] tabular-nums">
-                  {result.schedule.map((m) => (
-                    <tr key={m.month} className="hover:bg-neutral-50 dark:hover:bg-[#121212]">
-                      <td className="px-4 py-2.5 font-bold">Month {m.month}</td>
-                      <td className="px-4 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(Math.round(m.openingBalance))}</td>
-                      <td className="px-4 py-2.5 text-right font-medium">₹{formatIndianNumber(Math.round(m.emi))}</td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(m.principal))}</td>
-                      <td className="px-4 py-2.5 text-right text-amber-600 dark:text-amber-400">₹{formatIndianNumber(Math.round(m.interest))}</td>
-                      <td className="px-4 py-2.5 text-right font-bold">₹{formatIndianNumber(Math.round(m.closingBalance))}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Loan Amortization Schedule?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Loan Amortization Schedule</strong> is a comprehensive financial table that outlines every periodic payment across the lifespan of a loan. It breaks down each monthly installment into the exact amount allocated toward principal repayment versus the amount absorbed by accrued interest charges, alongside the reducing balance.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Why Is Loan Interest Front-Loaded?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              Because monthly interest is calculated directly on the remaining loan principal, the interest burden is greatest when the loan balance is at its maximum (during the first 3 to 7 years of a 20-year loan). As monthly payments gradually reduce the principal balance, the interest charge shrinks, allowing a larger portion of each EMI to extinguish the principal.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Loan Amortization Mathematical Methodology</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div>Interest<sub>m</sub> = OpeningBalance<sub>m</sub> × (Annual Rate / 12 / 100)</div>
-              <div>PrincipalPaid<sub>m</sub> = EMI - Interest<sub>m</sub></div>
-              <div>ClosingBalance<sub>m</sub> = OpeningBalance<sub>m</sub> - PrincipalPaid<sub>m</sub></div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the Amortization Schedule for Financial Planning</h2>
-            <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
-              <p>
-                <strong>1. Tax Deduction Certificates:</strong> You can see exact annual interest and principal payments to substantiate tax deduction claims under Section 24(b) (up to ₹2 Lakh) and Section 80C (up to ₹1.5 Lakh).
-              </p>
-              <p>
-                <strong>2. Timing Prepayments:</strong> Prepayments made during the first 5 years save drastically more interest than prepayments made near the end of the loan tenure.
-              </p>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+              <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs shrink-0">
                 <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
+                  onClick={() => setViewMode("yearly")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    viewMode === "yearly" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  }`}
                 >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                  Annual Summary
                 </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
+                <button
+                  onClick={() => setViewMode("monthly")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    viewMode === "monthly" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  }`}
+                >
+                  Monthly Schedule ({result.schedule.length} Months)
+                </button>
               </div>
-            ))}
+            </div>
+
+            <div className="overflow-x-auto max-h-[460px] overflow-y-auto">
+              {viewMode === "yearly" ? (
+                <table className="financial-table text-xs w-full">
+                  <thead className="sticky top-0 bg-neutral-50 dark:bg-[#121212] z-10">
+                    <tr className="border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Year</th>
+                      <th className="px-4 py-3 text-right">Opening Balance</th>
+                      <th className="px-4 py-3 text-right">Principal Paid</th>
+                      <th className="px-4 py-3 text-right">Interest Paid</th>
+                      <th className="px-4 py-3 text-right">Total Annual EMI</th>
+                      <th className="px-4 py-3 text-right">Closing Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)] tabular-nums">
+                    {result.yearlySummary.map((y) => (
+                      <tr key={y.year} className="hover:bg-neutral-50/50 dark:hover:bg-[#121212]/30 transition-colors">
+                        <td className="px-4 py-2.5 font-bold">Year {y.year}</td>
+                        <td className="px-4 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(Math.round(y.openingBalance))}</td>
+                        <td className="px-4 py-2.5 text-right font-semibold text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(y.principalPaid))}</td>
+                        <td className="px-4 py-2.5 text-right text-amber-600 dark:text-amber-400">₹{formatIndianNumber(Math.round(y.interestPaid))}</td>
+                        <td className="px-4 py-2.5 text-right font-bold">₹{formatIndianNumber(Math.round(y.totalPayment))}</td>
+                        <td className="px-4 py-2.5 text-right font-bold">₹{formatIndianNumber(Math.round(y.closingBalance))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="financial-table text-xs w-full">
+                  <thead className="sticky top-0 bg-neutral-50 dark:bg-[#121212] z-10">
+                    <tr className="border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Month</th>
+                      <th className="px-4 py-3 text-right">Opening Balance</th>
+                      <th className="px-4 py-3 text-right">EMI</th>
+                      <th className="px-4 py-3 text-right">Principal Paid</th>
+                      <th className="px-4 py-3 text-right">Interest Paid</th>
+                      <th className="px-4 py-3 text-right">Closing Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)] tabular-nums">
+                    {result.schedule.map((m) => (
+                      <tr key={m.month} className="hover:bg-neutral-50/50 dark:hover:bg-[#121212]/30 transition-colors">
+                        <td className="px-4 py-2.5 font-bold">Month {m.month}</td>
+                        <td className="px-4 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(Math.round(m.openingBalance))}</td>
+                        <td className="px-4 py-2.5 text-right font-semibold">₹{formatIndianNumber(Math.round(m.emi))}</td>
+                        <td className="px-4 py-2.5 text-right font-semibold text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(m.principal))}</td>
+                        <td className="px-4 py-2.5 text-right text-amber-600 dark:text-amber-400">₹{formatIndianNumber(Math.round(m.interest))}</td>
+                        <td className="px-4 py-2.5 text-right font-bold">₹{formatIndianNumber(Math.round(m.closingBalance))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/loan-amortization-calculator" />
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Loan Amortization Schedule?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Loan Amortization Schedule</strong> is a comprehensive financial table that outlines every periodic payment across the lifespan of a loan. It breaks down each monthly installment into the exact amount allocated toward principal repayment versus the amount absorbed by accrued interest charges, alongside the reducing balance.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Why Is Loan Interest Front-Loaded?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                Because monthly interest is calculated directly on the remaining loan principal, the interest burden is greatest when the loan balance is at its maximum (during the first 3 to 7 years of a 20-year loan). As monthly payments gradually reduce the principal balance, the interest charge shrinks, allowing a larger portion of each EMI to extinguish the principal.
+              </p>
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/loan-amortization-calculator" />
+          </div>
+        </div>
       </main>
       <Footer />
     </div>

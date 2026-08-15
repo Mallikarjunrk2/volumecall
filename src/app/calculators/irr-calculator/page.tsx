@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateIrr, calculateNpv } from "@/lib/financial/returns/irr";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Activity, Plus, Trash2, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Activity, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
 const pageFaqItems = [
   {
@@ -115,6 +115,8 @@ export default function IrrCalculatorPage() {
     return calculateIrr(parsedFlows);
   }, [parsedFlows]);
 
+  const irrVal = irrResult.irr !== null ? irrResult.irr * 100 : null;
+
   const npvAtDiscount = useMemo(() => {
     return calculateNpv(parsedDiscountRate / 100, parsedFlows);
   }, [parsedDiscountRate, parsedFlows]);
@@ -150,29 +152,29 @@ export default function IrrCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
             <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
               <div>
-                <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">Periodic Cash Flow Stream</h3>
-                <span className="text-[11px] text-[var(--text-muted)]">Use negative (-) for outflows / initial investments</span>
+                <h3 className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">Cash Flow Streams</h3>
+                <span className="text-[11px] text-[var(--text-muted)]">Year 0 is initial outlay (negative)</span>
               </div>
               <button
                 onClick={addFlow}
-                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors cursor-pointer"
+                className="px-2.5 py-1 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors inline-flex items-center space-x-1 cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Add Period</span>
+                <span>Add Year</span>
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
               {cashFlows.map((cf, idx) => (
-                <div key={idx} className="flex items-center justify-between space-x-3 text-xs">
-                  <span className="font-bold text-neutral-800 dark:text-neutral-200 w-24 shrink-0">
-                    {idx === 0 ? "Year 0 (Outlay)" : `Year ${idx} Cashflow`}
+                <div key={idx} className="flex items-center space-x-3">
+                  <span className="w-16 text-xs font-bold text-[var(--text-secondary)] shrink-0">
+                    {idx === 0 ? "Year 0" : `Year ${idx}`}
                   </span>
                   <div className="relative flex-grow flex items-center">
                     <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
@@ -206,32 +208,27 @@ export default function IrrCalculatorPage() {
                   id="irr-hurdle"
                   type="text"
                   inputMode="decimal"
-                  autoComplete="off"
                   value={discountRateInput}
                   onChange={(e) => setDiscountRateInput(e.target.value)}
-                  className="w-28 pr-6 pl-2.5 py-1 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                  className="w-24 pr-6 pl-2.5 py-1 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
                 />
                 <span className="absolute right-2 text-xs text-[var(--text-secondary)] font-medium">%</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Internal Rate of Return (IRR)</span>
-              <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
-                {irrResult.success && irrResult.irr !== null
-                  ? `${(irrResult.irr * 100).toFixed(2)}% p.a.`
-                  : "N/A (No Solution)"}
+              <span className={`text-3xl sm:text-4xl font-black tabular-nums block mt-1 ${
+                irrVal !== null && irrVal >= parsedDiscountRate ? "text-teal-700 dark:text-teal-400" : "text-amber-600 dark:text-amber-400"
+              }`}>
+                {irrVal !== null ? `${irrVal.toFixed(2)}%` : "N/A"}
               </span>
-              {irrResult.success && irrResult.irr !== null && (
-                <span className={`text-xs font-semibold mt-1 block ${irrResult.irr * 100 >= parsedDiscountRate ? "text-teal-700 dark:text-teal-400" : "text-amber-600 dark:text-amber-400"}`}>
-                  {irrResult.irr * 100 >= parsedDiscountRate
-                    ? "✓ Project exceeds hurdle rate (Economically Viable)"
-                    : "⚠ Project return below hurdle rate"}
-                </span>
-              )}
+              <span className="text-xs font-semibold text-[var(--text-secondary)] mt-1 block">
+                {irrVal !== null && irrVal >= parsedDiscountRate ? "Exceeds Hurdle Rate (Feasible Project)" : "Below Hurdle Rate"}
+              </span>
             </div>
 
             <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
@@ -257,56 +254,59 @@ export default function IrrCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Internal Rate of Return (IRR)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                The <strong>Internal Rate of Return (IRR)</strong> is a core financial metric used in corporate finance and investment analysis to evaluate the profitability of capital investments or projects. It is the exact discount rate at which the Net Present Value (NPV) of all cash inflows equals the initial investment outlay.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Internal Rate of Return (IRR)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              The <strong>Internal Rate of Return (IRR)</strong> is a core financial metric used in corporate finance and investment analysis to evaluate the profitability of capital investments or projects. It is the exact discount rate at which the Net Present Value (NPV) of all cash inflows equals the initial investment outlay.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is IRR Calculated?</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">NPV = ∑<sub>t=0</sub><sup>N</sup> [ CF<sub>t</sub> / (1 + IRR)<sup>t</sup> ] = 0</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>CF<sub>t</sub></strong> = Net cash flow at period t (negative for outlays, positive for inflows)</div>
+                  <div><strong>IRR</strong> = Internal Rate of Return solving the equation</div>
+                  <div><strong>N</strong> = Total number of time periods</div>
+                </div>
+              </div>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is IRR Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">NPV = ∑<sub>t=0</sub><sup>N</sup> [ CF<sub>t</sub> / (1 + IRR)<sup>t</sup> ] = 0</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>CF<sub>t</sub></strong> = Net cash flow at period t (negative for outlays, positive for inflows)</div>
-                <div><strong>IRR</strong> = Internal Rate of Return solving the equation</div>
-                <div><strong>N</strong> = Total number of time periods</div>
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/irr-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/irr-calculator" />
       </main>
       <Footer />
     </div>

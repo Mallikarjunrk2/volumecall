@@ -7,50 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateReverseDcf } from "@/lib/financial/valuation/reverseDcf";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { SearchCheck, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
-
-function numberToWordsIndian(num: number): string {
-  if (isNaN(num) || num < 0) return "";
-  if (num === 0) return "Zero";
-  const units = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
-  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-
-  function convertBelowThousand(n: number): string {
-    if (n === 0) return "";
-    if (n < 20) return units[n];
-    const ten = Math.floor(n / 10);
-    const unit = n % 10;
-    return tens[ten] + (unit ? " " + units[unit] : "");
-  }
-
-  function convertUnderThousandWithHundred(n: number): string {
-    const hundred = Math.floor(n / 100);
-    const rest = n % 100;
-    let str = "";
-    if (hundred > 0) str += units[hundred] + " Hundred";
-    if (rest > 0) {
-      if (str) str += " ";
-      str += convertBelowThousand(rest);
-    }
-    return str;
-  }
-
-  let n = Math.floor(num);
-  let result = "";
-  const crore = Math.floor(n / 10000000);
-  n %= 10000000;
-  const lakh = Math.floor(n / 100000);
-  n %= 100000;
-  const thousand = Math.floor(n / 1000);
-  const remaining = n % 1000;
-
-  if (crore > 0) result += (crore < 100 ? convertBelowThousand(crore) : convertUnderThousandWithHundred(crore)) + " Crore ";
-  if (lakh > 0) result += convertBelowThousand(lakh) + " Lakh ";
-  if (thousand > 0) result += convertBelowThousand(thousand) + " Thousand ";
-  if (remaining > 0) result += convertUnderThousandWithHundred(remaining);
-
-  return result.trim();
-}
+import { SearchCheck, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 const pageFaqItems = [
   {
@@ -112,12 +69,6 @@ export default function ReverseDcfCalculatorPage() {
   const [termGrowthInput, setTermGrowthInput] = useState<string>("3.5");
   const [netDebtInput, setNetDebtInput] = useState<string>("500");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const formatRawDigits = (raw: string) => {
-    if (!raw) return "";
-    const num = Number(raw.replace(/[^0-9]/g, ""));
-    return isNaN(num) ? raw : formatIndianNumber(num);
-  };
 
   const parsedBaseFcf = useMemo(() => {
     const raw = baseFcfInput.replace(/,/g, "").trim();
@@ -190,10 +141,10 @@ export default function ReverseDcfCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Current Market Cap */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -240,55 +191,48 @@ export default function ReverseDcfCalculatorPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+            {/* Input 3 & 4: Rates */}
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)]">
               <div>
-                <label htmlFor="rdcf-wacc" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
+                <label htmlFor="rdcf-wacc" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
                   Discount Rate (WACC %)
                 </label>
-                <input
-                  id="rdcf-wacc"
-                  type="text"
-                  inputMode="decimal"
-                  value={waccInput}
-                  onChange={(e) => setWaccInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
+                <div className="relative flex items-center">
+                  <input
+                    id="rdcf-wacc"
+                    type="text"
+                    inputMode="decimal"
+                    value={waccInput}
+                    onChange={(e) => setWaccInput(e.target.value)}
+                    className="w-full pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                  />
+                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                </div>
               </div>
 
               <div>
-                <label htmlFor="rdcf-terminal" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Terminal Growth (g %)
+                <label htmlFor="rdcf-terminal" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
+                  Terminal Growth Rate (%)
                 </label>
-                <input
-                  id="rdcf-terminal"
-                  type="text"
-                  inputMode="decimal"
-                  value={termGrowthInput}
-                  onChange={(e) => setTermGrowthInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="rdcf-debt" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Net Debt (₹ Cr)
-                </label>
-                <input
-                  id="rdcf-debt"
-                  type="text"
-                  inputMode="decimal"
-                  value={netDebtInput}
-                  onChange={(e) => setNetDebtInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
+                <div className="relative flex items-center">
+                  <input
+                    id="rdcf-terminal"
+                    type="text"
+                    inputMode="decimal"
+                    value={termGrowthInput}
+                    onChange={(e) => setTermGrowthInput(e.target.value)}
+                    className="w-full pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                  />
+                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Implied 5-Year FCF Growth Rate</span>
+              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Implied FCF CAGR Priced In by Market</span>
               <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
                 {impliedGrowthPct !== null ? `${impliedGrowthPct.toFixed(2)}% p.a.` : "N/A"}
               </span>
@@ -328,76 +272,74 @@ export default function ReverseDcfCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Reverse DCF Calculator?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Reverse DCF Calculator</strong> reverses the standard discounted cash flow equation. Instead of estimating future cash flow growth, it inputs the current market price and determines the exact annual growth rate the market expects the company to achieve over the next 5 years.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Reverse DCF Calculator?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Reverse DCF Calculator</strong> reverses the standard discounted cash flow equation. Instead of estimating future cash flow growth, it inputs the current market price and determines the exact annual growth rate the market expects the company to achieve over the next 5 years.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Interpret Reverse DCF Results</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Implied Growth Rate</th>
-                    <th className="px-4 py-3 text-left">Market Sentiment</th>
-                    <th className="px-4 py-3 text-left">Investor Risk Profile</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">&gt; 25% p.a.</td>
-                    <td className="px-4 py-2.5 text-amber-600 dark:text-amber-400">Extreme Optimism (Priced for Perfection)</td>
-                    <td className="px-4 py-2.5">High risk of de-rating on small quarterly earnings misses</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">12% – 18% p.a.</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Realistic Compounder</td>
-                    <td className="px-4 py-2.5">Balanced risk-reward for quality franchises</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">&lt; 8% p.a.</td>
-                    <td className="px-4 py-2.5">Pessimistic / Out-of-Favor</td>
-                    <td className="px-4 py-2.5">Potential deep-value opportunity with margin of safety</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Interpret Reverse DCF Results</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Implied Growth Rate</th>
+                      <th className="px-4 py-3 text-left">Market Sentiment</th>
+                      <th className="px-4 py-3 text-left">Investor Risk Profile</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">&gt; 25% p.a.</td>
+                      <td className="px-4 py-2.5 text-amber-600 dark:text-amber-400">Extreme Optimism (Priced for Perfection)</td>
+                      <td className="px-4 py-2.5">High risk of de-rating on small quarterly earnings misses</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">12% – 18% p.a.</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Realistic Compounder</td>
+                      <td className="px-4 py-2.5">Balanced risk/reward for long-term compounders</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            ))}
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/reverse-dcf-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/reverse-dcf-calculator" />
       </main>
       <Footer />
     </div>

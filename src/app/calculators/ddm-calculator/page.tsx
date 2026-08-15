@@ -6,8 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateDdmValuation } from "@/lib/financial/valuation/ddm";
-import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Coins, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Coins, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 const pageFaqItems = [
   {
@@ -129,10 +128,10 @@ export default function DdmCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Current Annual Dividend (D0) */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -169,14 +168,14 @@ export default function DdmCalculatorPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <label htmlFor="ddm-growth" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Perpetual Dividend Growth Rate (g)
+                  <label htmlFor="ddm-g" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                    Perpetual Dividend Growth Rate (g % p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Expected long-term annual dividend growth (% p.a.)</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Expected long-term annual dividend growth</span>
                 </div>
                 <div className="relative flex items-center">
                   <input
-                    id="ddm-growth"
+                    id="ddm-g"
                     type="text"
                     inputMode="decimal"
                     value={growthInput}
@@ -189,19 +188,19 @@ export default function DdmCalculatorPage() {
               <input
                 type="range"
                 min="0"
-                max="15"
+                max="20"
                 step="0.25"
-                value={Math.min(15, Math.max(0, parsedGrowth))}
+                value={Math.min(20, Math.max(0, parsedGrowth))}
                 onChange={(e) => setGrowthInput(e.target.value)}
                 className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
               />
             </div>
 
             {/* Input 3 & 4: Cost of Equity & Current Price */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[var(--border)] text-xs">
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)] text-xs">
               <div>
                 <label htmlFor="ddm-ke" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Cost of Equity / Required Return (Ke %)
+                  Cost of Equity / Required Return (Kₑ %)
                 </label>
                 <div className="relative flex items-center">
                   <input
@@ -210,33 +209,33 @@ export default function DdmCalculatorPage() {
                     inputMode="decimal"
                     value={keInput}
                     onChange={(e) => setKeInput(e.target.value)}
-                    className="w-full pr-6 pl-2 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
                   />
-                  <span className="absolute right-2 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="ddm-price" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Current Market Price (₹)
+                <label htmlFor="ddm-curr-price" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
+                  Current Market Price (₹) (Optional)
                 </label>
                 <div className="relative flex items-center">
-                  <span className="absolute left-2 text-[11px] text-[var(--text-secondary)]">₹</span>
+                  <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
                   <input
-                    id="ddm-price"
+                    id="ddm-curr-price"
                     type="text"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     value={currentPriceInput}
                     onChange={(e) => setCurrentPriceInput(e.target.value)}
-                    className="w-full pl-5 pr-2 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Fair Intrinsic Value</span>
               <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
@@ -274,58 +273,61 @@ export default function DdmCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is the Dividend Discount Model (DDM)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                The <strong>Dividend Discount Model (DDM)</strong>, specifically the Gordon Growth Model, evaluates the intrinsic worth of a stock based on the premise that an equity share is worth the sum of all future dividend payouts discounted back to their present value.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is the Dividend Discount Model (DDM)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              The <strong>Dividend Discount Model (DDM)</strong>, specifically the Gordon Growth Model, evaluates the intrinsic worth of a stock based on the premise that an equity share is worth the sum of all future dividend payouts discounted back to their present value.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Gordon Growth Model Formula</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div>Fair Value = D<sub>1</sub> / ( K<sub>e</sub> - g )</div>
+                <div>D<sub>1</sub> = D<sub>0</sub> × ( 1 + g )</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>D₀</strong> = Current annual dividend per share</div>
+                  <div><strong>D₁</strong> = Expected dividend next year</div>
+                  <div><strong>K<sub>e</sub></strong> = Cost of Equity (required rate of return)</div>
+                  <div><strong>g</strong> = Perpetual dividend growth rate</div>
+                </div>
+              </div>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Gordon Growth Model Formula</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div>Fair Value = D<sub>1</sub> / ( K<sub>e</sub> - g )</div>
-              <div>D<sub>1</sub> = D<sub>0</sub> × ( 1 + g )</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>D₀</strong> = Current annual dividend per share</div>
-                <div><strong>D₁</strong> = Expected dividend next year</div>
-                <div><strong>K<sub>e</sub></strong> = Cost of Equity (required rate of return)</div>
-                <div><strong>g</strong> = Perpetual dividend growth rate</div>
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/ddm-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/ddm-calculator" />
       </main>
       <Footer />
     </div>

@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateFutureCost, calculateInflationPresentValue, calculateRealReturn } from "@/lib/financial/planning/inflation";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Flame, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Flame, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -190,11 +190,8 @@ export default function InflationCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-            {/* Mode Switcher */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             <div className="space-y-2">
               <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                 Inflation Calculation Mode
@@ -219,7 +216,6 @@ export default function InflationCalculatorPage() {
               </div>
             </div>
 
-            {/* Input 1: Amount */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -259,14 +255,13 @@ export default function InflationCalculatorPage() {
               />
             </div>
 
-            {/* Input 2: Inflation Rate */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="inf-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                     Expected Inflation Rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Historical average: ~6% for CPI, ~10% for education/medical</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Annual cost of living increase</span>
                 </div>
                 <div className="relative flex items-center">
                   <input
@@ -284,23 +279,22 @@ export default function InflationCalculatorPage() {
               <input
                 type="range"
                 min="0"
-                max="15"
-                step="0.1"
+                max="25"
+                step="0.5"
                 autoComplete="off"
-                value={Math.min(15, Math.max(0, parsedInflation))}
+                value={Math.min(25, Math.max(0, parsedInflation))}
                 onChange={(e) => setInflationInput(e.target.value)}
                 className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
               />
             </div>
 
-            {/* Input 3: Duration */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="inf-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                     Time Horizon (Years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Number of years into the future</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Future time period</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
@@ -331,8 +325,7 @@ export default function InflationCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             {calcMode === "futureCost" ? (
               <div>
                 <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
@@ -385,59 +378,58 @@ export default function InflationCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Inflation?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>Inflation</strong> is the persistent increase in the general price level of goods and services over time. As prices rise, each unit of currency buys fewer goods, leading to a steady loss of purchasing power.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                For Indian families, inflation acts as an invisible tax on cash savings. Leaving money in a standard savings account (yielding 2.5%–3.5%) while inflation runs at 6% results in a real wealth destruction of ~3% every year.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Inflation?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>Inflation</strong> is the persistent increase in the general price level of goods and services over time. As prices rise, each unit of currency buys fewer goods, leading to a steady loss of purchasing power.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              For Indian families, inflation acts as an invisible tax on cash savings. Leaving money in a standard savings account (yielding 2.5%–3.5%) while inflation runs at 6% results in a real wealth destruction of ~3% every year.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Inflation & Future Cost Calculated?</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">Future Cost = Present Cost × ( 1 + i )<sup>n</sup></div>
+                <div className="font-bold text-sm">Fisher Real Return = ( 1 + Nominal Return ) / ( 1 + Inflation ) - 1</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>i</strong> = Annual inflation rate (e.g. 0.06 for 6%)</div>
+                  <div><strong>n</strong> = Number of years into future</div>
+                </div>
+              </div>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Inflation & Future Cost Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">Future Cost = Present Cost × ( 1 + i )<sup>n</sup></div>
-              <div className="font-bold text-sm">Fisher Real Return = ( 1 + Nominal Return ) / ( 1 + Inflation ) - 1</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>i</strong> = Annual inflation rate (e.g. 0.06 for 6%)</div>
-                <div><strong>n</strong> = Number of years into future</div>
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/inflation-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/inflation-calculator" />
       </main>
       <Footer />
     </div>

@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateAbsoluteReturn } from "@/lib/financial/returns/absoluteReturn";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { ArrowUpRight, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -162,10 +162,10 @@ export default function AbsoluteReturnCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Initial Investment */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -247,8 +247,8 @@ export default function AbsoluteReturnCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Absolute Percentage Return</span>
               <span className={`text-3xl sm:text-4xl font-black tabular-nums block mt-1 ${isGain ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
@@ -279,82 +279,85 @@ export default function AbsoluteReturnCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Absolute Return?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>Absolute Return</strong> (also known as total return or point-to-point return) measures the overall percentage appreciation or depreciation of an investment from its initial purchase date to its current valuation or final sale date, without adjusting for the time duration taken.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Absolute Return?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>Absolute Return</strong> (also known as total return or point-to-point return) measures the overall percentage appreciation or depreciation of an investment from its initial purchase date to its current valuation or final sale date, without adjusting for the time duration taken.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Absolute Return Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">Absolute Return (%) = [ ( Current Value - Initial Investment ) / Initial Investment ] × 100</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>Current Value</strong> = Final redemption price or current portfolio value</div>
-                <div><strong>Initial Investment</strong> = Original purchase cost or capital deployed</div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Absolute Return Calculated?</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">Absolute Return (%) = [ ( Current Value - Initial Investment ) / Initial Investment ] × 100</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>Current Value</strong> = Final redemption price or current portfolio value</div>
+                  <div><strong>Initial Investment</strong> = Original purchase cost or capital deployed</div>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Absolute Return vs CAGR</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Parameter</th>
-                    <th className="px-4 py-3 text-left">Absolute Return</th>
-                    <th className="px-4 py-3 text-left">CAGR</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Time Dimension</td>
-                    <td className="px-4 py-2.5 text-amber-600 dark:text-amber-400">Ignores holding period</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Standardized per year</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Best Use Case</td>
-                    <td className="px-4 py-2.5">Short-term trades (&lt; 1 Year)</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Long-term investments (&gt; 1 Year)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Absolute Return vs CAGR</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Parameter</th>
+                      <th className="px-4 py-3 text-left">Absolute Return</th>
+                      <th className="px-4 py-3 text-left">CAGR</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Time Dimension</td>
+                      <td className="px-4 py-2.5 text-amber-600 dark:text-amber-400">Ignores holding period</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Standardized per year</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Best Use Case</td>
+                      <td className="px-4 py-2.5">Short-term trades (&lt; 1 Year)</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Long-term investments (&gt; 1 Year)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/absolute-return-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/absolute-return-calculator" />
       </main>
       <Footer />
     </div>

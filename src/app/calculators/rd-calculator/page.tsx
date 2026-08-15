@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateRd } from "@/lib/financial/fixedIncome/rd";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Landmark, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Landmark, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -171,11 +171,8 @@ export default function RdCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-            {/* Input 1: Monthly Deposit */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -215,7 +212,6 @@ export default function RdCalculatorPage() {
               />
             </div>
 
-            {/* Input 2: Rate */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -249,7 +245,6 @@ export default function RdCalculatorPage() {
               />
             </div>
 
-            {/* Input 3: Tenure */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -284,8 +279,7 @@ export default function RdCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Maturity Amount</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
@@ -310,154 +304,96 @@ export default function RdCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Recurring Deposit (RD)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Recurring Deposit (RD)</strong> is a structured savings scheme offered by Indian commercial banks and the India Post Office. It enables individuals to deposit a predetermined sum of money every month for a fixed tenure (from 6 months up to 10 years) at a guaranteed interest rate.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Unlike a Fixed Deposit which requires a large lump sum upfront, an RD is designed for salaried earners who wish to build a guaranteed corpus through disciplined monthly contributions without exposing their principal to equity market volatility.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an RD Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              An RD calculator models the precise compound interest accrued on every individual monthly deposit:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Record Installment Schedule:</strong> Every monthly installment is tracked with its specific holding duration until maturity.</li>
-              <li><strong>Apply RBI Quarterly Compounding:</strong> First installment earns interest for all <em>N</em> months, second for <em>N - 1</em> months, down to the final installment which earns interest for 1 month.</li>
-              <li><strong>Sum Maturity Proceeds:</strong> Aggregates total principal deposited plus cumulative interest earned across all tranches.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Recurring Deposit Interest Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              According to the standard RBI quarterly compounding convention:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">M = P × ∑<sub>i=1</sub><sup>n</sup> [ 1 + r / 4 ]<sup>4 × (n - i + 1) / 12</sup></div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>M</strong> = Final maturity payout at end of tenure</div>
-                <div><strong>P</strong> = Fixed monthly installment amount</div>
-                <div><strong>r</strong> = Nominal annual interest rate (e.g. 0.07 for 7.0%)</div>
-                <div><strong>n</strong> = Total number of monthly installments</div>
-                <div><strong>i</strong> = Index of the current monthly installment (from 1 to n)</div>
-              </div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              Our financial calculation engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateRd</code>) implements this exact summation to match bank passbook maturity figures down to the rupee.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Recurring Deposit Calculation Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Consider an investor opening a 3-year (36 months) RD with a monthly deposit of ₹5,000 at <strong>7.0% p.a.</strong>:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Total Amount Deposited (₹5,000 × 36 Months)</span>
-                <span className="font-bold tabular-nums">₹1,80,000</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-teal-700 dark:text-teal-400">Total Compound Interest Earned</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹20,774</span>
-              </div>
-              <div className="flex justify-between pt-1 font-bold text-sm">
-                <span>Final Maturity Payout</span>
-                <span className="tabular-nums">₹2,00,774</span>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Recurring Deposit (RD) vs Mutual Fund SIP vs Fixed Deposit (FD)</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Feature</th>
-                    <th className="px-4 py-3 text-left">Recurring Deposit (RD)</th>
-                    <th className="px-4 py-3 text-left">Mutual Fund SIP</th>
-                    <th className="px-4 py-3 text-left">Fixed Deposit (FD)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Deposit Mode</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Monthly installment</td>
-                    <td className="px-4 py-2.5">Monthly installment</td>
-                    <td className="px-4 py-2.5">One-time lump sum</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Returns Certainty</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Guaranteed & fixed</td>
-                    <td className="px-4 py-2.5">Market-linked (variable)</td>
-                    <td className="px-4 py-2.5">Guaranteed & fixed</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Capital Risk</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Zero (DICGC insured)</td>
-                    <td className="px-4 py-2.5">Moderate to High</td>
-                    <td className="px-4 py-2.5">Zero (DICGC insured)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Taxation</td>
-                    <td className="px-4 py-2.5">Taxed at Income Tax Slab</td>
-                    <td className="px-4 py-2.5">LTCG (12.5% above ₹1.25L)</td>
-                    <td className="px-4 py-2.5">Taxed at Income Tax Slab</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Tax & Operational Rules</h2>
-            <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
-              <p>
-                <strong>1. TDS Rules:</strong> Under Section 194A, banks deduct 10% TDS if interest income from RDs and FDs exceeds ₹40,000 (₹50,000 for senior citizens) in a financial year.
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Recurring Deposit (RD)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Recurring Deposit (RD)</strong> is a structured savings scheme offered by Indian commercial banks and the India Post Office. It enables individuals to deposit a predetermined sum of money every month for a fixed tenure (from 6 months up to 10 years) at a guaranteed interest rate.
               </p>
-              <p>
-                <strong>2. Missed Installment Penalty:</strong> Missing a monthly installment attracts a nominal default fee (₹1.50 per ₹100/month). Keep sufficient balance on your deduction date.
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Unlike a Fixed Deposit which requires a large lump sum upfront, an RD is designed for salaried earners who wish to build a guaranteed corpus through disciplined monthly contributions without exposing their principal to equity market volatility.
               </p>
-            </div>
-          </section>
+            </section>
 
-        </div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an RD Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                An RD calculator models the precise compound interest accrued on every individual monthly deposit:
+              </p>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>First Installment:</strong> Compounds interest for the full tenure of <em>n</em> months.</li>
+                <li><strong>Second Installment:</strong> Compounds interest for <em>n - 1</em> months.</li>
+                <li><strong>Final Installment:</strong> Compounds interest for 1 month.</li>
+              </ol>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-3">
+                By summing the compound values of all installments, the calculator provides the exact maturity payout.
+              </p>
+            </section>
 
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">RD Compound Interest Formula</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                In India, banks compound RD interest on a quarterly basis. The standard mathematical formula for RD maturity value is:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">M = P × [ (1 + i)<sup>n</sup> - 1 ] / [ 1 - (1 + i)<sup>-1/3</sup> ]</div>
+                <div className="text-[11px] text-[var(--text-secondary)] font-sans">
+                  Where <strong>M</strong> = Maturity Value, <strong>P</strong> = Monthly Installment, <strong>i</strong> = Quarterly Interest Rate (R / 400), and <strong>n</strong> = Number of Quarters (Tenure in Months / 3).
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Key Benefits of Recurring Deposits</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Guaranteed Payout</h3>
+                  <p className="text-[var(--text-secondary)]">Interest rates are locked in at opening, fully insulating your capital from interest rate cycles.</p>
+                </div>
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Disciplined Savings</h3>
+                  <p className="text-[var(--text-secondary)]">Automated monthly auto-debits foster structured wealth accumulation for short-term goals.</p>
+                </div>
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Low Minimum Deposit</h3>
+                  <p className="text-[var(--text-secondary)]">Start with as little as ₹100/month at Post Office or major public and private sector banks.</p>
+                </div>
+                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-neutral-900 dark:text-white">Senior Citizen Premium</h3>
+                  <p className="text-[var(--text-secondary)]">Senior citizens enjoy an extra 0.50% to 0.75% p.a. interest rate across all tenure options.</p>
+                </div>
+              </div>
+            </section>
+
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/rd-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/rd-calculator" />
       </main>
       <Footer />
     </div>

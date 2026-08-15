@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateSwp } from "@/lib/financial/investments/swp";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Wallet, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
+import { Wallet, ChevronDown, ChevronUp, AlertTriangle, ArrowDownRight } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -202,7 +202,7 @@ export default function SwpCalculatorPage() {
         {/* Page Title & Intro */}
         <div className="mb-8 max-w-3xl">
           <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Wallet className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+            <ArrowDownRight className="h-4 w-4" />
             <span>Regular Cashflow & Pension Planning</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
@@ -214,9 +214,9 @@ export default function SwpCalculatorPage() {
         </div>
 
         {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
           {/* Left Column: Input Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Initial Corpus */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -364,7 +364,7 @@ export default function SwpCalculatorPage() {
           </div>
 
           {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Total Withdrawals Paid Out</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
@@ -404,211 +404,214 @@ export default function SwpCalculatorPage() {
           </p>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Systematic Withdrawal Plan (SWP)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Systematic Withdrawal Plan (SWP)</strong> is a mutual fund facility that functions as the exact inverse of a Systematic Investment Plan (SIP). While an SIP channels regular monthly savings into mutual fund units, an SWP redeems a predetermined rupee amount from your mutual fund portfolio on a set date each month and credits it directly into your bank account.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              The remaining balance in your mutual fund scheme remains invested in the market, continuing to generate compound growth. This makes SWP one of the most effective, tax-efficient tools for retirees, freelancers, and individuals seeking dependable monthly cash flows in India.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an SWP Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              An SWP calculator simulates month-by-month portfolio progression through a sequential accounting algorithm:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Record Opening Balance:</strong> Tracks the current corpus at the beginning of Month <em>m</em>.</li>
-              <li><strong>Calculate Monthly Growth:</strong> Applies the monthly effective compound return rate: <code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">Growth = Opening Balance × Monthly Rate</code>.</li>
-              <li><strong>Deduct Monthly Withdrawal:</strong> Subtracts your specified cash payout from the balance.</li>
-              <li><strong>Update Closing Balance:</strong> Transfers the remaining capital to the next month&apos;s opening balance.</li>
-              <li><strong>Track Longevity:</strong> Repeats this process until the specified years finish or the corpus drops to zero.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is an SWP Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              The mathematical equation for the closing balance at the end of each month <em>m</em> is:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">Balance<sub>m</sub> = Balance<sub>m-1</sub> × (1 + r) - W</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>Balance<sub>m</sub></strong> = Remaining corpus balance at end of Month <em>m</em></div>
-                <div><strong>W</strong> = Fixed monthly withdrawal amount</div>
-                <div><strong>r</strong> = Monthly periodic rate of return = (1 + Annual Return)<sup>1/12</sup> - 1</div>
-                <div><strong>Total Payouts</strong> = Sum of all monthly withdrawals credited to bank account</div>
-              </div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              If the monthly growth generated by your remaining capital exceeds your monthly withdrawal (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">Balance × r &gt; W</code>), your principal actually grows over time. Conversely, if <code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">W &gt; Balance × r</code>, the corpus experiences gradual drawdown.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SWP Calculation Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Let us evaluate a practical retirement income scenario in India:
-            </p>
-            <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1 list-disc list-inside mb-4">
-              <li><strong>Initial Retirement Corpus:</strong> ₹50,00,000 (50 Lakhs)</li>
-              <li><strong>Monthly Withdrawal Amount:</strong> ₹30,000 / month (Annual: ₹3,60,000)</li>
-              <li><strong>Expected Annual Return:</strong> 8% p.a. (in a Conservative Hybrid Fund)</li>
-              <li><strong>Withdrawal Horizon:</strong> 15 Years (180 months)</li>
-            </ul>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Total Monthly Cash Withdrawn (₹30,000 × 180)</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹54,00,000</span>
-              </div>
-              <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                <span className="font-semibold text-[var(--text-secondary)]">Remaining Final Corpus (after 15 Years)</span>
-                <span className="font-bold tabular-nums">₹57,75,420</span>
-              </div>
-              <div className="flex justify-between pt-1 font-bold text-sm">
-                <span>Total Value Delivered (Cash Paid + Remaining Corpus)</span>
-                <span className="tabular-nums">₹1,11,75,420</span>
-              </div>
-            </div>
-            <p className="text-xs text-[var(--text-muted)] mt-2">
-              Remarkably, because the initial annual withdrawal rate was a prudent <strong>7.2%</strong> and the fund generated <strong>8% p.a.</strong>, the retiree withdrew ₹54 Lakhs in cash over 15 years while their remaining capital actually grew from ₹50 Lakhs to ₹57.75 Lakhs.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the SWP Calculator</h2>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Enter Total Corpus:</strong> Input the lump sum amount you have invested or plan to allocate in mutual funds.</li>
-              <li><strong>Specify Monthly Withdrawal:</strong> Enter the monthly cash sum you need transferred to your bank account.</li>
-              <li><strong>Set Expected Return Rate:</strong> Choose an assumed annualized return based on your chosen fund category (e.g. 7% to 9% for hybrid funds).</li>
-              <li><strong>Set Time Horizon:</strong> Specify how many years you want this monthly income stream to run.</li>
-              <li><strong>Analyze Longevity:</strong> Review your total payouts and verify whether the remaining corpus balance stays positive.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of a Systematic Withdrawal Plan</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-normal">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">High Tax Efficiency</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Unlike bank FD interest which is taxed at your highest income slab, SWP withdrawals are treated as partial capital redemptions where only the gain component is taxed.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Continued Capital Growth</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  The unwithdrawn balance remains invested in equity and debt securities, providing a natural buffer against inflation.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Predictable Monthly Cashflow</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  You receive an automated credit on a predetermined date every month, creating a smooth pension-like monthly paycheck.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Complete Liquidity & Control</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Unlike traditional annuities with lock-ins, your remaining mutual fund corpus can be redeemed or adjusted at any time.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SWP vs Fixed Deposit (FD) vs Dividend Income</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Compare why retirees and income seekers in India increasingly favor SWP over traditional monthly income plans:
-            </p>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Feature</th>
-                    <th className="px-4 py-3 text-left">Mutual Fund SWP</th>
-                    <th className="px-4 py-3 text-left">Bank Fixed Deposit (FD)</th>
-                    <th className="px-4 py-3 text-left">Mutual Fund Dividend Plan (IDCW)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Payout Amount</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Fixed & customized by investor</td>
-                    <td className="px-4 py-2.5">Fixed by bank interest rate</td>
-                    <td className="px-4 py-2.5">Uncertain (depends on fund AMC)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Taxation</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Only gain portion taxed (LTCG 12.5%)</td>
-                    <td className="px-4 py-2.5">100% interest taxed at slab rate</td>
-                    <td className="px-4 py-2.5">100% dividend taxed at slab rate</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Capital Growth</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Possible if return &gt; withdrawal</td>
-                    <td className="px-4 py-2.5">Zero (principal stays static)</td>
-                    <td className="px-4 py-2.5">NAV drops by dividend amount</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Inflation Protection</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">High (via hybrid/equity growth)</td>
-                    <td className="px-4 py-2.5">Low (loses purchasing power)</td>
-                    <td className="px-4 py-2.5">Moderate</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Factors & Longevity Considerations</h2>
-            <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
-              <p>
-                <strong>1. Safe Withdrawal Rate (SWR):</strong> To ensure your retirement corpus lasts 25 to 30 years, aim for an initial withdrawal rate of <strong>4% to 6% per annum</strong>. Withdrawing 10% or more annually increases the risk of premature corpus depletion during market downturns.
+        {/* Comprehensive Educational Content & Related Calculators Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Systematic Withdrawal Plan (SWP)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Systematic Withdrawal Plan (SWP)</strong> is a mutual fund facility that functions as the exact inverse of a Systematic Investment Plan (SIP). While an SIP channels regular monthly savings into mutual fund units, an SWP redeems a predetermined rupee amount from your mutual fund portfolio on a set date each month and credits it directly into your bank account.
               </p>
-              <p>
-                <strong>2. Sequence of Returns Risk:</strong> Experiencing sharp market declines in the first few years of retirement can severely impact corpus longevity. To mitigate this risk, maintain 1 to 2 years of living expenses in liquid debt funds.
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                The remaining balance in your mutual fund scheme remains invested in the market, continuing to generate compound growth. This makes SWP one of the most effective, tax-efficient tools for retirees, freelancers, and individuals seeking dependable monthly cash flows in India.
               </p>
-              <p>
-                <strong>3. Volatility Management:</strong> Avoid executing SWP exclusively from high-beta small-cap funds. Conservative hybrid or balanced advantage funds provide smoother volatility and consistent withdrawal sustainability.
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an SWP Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                An SWP calculator simulates month-by-month portfolio progression through a sequential accounting algorithm:
               </p>
-            </div>
-          </section>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Record Opening Balance:</strong> Tracks the current corpus at the beginning of Month <em>m</em>.</li>
+                <li><strong>Calculate Monthly Growth:</strong> Applies the monthly effective compound return rate: <code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">Growth = Opening Balance × Monthly Rate</code>.</li>
+                <li><strong>Deduct Monthly Withdrawal:</strong> Subtracts your specified cash payout from the balance.</li>
+                <li><strong>Update Closing Balance:</strong> Transfers the remaining capital to the next month&apos;s opening balance.</li>
+                <li><strong>Track Longevity:</strong> Repeats this process until the specified years finish or the corpus drops to zero.</li>
+              </ol>
+            </section>
 
-        </div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is an SWP Calculated?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                The mathematical equation for the closing balance at the end of each month <em>m</em> is:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">Balance<sub>m</sub> = Balance<sub>m-1</sub> × (1 + r) - W</div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>Balance<sub>m</sub></strong> = Remaining corpus balance at end of Month <em>m</em></div>
+                  <div><strong>W</strong> = Fixed monthly withdrawal amount</div>
+                  <div><strong>r</strong> = Monthly periodic rate of return = (1 + Annual Return)<sup>1/12</sup> - 1</div>
+                  <div><strong>Total Payouts</strong> = Sum of all monthly withdrawals credited to bank account</div>
+                </div>
+              </div>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                If the monthly growth generated by your remaining capital exceeds your monthly withdrawal (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">Balance × r &gt; W</code>), your principal actually grows over time. Conversely, if <code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">W &gt; Balance × r</code>, the corpus experiences gradual drawdown.
+              </p>
+            </section>
 
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SWP Calculation Example</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Let us evaluate a practical retirement income scenario in India:
+              </p>
+              <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1 list-disc list-inside mb-4">
+                <li><strong>Initial Retirement Corpus:</strong> ₹50,00,000 (50 Lakhs)</li>
+                <li><strong>Monthly Withdrawal Amount:</strong> ₹30,000 / month (Annual: ₹3,60,000)</li>
+                <li><strong>Expected Annual Return:</strong> 8% p.a. (in a Conservative Hybrid Fund)</li>
+                <li><strong>Withdrawal Horizon:</strong> 15 Years (180 months)</li>
+              </ul>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Total Monthly Cash Withdrawn (₹30,000 × 180)</span>
+                  <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹54,00,000</span>
+                </div>
+                <div className="flex justify-between border-b border-[var(--border)] pb-2">
+                  <span className="font-semibold text-[var(--text-secondary)]">Remaining Final Corpus (after 15 Years)</span>
+                  <span className="font-bold tabular-nums">₹57,75,420</span>
+                </div>
+                <div className="flex justify-between pt-1 font-bold text-sm">
+                  <span>Total Value Delivered (Cash Paid + Remaining Corpus)</span>
+                  <span className="tabular-nums">₹1,11,75,420</span>
+                </div>
+              </div>
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                Remarkably, because the initial annual withdrawal rate was a prudent <strong>7.2%</strong> and the fund generated <strong>8% p.a.</strong>, the retiree withdrew ₹54 Lakhs in cash over 15 years while their remaining capital actually grew from ₹50 Lakhs to ₹57.75 Lakhs.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the SWP Calculator</h2>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Enter Total Corpus:</strong> Input the lump sum amount you have invested or plan to allocate in mutual funds.</li>
+                <li><strong>Specify Monthly Withdrawal:</strong> Enter the monthly cash sum you need transferred to your bank account.</li>
+                <li><strong>Set Expected Return Rate:</strong> Choose an assumed annualized return based on your chosen fund category (e.g. 7% to 9% for hybrid funds).</li>
+                <li><strong>Set Time Horizon:</strong> Specify how many years you want this monthly income stream to run.</li>
+                <li><strong>Analyze Longevity:</strong> Review your total payouts and verify whether the remaining corpus balance stays positive.</li>
+              </ol>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of a Systematic Withdrawal Plan</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-normal">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">High Tax Efficiency</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Unlike bank FD interest which is taxed at your highest income slab, SWP withdrawals are treated as partial capital redemptions where only the gain component is taxed.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Continued Capital Growth</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    The unwithdrawn balance remains invested in equity and debt securities, providing a natural buffer against inflation.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Predictable Monthly Cashflow</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    You receive an automated credit on a predetermined date every month, creating a smooth pension-like monthly paycheck.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">Complete Liquidity & Control</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Unlike traditional annuities with lock-ins, your remaining mutual fund corpus can be redeemed or adjusted at any time.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SWP vs Fixed Deposit (FD) vs Dividend Income</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Compare why retirees and income seekers in India increasingly favor SWP over traditional monthly income plans:
+              </p>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Feature</th>
+                      <th className="px-4 py-3 text-left">Mutual Fund SWP</th>
+                      <th className="px-4 py-3 text-left">Bank Fixed Deposit (FD)</th>
+                      <th className="px-4 py-3 text-left">Mutual Fund Dividend Plan (IDCW)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Payout Amount</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Fixed & customized by investor</td>
+                      <td className="px-4 py-2.5">Fixed by bank interest rate</td>
+                      <td className="px-4 py-2.5">Uncertain (depends on fund AMC)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Taxation</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Only gain portion taxed (LTCG 12.5%)</td>
+                      <td className="px-4 py-2.5">100% interest taxed at slab rate</td>
+                      <td className="px-4 py-2.5">100% dividend taxed at slab rate</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Capital Growth</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Possible if return &gt; withdrawal</td>
+                      <td className="px-4 py-2.5">Zero (principal stays static)</td>
+                      <td className="px-4 py-2.5">NAV drops by dividend amount</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Inflation Protection</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">High (via hybrid/equity growth)</td>
+                      <td className="px-4 py-2.5">Low (loses purchasing power)</td>
+                      <td className="px-4 py-2.5">Moderate</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Factors & Longevity Considerations</h2>
+              <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
+                <p>
+                  <strong>1. Safe Withdrawal Rate (SWR):</strong> To ensure your retirement corpus lasts 25 to 30 years, aim for an initial withdrawal rate of <strong>4% to 6% per annum</strong>. Withdrawing 10% or more annually increases the risk of premature corpus depletion during market downturns.
+                </p>
+                <p>
+                  <strong>2. Sequence of Returns Risk:</strong> Experiencing sharp market declines in the first few years of retirement can severely impact corpus longevity. To mitigate this risk, maintain 1 to 2 years of living expenses in liquid debt funds.
+                </p>
+                <p>
+                  <strong>3. Volatility Management:</strong> Avoid executing SWP exclusively from high-beta small-cap funds. Conservative hybrid or balanced advantage funds provide smoother volatility and consistent withdrawal sustainability.
+                </p>
+              </div>
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/swp-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/swp-calculator" />
       </main>
       <Footer />
     </div>

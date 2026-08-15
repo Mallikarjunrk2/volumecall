@@ -6,8 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculatePeValuation, calculatePegRatio } from "@/lib/financial/valuation/pe";
-import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { DollarSign, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { DollarSign, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 const pageFaqItems = [
   {
@@ -134,10 +133,10 @@ export default function PeValuationPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Expected EPS */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -170,14 +169,14 @@ export default function PeValuationPage() {
               />
             </div>
 
-            {/* Input 2: Target Fair P/E */}
+            {/* Input 2: Target P/E Multiple */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="pe-target" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Target Fair P/E Multiple
+                    Target Fair P/E Multiple (x)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Historical median or peer group average P/E</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Historical median P/E or peer group benchmark</span>
                 </div>
                 <div className="relative flex items-center">
                   <input
@@ -186,44 +185,44 @@ export default function PeValuationPage() {
                     inputMode="decimal"
                     value={targetPeInput}
                     onChange={(e) => setTargetPeInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-36 sm:w-44 pr-8 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
                   />
                   <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">x</span>
                 </div>
               </div>
               <input
                 type="range"
-                min="0"
-                max="100"
+                min="1"
+                max="150"
                 step="1"
-                value={Math.min(100, Math.max(0, parsedTargetPe))}
+                value={Math.min(150, Math.max(1, parsedTargetPe))}
                 onChange={(e) => setTargetPeInput(e.target.value)}
                 className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
               />
             </div>
 
-            {/* Input 3 & 4: Current Price & Growth */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[var(--border)] text-xs">
+            {/* Input 3 & 4: Current Price & EPS Growth Rate */}
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)]">
               <div>
-                <label htmlFor="pe-curr-price" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Current Market Price (₹)
+                <label htmlFor="pe-curr-price" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
+                  Current Market Price (₹) (Optional)
                 </label>
                 <div className="relative flex items-center">
-                  <span className="absolute left-2 text-[11px] text-[var(--text-secondary)]">₹</span>
+                  <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
                   <input
                     id="pe-curr-price"
                     type="text"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     value={currentPriceInput}
                     onChange={(e) => setCurrentPriceInput(e.target.value)}
-                    className="w-full pl-5 pr-2 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full pl-6 pr-2 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="pe-growth" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Expected EPS Growth (% p.a.)
+                <label htmlFor="pe-growth" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
+                  EPS Growth Rate (% p.a.) (PEG)
                 </label>
                 <div className="relative flex items-center">
                   <input
@@ -240,8 +239,8 @@ export default function PeValuationPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Fair Value Per Share</span>
               <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
@@ -281,52 +280,55 @@ export default function PeValuationPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is P/E Ratio Valuation?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                The <strong>Price-to-Earnings (P/E) Multiple</strong> is the most widely used relative valuation metric in global equity markets. It compares a company&apos;s stock price with its per-share net profit, establishing what premium investors are paying for current and future earnings power.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is P/E Ratio Valuation?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              The <strong>Price-to-Earnings (P/E) Multiple</strong> is the most widely used relative valuation metric in global equity markets. It compares a company&apos;s stock price with its per-share net profit, establishing what premium investors are paying for current and future earnings power.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">P/E and PEG Valuation Formulas</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div>Fair Target Price = Forward EPS × Target Fair P/E</div>
-              <div>PEG Ratio = Current P/E / EPS Growth Rate (%)</div>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">P/E and PEG Valuation Formulas</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div>Fair Target Price = Forward EPS × Target Fair P/E</div>
+                <div>PEG Ratio = Current P/E / EPS Growth Rate (%)</div>
               </div>
-            ))}
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/pe-valuation-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/pe-valuation-calculator" />
       </main>
       <Footer />
     </div>

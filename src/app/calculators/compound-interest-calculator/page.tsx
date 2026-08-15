@@ -8,7 +8,7 @@ import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateCompoundInterest } from "@/lib/financial/compounding/compoundInterest";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
 import { CompoundingFrequency } from "@/lib/financial/types";
-import { TrendingUp, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -179,10 +179,10 @@ export default function CompoundInterestPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Principal */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -228,9 +228,9 @@ export default function CompoundInterestPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="ci-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Annual Interest Rate (% p.a.)
+                    Interest Rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Assumed annual rate of return</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Annual compounding interest rate</span>
                 </div>
                 <div className="relative flex items-center">
                   <input
@@ -249,7 +249,7 @@ export default function CompoundInterestPage() {
                 type="range"
                 min="0"
                 max="30"
-                step="0.5"
+                step="0.1"
                 autoComplete="off"
                 value={Math.min(30, Math.max(0, parsedRate))}
                 onChange={(e) => setRateInput(e.target.value)}
@@ -262,9 +262,9 @@ export default function CompoundInterestPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="ci-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Investment Period (Years)
+                    Time Period (Years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Compounding time horizon</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Investment duration</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
@@ -294,13 +294,13 @@ export default function CompoundInterestPage() {
               />
             </div>
 
-            {/* Input 4: Compounding Frequency */}
-            <div className="space-y-2">
+            {/* Compounding Frequency Selector */}
+            <div className="space-y-2 pt-2 border-t border-[var(--border)]">
               <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                 Compounding Frequency
               </label>
               <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs">
-                {(["annual", "semi-annual", "quarterly", "monthly", "daily"] as CompoundingFrequency[]).map((f) => (
+                {(["annual", "semi-annual", "quarterly", "monthly"] as const).map((f) => (
                   <button
                     key={f}
                     onClick={() => setFrequency(f)}
@@ -315,8 +315,8 @@ export default function CompoundInterestPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Total Compound Future Value</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
@@ -344,85 +344,61 @@ export default function CompoundInterestPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Compound Interest?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>Compound Interest</strong> is interest calculated on the initial principal, which also includes all of the accumulated interest from previous periods on a deposit or loan. Coined as the &apos;Eighth Wonder of the World&apos;, compounding allows your money to work for you exponentially over time.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Compound Interest?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>Compound Interest</strong> is interest calculated on the initial principal, which also includes all of the accumulated interest from previous periods on a deposit or loan. Coined as the &apos;Eighth Wonder of the World&apos;, compounding allows your money to work for you exponentially over time.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Compound Interest Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">A = P × ( 1 + r / n )<sup>(n × t)</sup></div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>A</strong> = Final maturity value</div>
-                <div><strong>P</strong> = Principal sum</div>
-                <div><strong>r</strong> = Nominal annual interest rate (e.g. 0.12 for 12%)</div>
-                <div><strong>n</strong> = Compounding frequency per year (1 for annual, 4 for quarterly, 12 for monthly, 365 for daily)</div>
-                <div><strong>t</strong> = Number of years</div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Compound Interest Calculated?</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">A = P × ( 1 + r / n )<sup>(n × t)</sup></div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>A</strong> = Final compound amount</div>
+                  <div><strong>P</strong> = Principal deposit amount</div>
+                  <div><strong>r</strong> = Annual interest rate (in decimal)</div>
+                  <div><strong>n</strong> = Compounding frequency per year</div>
+                  <div><strong>t</strong> = Investment horizon in years</div>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Simple Interest vs Compound Interest</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Feature</th>
-                    <th className="px-4 py-3 text-left">Compound Interest</th>
-                    <th className="px-4 py-3 text-left">Simple Interest</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Calculation Base</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Principal + Accrued Interest</td>
-                    <td className="px-4 py-2.5">Original Principal Only</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Growth Pattern</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Exponential curve (accelerates over time)</td>
-                    <td className="px-4 py-2.5">Linear straight line</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/compound-interest-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/compound-interest-calculator" />
       </main>
       <Footer />
     </div>

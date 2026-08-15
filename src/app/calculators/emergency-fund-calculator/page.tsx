@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateEmergencyFund } from "@/lib/financial/planning/emergencyFund";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Umbrella, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { Umbrella, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -165,11 +165,8 @@ export default function EmergencyFundCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-            {/* Input 1: Monthly Essential Expenses */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -209,7 +206,6 @@ export default function EmergencyFundCalculatorPage() {
               />
             </div>
 
-            {/* Input 2: Months of Coverage */}
             <div className="space-y-3">
               <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                 Coverage Horizon (Months)
@@ -236,7 +232,6 @@ export default function EmergencyFundCalculatorPage() {
               </div>
             </div>
 
-            {/* Input 3: Current Savings */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -277,8 +272,7 @@ export default function EmergencyFundCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
                 Total Recommended Emergency Fund ({monthsInput} Months)
@@ -310,68 +304,67 @@ export default function EmergencyFundCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is an Emergency Fund?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                An <strong>Emergency Fund</strong> is an essential cash buffer preserved in high-liquidity, low-risk accounts. Its sole purpose is to keep your household afloat during sudden life disruptions (such as medical crises, economic layoffs, or major family emergencies) without taking high-interest loans or liquidating long-term equity mutual fund SIPs at market bottoms.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is an Emergency Fund?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              An <strong>Emergency Fund</strong> is an essential cash buffer preserved in high-liquidity, low-risk accounts. Its sole purpose is to keep your household afloat during sudden life disruptions (such as medical crises, economic layoffs, or major family emergencies) without taking high-interest loans or liquidating long-term equity mutual fund SIPs at market bottoms.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Where Should You Keep Your Emergency Fund in India?</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-normal">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">1. High-Yield Savings Account</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Keep 1 to 2 months of expenses in your primary bank account for instant ATM / UPI access 24/7.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">2. Sweep-in Bank FDs</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Keep 2 to 3 months of expenses in auto-sweep fixed deposits that earn 6.5%–7.5% interest with zero break penalty.
+                  </p>
+                </div>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-neutral-900 dark:text-white text-sm">3. Liquid Mutual Funds</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    Keep the remainder in AAA-rated overnight or liquid mutual funds offering insta-redemption up to ₹50,000 per day.
+                  </p>
+                </div>
+              </div>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Where Should You Keep Your Emergency Fund in India?</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-normal">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">1. High-Yield Savings Account</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Keep 1 to 2 months of expenses in your primary bank account for instant ATM / UPI access 24/7.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">2. Sweep-in Bank FDs</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Keep 2 to 3 months of expenses in auto-sweep fixed deposits that earn 6.5%–7.5% interest with zero break penalty.
-                </p>
-              </div>
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-1.5">
-                <h4 className="font-bold text-neutral-900 dark:text-white text-sm">3. Liquid Mutual Funds</h4>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  Keep the remainder in AAA-rated overnight or liquid mutual funds offering insta-redemption up to ₹50,000 per day.
-                </p>
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/emergency-fund-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/emergency-fund-calculator" />
       </main>
       <Footer />
     </div>

@@ -8,7 +8,7 @@ import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateXirr } from "@/lib/financial/returns/xirr";
 import { CashFlow } from "@/lib/financial/types";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Activity, Plus, Trash2, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Activity, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
 interface FlowRow {
   date: string;
@@ -153,10 +153,10 @@ export default function XirrCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
           {/* Left Column: Cash Flow Table */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
             <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
               <div>
                 <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">Transaction Dates & Amounts</h3>
@@ -204,8 +204,8 @@ export default function XirrCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Extended Internal Rate of Return (XIRR)</span>
               <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
@@ -232,91 +232,82 @@ export default function XirrCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is XIRR (Extended Internal Rate of Return)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>XIRR (Extended Internal Rate of Return)</strong> is the industry standard for measuring the annualized return on investments involving multiple transactions occurring at irregular calendar dates.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Unlike a fixed lump-sum investment (which uses CAGR), a Mutual Fund SIP or stock portfolio involves multiple installments spread across different months. Since each deposit is invested for a different duration, XIRR calculates the single unified discount rate that equates all cash flows to zero.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is XIRR (Extended Internal Rate of Return)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>XIRR (Extended Internal Rate of Return)</strong> is the industry standard for measuring the annualized return on investments involving multiple transactions occurring at irregular calendar dates.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Unlike a fixed lump-sum investment (which uses CAGR), a Mutual Fund SIP or stock portfolio involves multiple installments spread across different months. Since each deposit is invested for a different duration, XIRR calculates the single unified discount rate that equates all cash flows to zero.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is XIRR Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">∑<sub>i=1</sub><sup>N</sup> [ CF<sub>i</sub> / (1 + XIRR)<sup>(Date<sub>i</sub> - Date<sub>0</sub>) / 365</sup> ] = 0</div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>CF<sub>i</sub></strong> = Cash flow amount on Date <em>i</em> (negative for purchase, positive for value)</div>
-                <div><strong>Date<sub>0</sub></strong> = First investment date in the series</div>
-                <div><strong>XIRR</strong> = Annualized internal rate of return</div>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">XIRR vs CAGR vs IRR</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Metric</th>
+                      <th className="px-4 py-3 text-left">Transaction Timing</th>
+                      <th className="px-4 py-3 text-left">Best Use Case</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">XIRR</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Exact irregular calendar dates</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Mutual Fund SIPs, multiple stock buys & sales</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">CAGR</td>
+                      <td className="px-4 py-2.5">Single start & single end date</td>
+                      <td className="px-4 py-2.5">One-time lump sum investments</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">IRR</td>
+                      <td className="px-4 py-2.5">Fixed periodic intervals (annual/monthly)</td>
+                      <td className="px-4 py-2.5">Capital budgeting, corporate projects</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">XIRR vs CAGR vs IRR</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Metric</th>
-                    <th className="px-4 py-3 text-left">Transaction Timing</th>
-                    <th className="px-4 py-3 text-left">Best Use Case</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">XIRR</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Exact irregular calendar dates</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Mutual Fund SIPs, multiple stock buys & sales</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">CAGR</td>
-                    <td className="px-4 py-2.5">Single start & single end date</td>
-                    <td className="px-4 py-2.5">One-time lump sum investments</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">IRR</td>
-                    <td className="px-4 py-2.5">Fixed periodic intervals (annual/monthly)</td>
-                    <td className="px-4 py-2.5">Capital budgeting, corporate projects</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/xirr-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/xirr-calculator" />
       </main>
       <Footer />
     </div>

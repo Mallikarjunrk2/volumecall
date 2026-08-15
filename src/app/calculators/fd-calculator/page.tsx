@@ -8,7 +8,7 @@ import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateFd } from "@/lib/financial/fixedIncome/fd";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
 import { CompoundingFrequency } from "@/lib/financial/types";
-import { Building2, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Building2, ChevronDown, ChevronUp } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -90,7 +90,7 @@ const pageFaqItems = [
   {
     question: "Are bank fixed deposits safe?",
     answer:
-      "Yes. Bank deposits in all scheduled commercial and cooperative banks in India are insured up to ₹5,00,000 per depositor per bank by the DICGC (Deposit Insurance and Credit Guarantee Corporation, an RBI subsidiary).",
+      "Yes. Bank deposits in all scheduled commercial and cooperative banks in India are insured up to ₹5,0,000 per depositor per bank by the DICGC (Deposit Insurance and Credit Guarantee Corporation, an RBI subsidiary).",
   },
   {
     question: "What happens if I break my FD before maturity?",
@@ -183,10 +183,10 @@ export default function FdCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Type Switcher: Cumulative vs Non-Cumulative */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
@@ -268,7 +268,12 @@ export default function FdCalculatorPage() {
                     inputMode="decimal"
                     autoComplete="off"
                     value={rateInput}
-                    onChange={(e) => setRateInput(e.target.value)}
+                    onChange={(e) => {
+                      let clean = e.target.value.replace(/[^0-9.]/g, "");
+                      const parts = clean.split(".");
+                      if (parts.length > 2) clean = parts[0] + "." + parts.slice(1).join("");
+                      setRateInput(clean);
+                    }}
                     className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
                   />
                   <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
@@ -286,24 +291,27 @@ export default function FdCalculatorPage() {
               />
             </div>
 
-            {/* Input 3: Tenure */}
+            {/* Input 3: Duration */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <label htmlFor="fd-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                  <label htmlFor="fd-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                     Tenure (Years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Deposit holding period</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Fixed deposit duration</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
                     <input
-                      id="fd-tenure"
+                      id="fd-years"
                       type="text"
                       inputMode="numeric"
                       autoComplete="off"
                       value={yearsInput}
-                      onChange={(e) => setYearsInput(e.target.value.replace(/[^0-9]/g, ""))}
+                      onChange={(e) => {
+                        const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
+                        setYearsInput(clean);
+                      }}
                       className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
                     />
                     <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
@@ -315,7 +323,7 @@ export default function FdCalculatorPage() {
                 type="range"
                 min="0"
                 max="20"
-                step="1"
+                step="0.5"
                 autoComplete="off"
                 value={Math.min(20, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
@@ -324,8 +332,8 @@ export default function FdCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Output Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
                 {isCumulative ? "Maturity Amount (at End of Tenure)" : "Principal Returned at Maturity"}
@@ -358,179 +366,182 @@ export default function FdCalculatorPage() {
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Fixed Deposit (FD)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                A <strong>Fixed Deposit (FD)</strong> is a traditional financial instrument provided by banks and Non-Banking Financial Companies (NBFCs) in India where an investor deposits a lump sum for a predetermined period at a guaranteed, fixed interest rate.
+              </p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
+                Unlike market-linked instruments (like mutual funds or stocks), bank fixed deposits offer 100% capital safety and assured returns unaffected by market movements. Furthermore, deposits across scheduled banks in India are protected up to ₹5 Lakh per depositor by the <strong>DICGC</strong> (an RBI subsidiary).
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a Fixed Deposit (FD)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              A <strong>Fixed Deposit (FD)</strong> is a traditional financial instrument provided by banks and Non-Banking Financial Companies (NBFCs) in India where an investor deposits a lump sum for a predetermined period at a guaranteed, fixed interest rate.
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-2">
-              Unlike market-linked instruments (like mutual funds or stocks), bank fixed deposits offer 100% capital safety and assured returns unaffected by market movements. Furthermore, deposits across scheduled banks in India are protected up to ₹5 Lakh per depositor by the <strong>DICGC</strong> (an RBI subsidiary).
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an FD Calculator Work?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                An FD calculator uses your deposit principal, interest rate, and tenure to compute the final returns based on standard Indian banking compounding rules:
+              </p>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Cumulative Option:</strong> Interest is calculated and added to your principal every quarter, compounding over the full tenure and paid at maturity.</li>
+                <li><strong>Non-Cumulative Option:</strong> Interest is calculated as simple periodic yield and paid directly into your savings account each month or quarter.</li>
+              </ol>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does an FD Calculator Work?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              An FD calculator uses your deposit principal, interest rate, and tenure to compute the final returns based on standard Indian banking compounding rules:
-            </p>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Cumulative Option:</strong> Interest is calculated and added to your principal every quarter, compounding over the full tenure and paid at maturity.</li>
-              <li><strong>Non-Cumulative Option:</strong> Interest is calculated as simple periodic yield and paid directly into your savings account each month or quarter.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Fixed Deposit Interest Calculated?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              For standard <strong>Cumulative FDs</strong> compounded quarterly in Indian banks:
-            </p>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">A = P × (1 + r / n)<sup>(n × t)</sup></div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>A</strong> = Final maturity amount payable</div>
-                <div><strong>P</strong> = Principal deposit amount</div>
-                <div><strong>r</strong> = Nominal annual interest rate (e.g. 0.075 for 7.5%)</div>
-                <div><strong>n</strong> = Compounding frequency per year (n = 4 for quarterly compounding)</div>
-                <div><strong>t</strong> = Deposit duration in years</div>
-              </div>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              For <strong>Non-Cumulative FDs</strong>, interest is paid out periodically: <code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">Periodic Payout = (P × r) / n</code>, and the original principal <strong>P</strong> is returned at maturity.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Fixed Deposit Calculation Example</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-              Let us compare a 5-year ₹1,00,000 bank deposit at <strong>7.5% p.a.</strong> under both modes:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-normal mb-3">
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
-                <span className="font-bold text-neutral-900 dark:text-white text-sm block">Cumulative FD (Reinvestment)</span>
-                <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                  <span className="text-[var(--text-secondary)]">Deposit Principal</span>
-                  <span className="font-bold">₹1,00,000</span>
-                </div>
-                <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                  <span className="text-[var(--text-secondary)]">Total Compound Interest</span>
-                  <span className="font-bold text-teal-700 dark:text-teal-400">₹44,995</span>
-                </div>
-                <div className="flex justify-between font-bold pt-1">
-                  <span>Maturity Amount</span>
-                  <span>₹1,44,995</span>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Fixed Deposit Interest Calculated?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                For standard <strong>Cumulative FDs</strong> compounded quarterly in Indian banks:
+              </p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">A = P × (1 + r / n)<sup>(n × t)</sup></div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>A</strong> = Final maturity amount payable</div>
+                  <div><strong>P</strong> = Principal deposit amount</div>
+                  <div><strong>r</strong> = Nominal annual interest rate (e.g. 0.075 for 7.5%)</div>
+                  <div><strong>n</strong> = Compounding frequency per year (n = 4 for quarterly compounding)</div>
+                  <div><strong>t</strong> = Deposit duration in years</div>
                 </div>
               </div>
-
-              <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
-                <span className="font-bold text-neutral-900 dark:text-white text-sm block">Non-Cumulative FD (Payout)</span>
-                <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                  <span className="text-[var(--text-secondary)]">Quarterly Payout</span>
-                  <span className="font-bold text-teal-700 dark:text-teal-400">₹1,875 / quarter</span>
-                </div>
-                <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                  <span className="text-[var(--text-secondary)]">Total Interest Paid</span>
-                  <span className="font-bold text-teal-700 dark:text-teal-400">₹37,500</span>
-                </div>
-                <div className="flex justify-between font-bold pt-1">
-                  <span>Principal Returned</span>
-                  <span>₹1,00,000</span>
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-[var(--text-muted)]">
-              Quarterly compounding in the cumulative option generates <strong>₹7,495 in extra interest</strong> because accrued interest is reinvested every 3 months.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the FD Calculator</h2>
-            <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
-              <li><strong>Select Payout Option:</strong> Choose &apos;Cumulative&apos; for maximum growth or &apos;Non-Cumulative&apos; for regular income.</li>
-              <li><strong>Enter Principal Deposit:</strong> Type the initial amount you want to place in the fixed deposit.</li>
-              <li><strong>Enter Interest Rate:</strong> Input the contracted annual interest rate offered by your bank (add 0.50% if senior citizen).</li>
-              <li><strong>Set Tenure in Years:</strong> Select the lock-in duration.</li>
-              <li><strong>View Maturity Breakdown:</strong> Review your total interest earned, final payout, and effective yield.</li>
-            </ol>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Cumulative FD vs Non-Cumulative FD</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Parameter</th>
-                    <th className="px-4 py-3 text-left">Cumulative FD</th>
-                    <th className="px-4 py-3 text-left">Non-Cumulative FD</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Interest Payout</td>
-                    <td className="px-4 py-2.5">Paid at maturity along with principal</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Paid monthly, quarterly, or annually</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Compounding Benefit</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Full quarterly compounding</td>
-                    <td className="px-4 py-2.5">No compounding (simple interest)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Best Suited For</td>
-                    <td className="px-4 py-2.5">Wealth accumulation & long-term goals</td>
-                    <td className="px-4 py-2.5">Retirees needing monthly pension income</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Tax & Regulatory Factors</h2>
-            <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
-              <p>
-                <strong>1. Income Tax Slab:</strong> FD interest is added to your total income under &apos;Income from Other Sources&apos; and taxed at your marginal slab rate (e.g. 10%, 20%, 30%).
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                For <strong>Non-Cumulative FDs</strong>, interest is paid out periodically: <code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">Periodic Payout = (P × r) / n</code>, and the original principal <strong>P</strong> is returned at maturity.
               </p>
-              <p>
-                <strong>2. TDS Deductions:</strong> Banks deduct 10% TDS if your total annual FD interest exceeds ₹40,000 (₹50,000 for senior citizens). If total income is below the taxable threshold, submit Form 15G / 15H to avoid TDS.
-              </p>
-              <p>
-                <strong>3. Premature Penalties:</strong> Breaking an FD before maturity incurs a penalty of 0.50%–1.00% lower interest.
-              </p>
-            </div>
-          </section>
+            </section>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Fixed Deposit Calculation Example</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
+                Let us compare a 5-year ₹1,00,000 bank deposit at <strong>7.5% p.a.</strong> under both modes:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-normal mb-3">
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
+                  <span className="font-bold text-neutral-900 dark:text-white text-sm block">Cumulative FD (Reinvestment)</span>
+                  <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                    <span className="text-[var(--text-secondary)]">Deposit Principal</span>
+                    <span className="font-bold">₹1,00,000</span>
                   </div>
-                )}
+                  <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                    <span className="text-[var(--text-secondary)]">Total Compound Interest</span>
+                    <span className="font-bold text-teal-700 dark:text-teal-400">₹44,995</span>
+                  </div>
+                  <div className="flex justify-between font-bold pt-1">
+                    <span>Maturity Amount</span>
+                    <span>₹1,44,995</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
+                  <span className="font-bold text-neutral-900 dark:text-white text-sm block">Non-Cumulative FD (Payout)</span>
+                  <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                    <span className="text-[var(--text-secondary)]">Quarterly Payout</span>
+                    <span className="font-bold text-teal-700 dark:text-teal-400">₹1,875 / quarter</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                    <span className="text-[var(--text-secondary)]">Total Interest Paid</span>
+                    <span className="font-bold text-teal-700 dark:text-teal-400">₹37,500</span>
+                  </div>
+                  <div className="flex justify-between font-bold pt-1">
+                    <span>Principal Returned</span>
+                    <span>₹1,00,000</span>
+                  </div>
+                </div>
               </div>
-            ))}
+              <p className="text-xs text-[var(--text-muted)]">
+                Quarterly compounding in the cumulative option generates <strong>₹7,495 in extra interest</strong> because accrued interest is reinvested every 3 months.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How to Use the FD Calculator</h2>
+              <ol className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-decimal list-inside font-normal">
+                <li><strong>Select Payout Option:</strong> Choose &apos;Cumulative&apos; for maximum growth or &apos;Non-Cumulative&apos; for regular income.</li>
+                <li><strong>Enter Principal Deposit:</strong> Type the initial amount you want to place in the fixed deposit.</li>
+                <li><strong>Enter Interest Rate:</strong> Input the contracted annual interest rate offered by your bank (add 0.50% if senior citizen).</li>
+                <li><strong>Set Tenure in Years:</strong> Select the lock-in duration.</li>
+                <li><strong>View Maturity Breakdown:</strong> Review your total interest earned, final payout, and effective yield.</li>
+              </ol>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Cumulative FD vs Non-Cumulative FD</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Parameter</th>
+                      <th className="px-4 py-3 text-left">Cumulative FD</th>
+                      <th className="px-4 py-3 text-left">Non-Cumulative FD</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Interest Payout</td>
+                      <td className="px-4 py-2.5">Paid at maturity along with principal</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Paid monthly, quarterly, or annually</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Compounding Benefit</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Full quarterly compounding</td>
+                      <td className="px-4 py-2.5">No compounding (simple interest)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Best Suited For</td>
+                      <td className="px-4 py-2.5">Wealth accumulation & long-term goals</td>
+                      <td className="px-4 py-2.5">Retirees needing monthly pension income</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Tax & Regulatory Factors</h2>
+              <div className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2">
+                <p>
+                  <strong>1. Income Tax Slab:</strong> FD interest is added to your total income under &apos;Income from Other Sources&apos; and taxed at your marginal slab rate (e.g. 10%, 20%, 30%).
+                </p>
+                <p>
+                  <strong>2. TDS Deductions:</strong> Banks deduct 10% TDS if your total annual FD interest exceeds ₹40,000 (₹50,000 for senior citizens). If total income is below the taxable threshold, submit Form 15G / 15H to avoid TDS.
+                </p>
+                <p>
+                  <strong>3. Premature Penalties:</strong> Breaking an FD before maturity incurs a penalty of 0.50%–1.00% lower interest.
+                </p>
+              </div>
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/fd-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/fd-calculator" />
       </main>
       <Footer />
     </div>

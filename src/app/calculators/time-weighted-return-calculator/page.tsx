@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculateTwr } from "@/lib/financial/returns/twr";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { Gauge, Plus, Trash2, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Gauge, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SubPeriodRow {
   name: string;
@@ -156,14 +156,14 @@ export default function TwrCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Sub-Period Rows */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
             <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
               <div>
                 <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">Portfolio Sub-Periods</h3>
-                <span className="text-[11px] text-[var(--text-muted)]">Record portfolio valuations before each deposit/withdrawal</span>
+                <span className="text-[11px] text-[var(--text-muted)]">Valuations at cash deposit/withdrawal events</span>
               </div>
               <button
                 onClick={addPeriod}
@@ -174,60 +174,54 @@ export default function TwrCalculatorPage() {
               </button>
             </div>
 
-            <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+            <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1">
               {periods.map((p, idx) => (
-                <div key={idx} className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-3 text-xs">
+                <div key={idx} className="p-3 bg-neutral-50/50 dark:bg-[#121212]/50 border border-[var(--border)] rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-neutral-900 dark:text-white">{p.name}</span>
+                    <input
+                      type="text"
+                      value={p.name}
+                      onChange={(e) => handlePeriodChange(idx, "name", e.target.value)}
+                      className="font-bold text-neutral-900 dark:text-neutral-100 bg-transparent border-b border-transparent hover:border-[var(--border)] focus:border-teal-600 focus:outline-none"
+                    />
                     {periods.length > 1 && (
                       <button
                         onClick={() => removePeriod(idx)}
-                        className="text-neutral-400 hover:text-rose-600 transition-colors"
-                        title="Remove sub-period"
+                        className="text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer p-1"
+                        title="Remove period"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="text-[11px] text-[var(--text-muted)] block mb-1">Start Valuation</label>
-                      <div className="relative flex items-center">
-                        <span className="absolute left-2 text-[11px] text-[var(--text-secondary)]">₹</span>
-                        <input
-                          type="text"
-                          value={p.startVal}
-                          onChange={(e) => handlePeriodChange(idx, "startVal", e.target.value)}
-                          className="w-full pl-5 pr-2 py-1 border border-[var(--border)] bg-white dark:bg-[#1a1a1a] text-right font-bold rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-650 tabular-nums"
-                        />
-                      </div>
+                      <span className="text-[10px] text-[var(--text-muted)] block mb-1">Start Value (₹)</span>
+                      <input
+                        type="text"
+                        value={p.startVal}
+                        onChange={(e) => handlePeriodChange(idx, "startVal", e.target.value)}
+                        className="w-full px-2 py-1 border border-[var(--border)] bg-white dark:bg-[#0a0a0a] text-right font-semibold rounded focus:outline-none tabular-nums"
+                      />
                     </div>
-
                     <div>
-                      <label className="text-[11px] text-[var(--text-muted)] block mb-1">End Valuation (Pre-CF)</label>
-                      <div className="relative flex items-center">
-                        <span className="absolute left-2 text-[11px] text-[var(--text-secondary)]">₹</span>
-                        <input
-                          type="text"
-                          value={p.endValBeforeCf}
-                          onChange={(e) => handlePeriodChange(idx, "endValBeforeCf", e.target.value)}
-                          className="w-full pl-5 pr-2 py-1 border border-[var(--border)] bg-white dark:bg-[#1a1a1a] text-right font-bold rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-650 tabular-nums"
-                        />
-                      </div>
+                      <span className="text-[10px] text-[var(--text-muted)] block mb-1">End Value Pre-CF (₹)</span>
+                      <input
+                        type="text"
+                        value={p.endValBeforeCf}
+                        onChange={(e) => handlePeriodChange(idx, "endValBeforeCf", e.target.value)}
+                        className="w-full px-2 py-1 border border-[var(--border)] bg-white dark:bg-[#0a0a0a] text-right font-semibold rounded focus:outline-none tabular-nums"
+                      />
                     </div>
-
                     <div>
-                      <label className="text-[11px] text-[var(--text-muted)] block mb-1">Cash Inflow/Outflow</label>
-                      <div className="relative flex items-center">
-                        <span className="absolute left-2 text-[11px] text-[var(--text-secondary)]">₹</span>
-                        <input
-                          type="text"
-                          value={p.cashFlow}
-                          onChange={(e) => handlePeriodChange(idx, "cashFlow", e.target.value)}
-                          className="w-full pl-5 pr-2 py-1 border border-[var(--border)] bg-white dark:bg-[#1a1a1a] text-right font-bold rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-650 tabular-nums"
-                        />
-                      </div>
+                      <span className="text-[10px] text-[var(--text-muted)] block mb-1">Net Cash Flow (₹)</span>
+                      <input
+                        type="text"
+                        value={p.cashFlow}
+                        onChange={(e) => handlePeriodChange(idx, "cashFlow", e.target.value)}
+                        className="w-full px-2 py-1 border border-[var(--border)] bg-white dark:bg-[#0a0a0a] text-right font-semibold rounded focus:outline-none tabular-nums"
+                      />
                     </div>
                   </div>
                 </div>
@@ -235,8 +229,8 @@ export default function TwrCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Summary Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
               <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Cumulative Time-Weighted Return (TWR)</span>
               <span className={`text-3xl sm:text-4xl font-black tabular-nums block mt-1 ${result.twrPercentage >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
@@ -245,99 +239,96 @@ export default function TwrCalculatorPage() {
             </div>
 
             <div className="space-y-3 pt-4 border-t border-[var(--border)] text-xs">
-              <h4 className="font-bold text-neutral-900 dark:text-white">Sub-Period Growth Breakdown:</h4>
-              <div className="space-y-2">
-                {result.subPeriods.map((sp, i) => (
-                  <div key={i} className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                    <span className="text-[var(--text-secondary)]">Period {i + 1} Return</span>
-                    <span className={`font-bold tabular-nums ${sp.subPeriodReturn >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
-                      {sp.subPeriodReturn >= 0 ? "+" : ""}{(sp.subPeriodReturn * 100).toFixed(2)}%
-                    </span>
+              <span className="font-bold text-neutral-800 dark:text-neutral-200 block mb-1">Sub-Period Performance Breakdown</span>
+              {result.subPeriods.map((sp, idx) => (
+                <div key={idx} className="flex justify-between items-center">
+                  <span className="text-[var(--text-secondary)] font-medium">{periods[idx]?.name || `Period ${idx + 1}`}</span>
+                  <span className={`font-bold tabular-nums ${sp.subPeriodReturn >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
+                    {sp.subPeriodReturn >= 0 ? "+" : ""}{(sp.subPeriodReturn * 100).toFixed(2)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 bg-white dark:bg-[#1a1a1a] border border-[var(--border)] rounded-xl text-xs text-[var(--text-secondary)] leading-relaxed">
+              TWR neutralizes the impact of external capital additions/withdrawals to show pure investment skill.
+            </div>
+          </div>
+        </div>
+
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Time-Weighted Return (TWR)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>Time-Weighted Return (TWR)</strong> measures the compound growth rate of an investment portfolio by dividing the total holding period into discrete sub-periods whenever cash is added or withdrawn.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">TWR vs Money-Weighted Return (MWR)</h2>
+              <div className="overflow-x-auto">
+                <table className="financial-table text-xs w-full">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                      <th className="px-4 py-3 text-left">Parameter</th>
+                      <th className="px-4 py-3 text-left">Time-Weighted Return (TWR)</th>
+                      <th className="px-4 py-3 text-left">Money-Weighted Return (MWR / IRR)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">What It Measures</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Manager skill / Strategy efficiency</td>
+                      <td className="px-4 py-2.5">Investor rupee return</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Cash Flow Sensitivity</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Neutralized (Unbiased by timing)</td>
+                      <td className="px-4 py-2.5">Heavily influenced by deposit timing</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold">Industry Standard</td>
+                      <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">GIPS Standard for Mutual Funds & PMS</td>
+                      <td className="px-4 py-2.5">Personal wealth tracking</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Time-Weighted Return (TWR)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>Time-Weighted Return (TWR)</strong> is a financial metric used to evaluate the true investment performance of a fund manager or trading strategy over time. It isolates portfolio growth from the timing and magnitude of external deposits and withdrawals.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is TWR Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div>R<sub>k</sub> = ( EndValBeforeCF<sub>k</sub> - StartVal<sub>k</sub> ) / StartVal<sub>k</sub></div>
-              <div>TWR = ∏<sub>k=1</sub><sup>N</sup> ( 1 + R<sub>k</sub> ) - 1</div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">TWR vs MWR (Money-Weighted Return)</h2>
-            <div className="overflow-x-auto">
-              <table className="financial-table text-xs w-full">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
-                    <th className="px-4 py-3 text-left">Parameter</th>
-                    <th className="px-4 py-3 text-left">Time-Weighted Return (TWR)</th>
-                    <th className="px-4 py-3 text-left">Money-Weighted Return (MWR / IRR)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">What It Measures</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Manager skill / Strategy efficiency</td>
-                    <td className="px-4 py-2.5">Investor rupee return</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Cash Flow Sensitivity</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">Neutralized (Unbiased by timing)</td>
-                    <td className="px-4 py-2.5">Heavily influenced by deposit timing</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2.5 font-bold">Industry Standard</td>
-                    <td className="px-4 py-2.5 text-teal-700 dark:text-teal-400 font-semibold">GIPS Standard for Mutual Funds & PMS</td>
-                    <td className="px-4 py-2.5">Personal wealth tracking</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/time-weighted-return-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/time-weighted-return-calculator" />
       </main>
       <Footer />
     </div>

@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import RelatedCalculators from "@/components/calculators/RelatedCalculators";
 import { calculatePresentValue } from "@/lib/financial/compounding/presentValue";
 import { formatIndianNumber } from "@/lib/stocks/formatting";
-import { History, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from "lucide-react";
+import { History, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 
 function numberToWordsIndian(num: number): string {
   if (isNaN(num) || num < 0) return "";
@@ -174,10 +174,10 @@ export default function PresentValueCalculatorPage() {
           </p>
         </div>
 
-        {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* Top Calculator Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+          {/* Form Controls */}
+          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             {/* Input 1: Future Value Goal */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
@@ -218,14 +218,14 @@ export default function PresentValueCalculatorPage() {
               />
             </div>
 
-            {/* Input 2: Discount Rate */}
+            {/* Input 2: Rate */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="pv-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                     Discount / Return Rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Annual opportunity cost / expected growth rate</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Assumed annual discount or return rate</span>
                 </div>
                 <div className="relative flex items-center">
                   <input
@@ -252,14 +252,14 @@ export default function PresentValueCalculatorPage() {
               />
             </div>
 
-            {/* Input 3: Tenure */}
+            {/* Input 3: Years */}
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
                   <label htmlFor="pv-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
                     Time Horizon (Years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Years until future goal date</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">Number of years until target date</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
                   <div className="relative flex items-center">
@@ -290,21 +290,21 @@ export default function PresentValueCalculatorPage() {
             </div>
           </div>
 
-          {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          {/* Primary Output Card */}
+          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Required Investment Today (Present Value)</span>
+              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Required Present Value (PV)</span>
               <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(result.presentValue))}
               </span>
               <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 mt-1 block">
-                Discount Factor: {result.futureValue > 0 ? (result.presentValue / result.futureValue).toFixed(4) : 0}
+                Invest this lump sum today to reach your target ₹{formatIndianNumber(parsedFv)} goal.
               </span>
             </div>
 
             <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
               <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Future Target Value</span>
+                <span className="text-[var(--text-secondary)] font-medium">Target Future Value</span>
                 <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.futureValue))}</span>
               </div>
               <div className="flex justify-between">
@@ -312,71 +312,74 @@ export default function PresentValueCalculatorPage() {
                 <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result.discountAmount))}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Growth Multiple</span>
-                <span className="font-bold tabular-nums">{(result.presentValue > 0 ? result.futureValue / result.presentValue : 0).toFixed(2)}x</span>
+                <span className="text-[var(--text-secondary)] font-medium">Discount Factor</span>
+                <span className="font-bold tabular-nums">{(parsedFv > 0 ? result.presentValue / parsedFv : 0).toFixed(4)}</span>
               </div>
             </div>
 
             <Link
-              href="/calculators/goal-sip-calculator"
+              href="/calculators/future-value-calculator"
               className="inline-flex items-center justify-between px-4 py-2.5 bg-white dark:bg-[#1a1a1a] border border-[var(--border)] rounded-xl text-xs font-bold text-teal-700 dark:text-teal-400 hover:bg-neutral-50 transition-colors"
             >
-              <span>Prefer monthly installments? Plan with Goal SIP Calculator</span>
+              <span>Have a lump sum today? Calculate Future Value</span>
               <ArrowRight className="h-3.5 w-3.5 ml-2" />
             </Link>
           </div>
         </div>
 
-        {/* Comprehensive Educational Content Sections */}
-        <div className="space-y-10 mb-12 border-t border-[var(--border)] pt-10">
+        {/* Comprehensive Educational Content & FAQs Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+          {/* Left Column: Educational Content & FAQs */}
+          <div className="lg:col-span-8 space-y-10">
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Present Value (PV)?</h2>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <strong>Present Value (PV)</strong> is the current worth of a future sum of money or stream of cash flows, discounted at a specific rate of return. It answers the fundamental question: <em>&quot;How much money must I invest today to have ₹X in Y years?&quot;</em>
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is Present Value (PV)?</h2>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong>Present Value (PV)</strong> is the current worth of a future sum of money or stream of cash flows, discounted at a specific rate of return. It answers the fundamental question: <em>&quot;How much money must I invest today to have ₹X in Y years?&quot;</em>
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Present Value Calculated?</h2>
+              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
+                <div className="font-bold text-sm">PV = FV / ( 1 + r )<sup>n</sup></div>
+                <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
+                  <div><strong>FV</strong> = Future Value desired</div>
+                  <div><strong>r</strong> = Annual discount / return rate</div>
+                  <div><strong>n</strong> = Total number of years</div>
+                </div>
+              </div>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is Present Value Calculated?</h2>
-            <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-2 mb-3">
-              <div className="font-bold text-sm">PV = FV / ( 1 + r )<sup>n</sup></div>
-              <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
-                <div><strong>FV</strong> = Future Value desired</div>
-                <div><strong>r</strong> = Annual discount / return rate</div>
-                <div><strong>n</strong> = Total number of years</div>
+            {/* FAQ Accordion Section */}
+            <div className="border-t border-[var(--border)] pt-8">
+              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {pageFaqItems.map((faq, idx) => (
+                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span>{faq.question}</span>
+                      {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* FAQ Accordion Section */}
-        <div className="mb-12 border-t border-[var(--border)] pt-10">
-          <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {pageFaqItems.map((faq, idx) => (
-              <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{faq.question}</span>
-                  {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
-                </button>
-                {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Right Column: Sticky Related Calculators Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-20">
+            <RelatedCalculators currentRoute="/calculators/present-value-calculator" />
           </div>
         </div>
-
-        {/* Related Calculators Navigation */}
-        <RelatedCalculators currentRoute="/calculators/present-value-calculator" />
       </main>
       <Footer />
     </div>
