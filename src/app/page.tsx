@@ -133,7 +133,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-[700px] mx-auto leading-relaxed font-normal">
-              Fundamentals, valuations, and price history for every NSE and BSE listed company — no ads, no tips, no chatter.
+              Fundamentals, valuations, and price history for every NSE and BSE listed company no ads, no tips, no chatter.
             </p>
 
             {/* Primary Stock Search Field */}
