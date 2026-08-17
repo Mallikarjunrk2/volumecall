@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Article,
@@ -198,44 +198,46 @@ export function ArticleEditorForm({
     const tags = s.tagsInput
       .split(/[,]+/)
       .map((t) => t.trim().replace(/^#/, ""))
-      .filter(Boolean);
-
-    const validSources = s.sources
-      .map((src) => ({ title: src.title.trim(), url: src.url.trim() }))
-      .filter((src) => src.title && src.url);
+      .filter(Boolean)
+      .slice(0, 10);
 
     return {
-      title: s.title.trim() || "Untitled Draft",
-      slug: s.slug.trim() || slugify(s.title) || "draft-untitled",
+      title: s.title.trim(),
+      slug: s.slug.trim(),
       excerpt: s.excerpt.trim(),
       content_markdown: s.contentMarkdown,
-      featured_image: s.featuredImage.trim() || null,
-      featured_image_alt: s.featuredImageAlt.trim() || null,
-      category_id: s.categoryId || null,
-      author_id: s.authorId || null,
+      featured_image: s.featuredImage.trim() || undefined,
+      featured_image_alt: s.featuredImageAlt.trim() || undefined,
+      category_id: s.categoryId || undefined,
+      author_id: s.authorId || undefined,
       status: finalStatus,
-      scheduled_at: s.scheduledAt ? new Date(s.scheduledAt).toISOString() : null,
-      meta_title: s.metaTitle.trim() || null,
-      meta_description: s.metaDescription.trim() || null,
-      canonical_url: s.canonicalUrl.trim() || null,
-      og_image: s.ogImage.trim() || null,
+      scheduled_at: s.scheduledAt ? new Date(s.scheduledAt).toISOString() : undefined,
+      meta_title: s.metaTitle.trim() || undefined,
+      meta_description: s.metaDescription.trim() || undefined,
+      canonical_url: s.canonicalUrl.trim() || undefined,
+      og_image: s.ogImage.trim() || undefined,
       related_calculators: s.relatedCalculators,
       related_symbols: symbols,
       tags,
-      sources_json: validSources,
+      sources_json: s.sources,
     };
   };
 
-  // Core save function
-  const performSave = async (isManual = false, isPublish = false): Promise<boolean> => {
-    if (isSavingRef.current) {
-      pendingSaveRef.current = true;
+  // Perform Save Draft or Publish without page reloading
+  const performSave = useCallback(async (isManual: boolean = false, isPublish: boolean = false): Promise<boolean> => {
+    const s = stateRef.current;
+
+    // Minimum required checks
+    if (!s.title.trim() && !isPublish) {
+      if (isManual) {
+        setSaveStatus("error");
+        setSaveError("Please enter a Title before saving.");
+      }
       return false;
     }
 
-    const s = stateRef.current;
-    // If auto-saving an empty document, skip
-    if (!isManual && !isPublish && !s.title.trim() && !s.contentMarkdown.trim()) {
+    if (isSavingRef.current) {
+      pendingSaveRef.current = true;
       return false;
     }
 
@@ -293,10 +295,10 @@ export function ArticleEditorForm({
         performSave(false, false);
       }
     }
-  };
+  }, [router]);
 
   // Debounced auto-save trigger on user change
-  const triggerChange = () => {
+  const triggerChange = useCallback(() => {
     setIsDirty(true);
     setSaveStatus("unsaved");
 
@@ -307,7 +309,7 @@ export function ArticleEditorForm({
     autoSaveTimerRef.current = setTimeout(() => {
       performSave(false, false);
     }, 2500);
-  };
+  }, [performSave]);
 
   // Update "Saved X seconds/minutes ago" interval
   useEffect(() => {
@@ -353,7 +355,7 @@ export function ArticleEditorForm({
     };
   }, []);
 
-  const handleInsertText = (snippet: string) => {
+  const handleInsertText = useCallback((snippet: string) => {
     const textarea = textareaRef.current;
     if (!textarea) {
       setContentMarkdown((prev) => `${prev}\n\n${snippet}\n\n`);
@@ -361,10 +363,11 @@ export function ArticleEditorForm({
       return;
     }
 
-    const start = textarea.selectionStart ?? contentMarkdown.length;
-    const end = textarea.selectionEnd ?? contentMarkdown.length;
-    const before = contentMarkdown.slice(0, start);
-    const after = contentMarkdown.slice(end);
+    const currentVal = textarea.value;
+    const start = textarea.selectionStart ?? currentVal.length;
+    const end = textarea.selectionEnd ?? currentVal.length;
+    const before = currentVal.slice(0, start);
+    const after = currentVal.slice(end);
 
     const newContent = `${before}${snippet}${after}`;
     setContentMarkdown(newContent);
@@ -375,7 +378,7 @@ export function ArticleEditorForm({
       const newCursorPos = start + snippet.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
-  };
+  }, [triggerChange]);
 
   const canPublish = userRole === "SUPER_ADMIN" || userRole === "EDITOR";
 

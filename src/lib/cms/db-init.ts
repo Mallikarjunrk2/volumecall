@@ -129,9 +129,13 @@ async function runInitialization(): Promise<void> {
       await sql`CREATE INDEX IF NOT EXISTS idx_cms_users_author_id ON cms_users(author_id);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_status_published ON articles(status, published_at DESC);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_articles_status_updated ON articles(status, updated_at DESC);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_articles_updated_at ON articles(updated_at DESC);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category_id);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_author ON articles(author_id);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_created_by ON articles(created_by);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_article_categories_order ON article_categories(sort_order ASC, name ASC);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_authors_name ON authors(name ASC);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_media_created_at ON media(created_at DESC);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_media_mime_type ON media(mime_type);`;
 
@@ -177,21 +181,35 @@ async function runInitialization(): Promise<void> {
 
 let isInitialized = false;
 
+async function checkTableExistence(): Promise<boolean> {
+  try {
+    const res = await sql`SELECT to_regclass('public.articles') IS NOT NULL as exists;`;
+    return Boolean(res[0]?.exists);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Idempotently and safely initializes CMS database tables.
  * Safe for concurrent requests across serverless instances and within the same process.
+ * Uses fast regclass existence check to avoid cold-start migration delays when tables already exist.
  */
 export async function ensureCmsTables(): Promise<void> {
   if (isInitialized) return;
   if (!initPromise) {
-    initPromise = runInitialization()
-      .then(() => {
+    initPromise = (async () => {
+      const exists = await checkTableExistence();
+      if (exists) {
         isInitialized = true;
-      })
-      .catch((err) => {
-        initPromise = null;
-        throw err;
-      });
+        return;
+      }
+      await runInitialization();
+      isInitialized = true;
+    })().catch((err) => {
+      initPromise = null;
+      throw err;
+    });
   }
   return initPromise;
 }

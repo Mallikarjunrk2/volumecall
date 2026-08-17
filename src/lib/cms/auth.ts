@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { CmsUser } from "./types";
@@ -25,9 +26,9 @@ export function isBootstrapAdmin(email?: string | null): boolean {
 
 /**
  * Resolves the currently authenticated CMS user from session and cms_users table.
- * If user does not exist in cms_users but matches ADMIN_EMAILS, auto-provisions as SUPER_ADMIN.
+ * Wrapped in React cache() for request-level deduplication across RSC layout, page, and components.
  */
-export async function getCurrentCmsUser(): Promise<CmsUser | null> {
+export const getCurrentCmsUser = cache(async (): Promise<CmsUser | null> => {
   const session = await auth();
   const rawEmail = session?.user?.email;
 
@@ -63,23 +64,17 @@ export async function getCurrentCmsUser(): Promise<CmsUser | null> {
   }
 
   return cmsUser;
-}
+});
 
 /**
  * Enforces that an active CMS user session is present.
- * Throws redirect to /admin/login if not authenticated, inactive, or unauthorized.
+ * Deduplicated per request via getCurrentCmsUser().
  */
 export async function requireCmsUser(): Promise<CmsUser> {
-  const session = await auth();
-
-  if (!session?.user?.email) {
-    redirect("/admin/login");
-  }
-
   const user = await getCurrentCmsUser();
 
   if (!user) {
-    redirect("/admin/login?error=unauthorized");
+    redirect("/admin/login");
   }
 
   if (!user.is_active) {

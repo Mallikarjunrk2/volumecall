@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, memo } from "react";
 import { uploadMediaAction } from "@/lib/cms/media-actions";
 import {
   ALL_CALCULATORS,
@@ -40,7 +40,7 @@ interface InstrumentResult {
   exchange?: string;
 }
 
-export function ArticleToolbar({ onInsertText }: ArticleToolbarProps) {
+export const ArticleToolbar = memo(function ArticleToolbar({ onInsertText }: ArticleToolbarProps) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showCalcDropdown, setShowCalcDropdown] = useState(false);
   const [calcSearch, setCalcSearch] = useState("");
@@ -803,6 +803,6 @@ export function ArticleToolbar({ onInsertText }: ArticleToolbarProps) {
       )}
     </div>
   );
-}
+});
 
 export default ArticleToolbar;

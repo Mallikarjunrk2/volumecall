@@ -18,13 +18,14 @@ async function checkInit() {
 /**
  * Fetch all PUBLISHED articles for the public blog.
  * Strictly filters by status = 'PUBLISHED'.
+ * Excludes heavy content_markdown for fast list transfer.
  */
 export async function getPublicArticles(): Promise<Article[]> {
   await checkInit();
   try {
     const rows = await sql`
       SELECT 
-        a.id, a.title, a.slug, a.excerpt, a.content_markdown, a.featured_image, a.featured_image_alt,
+        a.id, a.title, a.slug, a.excerpt, a.featured_image, a.featured_image_alt,
         a.category_id, a.author_id, a.created_by, a.status, a.published_at, a.scheduled_at,
         a.meta_title, a.meta_description, a.canonical_url, a.og_image,
         a.related_calculators, a.related_symbols, a.tags, a.sources_json,
@@ -242,6 +243,7 @@ export async function getArticlesForCalculator(
 
 /**
  * Fetch all articles for Admin management (includes DRAFT, REVIEW, SCHEDULED, PUBLISHED).
+ * Excludes heavy content_markdown and full metadata for high-performance list rendering.
  */
 export async function getAdminArticles(statusFilter?: string): Promise<Article[]> {
   await checkInit();
@@ -250,10 +252,8 @@ export async function getAdminArticles(statusFilter?: string): Promise<Article[]
     if (statusFilter && statusFilter !== "ALL") {
       rows = await sql`
         SELECT 
-          a.id, a.title, a.slug, a.excerpt, a.content_markdown, a.featured_image, a.featured_image_alt,
+          a.id, a.title, a.slug, a.excerpt, a.featured_image, a.featured_image_alt,
           a.category_id, a.author_id, a.created_by, a.status, a.published_at, a.scheduled_at,
-          a.meta_title, a.meta_description, a.canonical_url, a.og_image,
-          a.related_calculators, a.related_symbols, a.tags, a.sources_json,
           a.created_at, a.updated_at,
           c.name as category_name, c.slug as category_slug,
           au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar,
@@ -268,10 +268,8 @@ export async function getAdminArticles(statusFilter?: string): Promise<Article[]
     } else {
       rows = await sql`
         SELECT 
-          a.id, a.title, a.slug, a.excerpt, a.content_markdown, a.featured_image, a.featured_image_alt,
+          a.id, a.title, a.slug, a.excerpt, a.featured_image, a.featured_image_alt,
           a.category_id, a.author_id, a.created_by, a.status, a.published_at, a.scheduled_at,
-          a.meta_title, a.meta_description, a.canonical_url, a.og_image,
-          a.related_calculators, a.related_symbols, a.tags, a.sources_json,
           a.created_at, a.updated_at,
           c.name as category_name, c.slug as category_slug,
           au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar,
@@ -286,6 +284,28 @@ export async function getAdminArticles(statusFilter?: string): Promise<Article[]
     return rows as Article[];
   } catch (error) {
     console.error("[getAdminArticles Error]:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetch top recent articles for the Dashboard overview with minimal fields and direct SQL limit.
+ */
+export async function getRecentAdminArticles(limit: number = 5): Promise<Article[]> {
+  await checkInit();
+  try {
+    const rows = await sql`
+      SELECT 
+        a.id, a.title, a.slug, a.status, a.published_at, a.updated_at, a.created_at,
+        c.name as category_name, c.slug as category_slug
+      FROM articles a
+      LEFT JOIN article_categories c ON a.category_id = c.id
+      ORDER BY a.updated_at DESC
+      LIMIT ${limit};
+    `;
+    return rows as Article[];
+  } catch (error) {
+    console.error("[getRecentAdminArticles Error]:", error);
     return [];
   }
 }

@@ -1,16 +1,14 @@
-import { getAdminDashboardStats, getAdminArticles } from "@/lib/cms/service";
+import { getAdminDashboardStats, getRecentAdminArticles } from "@/lib/cms/service";
 import Link from "next/link";
 import { PlusCircle, FileText, CheckCircle2, Clock, Eye, Edit3, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [stats, recentArticles] = await Promise.all([
+  const [stats, recentFive] = await Promise.all([
     getAdminDashboardStats(),
-    getAdminArticles(),
+    getRecentAdminArticles(5),
   ]);
-
-  const recentFive = recentArticles.slice(0, 5);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
