@@ -10,6 +10,14 @@ interface HeaderProps {
   showTicker?: boolean;
 }
 
+const NAV_LINKS = [
+  { href: "/stocks", label: "Stocks" },
+  { href: "/ipo", label: "IPO" },
+  { href: "/compare", label: "Compare" },
+  { href: "/calculators", label: "Calculators" },
+  { href: "/blog", label: "Blog" },
+];
+
 export function Header({ showTicker }: HeaderProps) {
   const pathname = usePathname();
   const shouldShowTicker = showTicker !== undefined ? showTicker : pathname === "/";
@@ -26,6 +34,9 @@ export function Header({ showTicker }: HeaderProps) {
     }
     if (href === "/calculators") {
       return pathname.startsWith("/calculators");
+    }
+    if (href === "/blog") {
+      return pathname.startsWith("/blog");
     }
     return pathname === href;
   };
@@ -60,18 +71,11 @@ export function Header({ showTicker }: HeaderProps) {
             </Link>
 
             <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
-              <Link href="/stocks" className={linkClass("/stocks")}>
-                Stocks
-              </Link>
-              <Link href="/ipo" className={linkClass("/ipo")}>
-                IPO
-              </Link>
-              <Link href="/compare" className={linkClass("/compare")}>
-                Compare
-              </Link>
-              <Link href="/calculators" className={linkClass("/calculators")}>
-                Calculators
-              </Link>
+              {NAV_LINKS.map((link) => (
+                <Link key={link.href} href={link.href} className={linkClass(link.href)}>
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
@@ -89,18 +93,11 @@ export function Header({ showTicker }: HeaderProps) {
         {/* Mobile Navigation Row */}
         <div className="md:hidden w-full px-4 pb-2.5 pt-1 bg-[var(--bg-base)] border-t border-[var(--border-subtle)] space-y-2">
           <nav className="flex items-center space-x-5 overflow-x-auto py-0.5 text-xs">
-            <Link href="/stocks" className={linkClass("/stocks")}>
-              Stocks
-            </Link>
-            <Link href="/ipo" className={linkClass("/ipo")}>
-              IPO
-            </Link>
-            <Link href="/compare" className={linkClass("/compare")}>
-              Compare
-            </Link>
-            <Link href="/calculators" className={linkClass("/calculators")}>
-              Calculators
-            </Link>
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className={linkClass(link.href)}>
+                {link.label}
+              </Link>
+            ))}
           </nav>
           <div className="sm:hidden">
             <SearchAutocomplete placeholder="Search stocks..." />
