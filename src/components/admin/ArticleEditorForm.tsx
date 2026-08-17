@@ -17,6 +17,7 @@ import {
 } from "@/lib/cms/actions";
 import { ArticleContentCompiler } from "@/components/blog/ArticleContentCompiler";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FeaturedImageErrorBoundary } from "@/components/admin/FeaturedImageErrorBoundary";
 import { ArticleToolbar } from "@/components/admin/ArticleToolbar";
 import Link from "next/link";
 import {
@@ -780,20 +781,22 @@ export function ArticleEditorForm({
             )}
           </div>
 
-          {/* Featured Image Component */}
-          <ImageUploader
-            value={featuredImage}
-            altText={featuredImageAlt}
-            onChange={(url, alt) => {
-              setFeaturedImage(url);
-              if (alt !== undefined) setFeaturedImageAlt(alt);
-              triggerChange();
-            }}
-            onAltTextChange={(alt) => {
-              setFeaturedImageAlt(alt);
-              triggerChange();
-            }}
-          />
+          {/* Featured Image Component with Error Boundary */}
+          <FeaturedImageErrorBoundary>
+            <ImageUploader
+              value={featuredImage}
+              altText={featuredImageAlt}
+              onChange={(url, alt) => {
+                setFeaturedImage(url);
+                if (alt !== undefined) setFeaturedImageAlt(alt);
+                triggerChange();
+              }}
+              onAltTextChange={(alt) => {
+                setFeaturedImageAlt(alt);
+                triggerChange();
+              }}
+            />
+          </FeaturedImageErrorBoundary>
 
           {/* Tags */}
           <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg p-4 space-y-3">
