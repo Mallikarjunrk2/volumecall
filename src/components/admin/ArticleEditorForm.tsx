@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Article,
   ArticleCategory,
@@ -10,7 +11,10 @@ import {
   CmsUserRole,
   ArticleSource,
 } from "@/lib/cms/types";
-import { createArticleAction, updateArticleAction } from "@/lib/cms/actions";
+import {
+  saveArticleDraftAction,
+  saveAndPublishArticleAction,
+} from "@/lib/cms/actions";
 import { ArticleContentCompiler } from "@/components/blog/ArticleContentCompiler";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { ArticleToolbar } from "@/components/admin/ArticleToolbar";
@@ -25,6 +29,10 @@ import {
   Trash2,
   Tag,
   Link2,
+  Loader2,
+  Check,
+  AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 interface Props {
@@ -49,11 +57,12 @@ export function ArticleEditorForm({
   authors,
   userRole = "SUPER_ADMIN",
 }: Props) {
-  const isEditing = !!initialArticle;
+  const router = useRouter();
+  const [articleId, setArticleId] = useState<string | null>(initialArticle?.id || null);
 
   const [title, setTitle] = useState(initialArticle?.title || "");
   const [slug, setSlug] = useState(initialArticle?.slug || "");
-  const [autoSlug, setAutoSlug] = useState(!isEditing);
+  const [autoSlug, setAutoSlug] = useState(!initialArticle);
   const [excerpt, setExcerpt] = useState(initialArticle?.excerpt || "");
   const [contentMarkdown, setContentMarkdown] = useState(initialArticle?.content_markdown || "");
   const [featuredImage, setFeaturedImage] = useState(initialArticle?.featured_image || "");
@@ -69,7 +78,7 @@ export function ArticleEditorForm({
   const [canonicalUrl, setCanonicalUrl] = useState(initialArticle?.canonical_url || "");
   const [ogImage, setOgImage] = useState(initialArticle?.og_image || "");
 
-  // Preserved legacy metadata fields (backward compatibility)
+  // Preserved metadata fields
   const relatedCalculators = initialArticle?.related_calculators || [];
   const relatedSymbolsInput = (initialArticle?.related_symbols || []).join(", ");
   const [tagsInput, setTagsInput] = useState<string>(
@@ -81,12 +90,242 @@ export function ArticleEditorForm({
 
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [submitting, setSubmitting] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "unsaved" | "error">("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
+  const [timeAgoText, setTimeAgoText] = useState<string>("");
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+
+  // Navigation confirmation modal state
+  const [showNavModal, setShowNavModal] = useState<boolean>(false);
+  const [pendingNavUrl, setPendingNavUrl] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef<boolean>(false);
+  const pendingSaveRef = useRef<boolean>(false);
+
+  // Latest state ref for reliable auto-save payloads without stale closures
+  const stateRef = useRef({
+    title,
+    slug,
+    excerpt,
+    contentMarkdown,
+    featuredImage,
+    featuredImageAlt,
+    categoryId,
+    authorId,
+    status,
+    scheduledAt,
+    metaTitle,
+    metaDescription,
+    canonicalUrl,
+    ogImage,
+    tagsInput,
+    sources,
+    articleId,
+    relatedCalculators,
+    relatedSymbolsInput,
+  });
+
+  useEffect(() => {
+    stateRef.current = {
+      title,
+      slug,
+      excerpt,
+      contentMarkdown,
+      featuredImage,
+      featuredImageAlt,
+      categoryId,
+      authorId,
+      status,
+      scheduledAt,
+      metaTitle,
+      metaDescription,
+      canonicalUrl,
+      ogImage,
+      tagsInput,
+      sources,
+      articleId,
+      relatedCalculators,
+      relatedSymbolsInput,
+    };
+  });
+
+  // Construct payload from latest state
+  const buildPayload = (customStatus?: ArticleStatus): ArticleInput => {
+    const s = stateRef.current;
+    const finalStatus = customStatus || s.status;
+
+    const symbols = s.relatedSymbolsInput
+      .split(/[, ]+/)
+      .map((sym) => sym.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, ""))
+      .filter(Boolean)
+      .slice(0, 5);
+
+    const tags = s.tagsInput
+      .split(/[,]+/)
+      .map((t) => t.trim().replace(/^#/, ""))
+      .filter(Boolean);
+
+    const validSources = s.sources
+      .map((src) => ({ title: src.title.trim(), url: src.url.trim() }))
+      .filter((src) => src.title && src.url);
+
+    return {
+      title: s.title.trim() || "Untitled Draft",
+      slug: s.slug.trim() || slugify(s.title) || "draft-untitled",
+      excerpt: s.excerpt.trim(),
+      content_markdown: s.contentMarkdown,
+      featured_image: s.featuredImage.trim() || null,
+      featured_image_alt: s.featuredImageAlt.trim() || null,
+      category_id: s.categoryId || null,
+      author_id: s.authorId || null,
+      status: finalStatus,
+      scheduled_at: s.scheduledAt ? new Date(s.scheduledAt).toISOString() : null,
+      meta_title: s.metaTitle.trim() || null,
+      meta_description: s.metaDescription.trim() || null,
+      canonical_url: s.canonicalUrl.trim() || null,
+      og_image: s.ogImage.trim() || null,
+      related_calculators: s.relatedCalculators,
+      related_symbols: symbols,
+      tags,
+      sources_json: validSources,
+    };
+  };
+
+  // Core save function
+  const performSave = async (isManual = false, isPublish = false): Promise<boolean> => {
+    if (isSavingRef.current) {
+      pendingSaveRef.current = true;
+      return false;
+    }
+
+    const s = stateRef.current;
+    // If auto-saving an empty document, skip
+    if (!isManual && !isPublish && !s.title.trim() && !s.contentMarkdown.trim()) {
+      return false;
+    }
+
+    isSavingRef.current = true;
+    setSaveStatus("saving");
+    setSaveError(null);
+
+    const targetId = s.articleId || undefined;
+    const payload = buildPayload(isPublish ? "PUBLISHED" : "DRAFT");
+
+    try {
+      if (isPublish) {
+        const res = await saveAndPublishArticleAction(payload, targetId);
+        if (res.success && res.article) {
+          setArticleId(res.article.id);
+          setIsDirty(false);
+          setSaveStatus("saved");
+          setLastSavedTime(new Date());
+          router.push("/admin/articles");
+          return true;
+        } else {
+          setSaveStatus("error");
+          setSaveError(res.error || "Failed to publish article.");
+          return false;
+        }
+      } else {
+        const res = await saveArticleDraftAction(payload, targetId);
+        if (res.success && res.article) {
+          setArticleId(res.article.id);
+          setIsDirty(false);
+          setSaveStatus("saved");
+          const now = new Date();
+          setLastSavedTime(now);
+
+          // Update browser URL seamlessly if this was a brand new article
+          if (!s.articleId && typeof window !== "undefined") {
+            window.history.replaceState(null, "", `/admin/articles/${res.article.id}/edit`);
+          }
+          return true;
+        } else {
+          setSaveStatus("error");
+          setSaveError(res.error || "Failed to save draft.");
+          return false;
+        }
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      setSaveStatus("error");
+      setSaveError(err instanceof Error ? err.message : "Save failed.");
+      return false;
+    } finally {
+      isSavingRef.current = false;
+      if (pendingSaveRef.current) {
+        pendingSaveRef.current = false;
+        performSave(false, false);
+      }
+    }
+  };
+
+  // Debounced auto-save trigger on user change
+  const triggerChange = () => {
+    setIsDirty(true);
+    setSaveStatus("unsaved");
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      performSave(false, false);
+    }, 2500);
+  };
+
+  // Update "Saved X seconds/minutes ago" interval
+  useEffect(() => {
+    if (!lastSavedTime) return;
+
+    const updateLabel = () => {
+      const diffMs = Date.now() - lastSavedTime.getTime();
+      const diffSec = Math.floor(diffMs / 1000);
+      if (diffSec < 5) {
+        setTimeAgoText("just now");
+      } else if (diffSec < 60) {
+        setTimeAgoText(`${diffSec}s ago`);
+      } else {
+        const diffMin = Math.floor(diffSec / 60);
+        setTimeAgoText(`${diffMin}m ago`);
+      }
+    };
+
+    updateLabel();
+    const interval = setInterval(updateLabel, 5000);
+    return () => clearInterval(interval);
+  }, [lastSavedTime]);
+
+  // Browser refresh/close protection (beforeunload)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  // Clean up auto-save timer
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleInsertText = (snippet: string) => {
     const textarea = textareaRef.current;
     if (!textarea) {
       setContentMarkdown((prev) => `${prev}\n\n${snippet}\n\n`);
+      triggerChange();
       return;
     }
 
@@ -97,6 +336,7 @@ export function ArticleEditorForm({
 
     const newContent = `${before}${snippet}${after}`;
     setContentMarkdown(newContent);
+    triggerChange();
 
     setTimeout(() => {
       textarea.focus();
@@ -113,10 +353,12 @@ export function ArticleEditorForm({
     if (autoSlug) {
       setSlug(slugify(val));
     }
+    triggerChange();
   };
 
   const handleAddSource = () => {
     setSources((prev) => [...prev, { title: "", url: "" }]);
+    triggerChange();
   };
 
   const handleUpdateSource = (index: number, field: "title" | "url", value: string) => {
@@ -125,67 +367,52 @@ export function ArticleEditorForm({
       next[index] = { ...next[index], [field]: value };
       return next;
     });
+    triggerChange();
   };
 
   const handleRemoveSource = (index: number) => {
     setSources((prev) => prev.filter((_, i) => i !== index));
+    triggerChange();
   };
 
-  const handleSubmit = async (submitStatus?: ArticleStatus) => {
+  const handleManualSaveDraft = async () => {
+    setSubmitting(true);
+    await performSave(true, false);
+    setSubmitting(false);
+  };
+
+  const handleManualPublish = async () => {
     if (!title.trim() || !slug.trim() || !contentMarkdown.trim()) {
-      alert("Please fill in the required fields: Title, Slug, and Article Content.");
+      alert("Please enter a Title, URL Slug, and Article Body before publishing.");
       return;
     }
-
     setSubmitting(true);
-    const finalStatus = submitStatus || status;
+    await performSave(true, true);
+    setSubmitting(false);
+  };
 
-    // Parse and normalize symbols and tags
-    const symbols = relatedSymbolsInput
-      .split(/[, ]+/)
-      .map((s) => s.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, ""))
-      .filter(Boolean)
-      .slice(0, 5);
+  // Intercept navigation if dirty
+  const handleNavAttempt = (targetUrl: string, e: React.MouseEvent) => {
+    if (isDirty) {
+      e.preventDefault();
+      setPendingNavUrl(targetUrl);
+      setShowNavModal(true);
+    }
+  };
 
-    const tags = tagsInput
-      .split(/[,]+/)
-      .map((t) => t.trim().replace(/^#/, ""))
-      .filter(Boolean);
+  const handleModalSaveAndLeave = async () => {
+    await performSave(true, false);
+    setShowNavModal(false);
+    if (pendingNavUrl) {
+      router.push(pendingNavUrl);
+    }
+  };
 
-    const validSources = sources
-      .map((s) => ({ title: s.title.trim(), url: s.url.trim() }))
-      .filter((s) => s.title && s.url);
-
-    const payload: ArticleInput = {
-      title,
-      slug,
-      excerpt,
-      content_markdown: contentMarkdown,
-      featured_image: featuredImage.trim() || null,
-      featured_image_alt: featuredImageAlt.trim() || null,
-      category_id: categoryId || null,
-      author_id: authorId || null,
-      status: finalStatus,
-      scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
-      meta_title: metaTitle.trim() || null,
-      meta_description: metaDescription.trim() || null,
-      canonical_url: canonicalUrl.trim() || null,
-      og_image: ogImage.trim() || null,
-      related_calculators: relatedCalculators,
-      related_symbols: symbols,
-      tags,
-      sources_json: validSources,
-    };
-
-    try {
-      if (isEditing && initialArticle?.id) {
-        await updateArticleAction(initialArticle.id, payload);
-      } else {
-        await createArticleAction(payload);
-      }
-    } catch (err) {
-      console.error("Failed to save article:", err);
-      setSubmitting(false);
+  const handleModalDiscardAndLeave = () => {
+    setIsDirty(false);
+    setShowNavModal(false);
+    if (pendingNavUrl) {
+      router.push(pendingNavUrl);
     }
   };
 
@@ -196,22 +423,56 @@ export function ArticleEditorForm({
         <div className="flex items-center space-x-3">
           <Link
             href="/admin/articles"
+            onClick={(e) => handleNavAttempt("/admin/articles", e)}
             className="p-1.5 rounded-md hover:bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
-              {isEditing ? "Edit Publication" : "New Publication"}
+              {articleId ? "Edit Publication" : "New Publication"}
             </h1>
             <p className="text-xs text-[var(--text-secondary)]">
-              {isEditing ? `Editing /${slug}` : "Draft a new financial research article."}
+              {articleId ? `Editing /${slug}` : "Draft a new financial research article."}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {isEditing && initialArticle?.status === "PUBLISHED" && (
+        <div className="flex items-center space-x-3">
+          {/* Unobtrusive Auto-Save Status Badge */}
+          <div className="flex items-center space-x-1.5 text-xs font-mono px-2.5 py-1 rounded bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+            {saveStatus === "saving" && (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--accent-teal)]" />
+                <span className="text-[var(--text-secondary)]">Saving...</span>
+              </>
+            )}
+            {saveStatus === "saved" && (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-emerald-600 dark:text-emerald-400">
+                  Saved {timeAgoText}
+                </span>
+              </>
+            )}
+            {saveStatus === "unsaved" && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-amber-600 dark:text-amber-400">Unsaved changes</span>
+              </>
+            )}
+            {saveStatus === "error" && (
+              <>
+                <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+                <span className="text-red-500">{saveError || "Save failed"}</span>
+              </>
+            )}
+            {saveStatus === "idle" && (
+              <span className="text-[var(--text-muted)]">Draft mode</span>
+            )}
+          </div>
+
+          {articleId && status === "PUBLISHED" && (
             <Link
               href={`/blog/${slug}`}
               target="_blank"
@@ -224,8 +485,8 @@ export function ArticleEditorForm({
 
           <button
             type="button"
-            onClick={() => handleSubmit("DRAFT")}
-            disabled={submitting}
+            onClick={handleManualSaveDraft}
+            disabled={submitting || saveStatus === "saving"}
             className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:bg-[var(--bg-subtle)] rounded-md text-xs font-semibold text-[var(--text-primary)] transition-colors disabled:opacity-50 cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
@@ -235,8 +496,8 @@ export function ArticleEditorForm({
           {canPublish && (
             <button
               type="button"
-              onClick={() => handleSubmit("PUBLISHED")}
-              disabled={submitting}
+              onClick={handleManualPublish}
+              disabled={submitting || saveStatus === "saving"}
               className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#0D9488] hover:bg-[#0F766E] dark:bg-[#2DD4BF] dark:hover:bg-[#20D6C2] text-white dark:text-black font-semibold text-xs rounded-md shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
             >
               <CheckCircle className="w-3.5 h-3.5" />
@@ -288,6 +549,7 @@ export function ArticleEditorForm({
                 onChange={(e) => {
                   setAutoSlug(false);
                   setSlug(e.target.value);
+                  triggerChange();
                 }}
                 placeholder="understanding-cagr"
                 className="w-full px-3 py-1.5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-md text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
@@ -303,7 +565,10 @@ export function ArticleEditorForm({
             <textarea
               required
               value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
+              onChange={(e) => {
+                setExcerpt(e.target.value);
+                triggerChange();
+              }}
               rows={2}
               placeholder="A concise summary of the research paper for article lists and search engines."
               className="w-full px-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
@@ -351,7 +616,10 @@ export function ArticleEditorForm({
                   ref={textareaRef}
                   required
                   value={contentMarkdown}
-                  onChange={(e) => setContentMarkdown(e.target.value)}
+                  onChange={(e) => {
+                    setContentMarkdown(e.target.value);
+                    triggerChange();
+                  }}
                   rows={18}
                   placeholder={`Write your research in GitHub Markdown...\n\nUse H2/H3 for auto-generated Table of Contents:\n## Introduction\n### Key Formulas\n\nInsert rich interactive directives:\n:::tip[Analyst Insight]\nCAGR smooths geometric growth...\n:::\n\n::calculator{id="cagr-calculator"}\n\n::stock{symbol="RELIANCE"}`}
                   className="w-full p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-md font-mono text-xs text-[var(--text-primary)] leading-relaxed focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
@@ -423,9 +691,9 @@ export function ArticleEditorForm({
           </div>
         </div>
 
-        {/* Right Column: Publishing, Related Calculators, Stocks, Tags, SEO (1 col) */}
+        {/* Right Column: Publishing, Featured Image, Tags, SEO (1 col) */}
         <div className="space-y-6">
-          {/* Publishing Settings */}
+          {/* Publication Settings */}
           <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg p-4 space-y-4">
             <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
               Publication Settings
@@ -438,7 +706,10 @@ export function ArticleEditorForm({
               </label>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as ArticleStatus)}
+                onChange={(e) => {
+                  setStatus(e.target.value as ArticleStatus);
+                  triggerChange();
+                }}
                 className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               >
                 <option value="DRAFT">DRAFT (Hidden)</option>
@@ -455,12 +726,15 @@ export function ArticleEditorForm({
               </label>
               <select
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+                onChange={(e) => {
+                  setCategoryId(e.target.value);
+                  triggerChange();
+                }}
                 className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
                   </option>
                 ))}
               </select>
@@ -469,16 +743,19 @@ export function ArticleEditorForm({
             {/* Author */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--text-secondary)]">
-                Author Profile
+                Public Author Profile
               </label>
               <select
                 value={authorId}
-                onChange={(e) => setAuthorId(e.target.value)}
+                onChange={(e) => {
+                  setAuthorId(e.target.value);
+                  triggerChange();
+                }}
                 className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               >
-                {authors.map((author) => (
-                  <option key={author.id} value={author.id}>
-                    {author.name} ({author.role})
+                {authors.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} ({a.role})
                   </option>
                 ))}
               </select>
@@ -488,50 +765,56 @@ export function ArticleEditorForm({
             {status === "SCHEDULED" && (
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[var(--text-secondary)]">
-                  Scheduled Publish Time
+                  Scheduled Publication Time
                 </label>
                 <input
                   type="datetime-local"
                   value={scheduledAt}
-                  onChange={(e) => setScheduledAt(e.target.value)}
+                  onChange={(e) => {
+                    setScheduledAt(e.target.value);
+                    triggerChange();
+                  }}
                   className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
                 />
               </div>
             )}
           </div>
 
-          {/* Featured Image */}
+          {/* Featured Image Component */}
           <ImageUploader
             value={featuredImage}
             altText={featuredImageAlt}
             onChange={(url, alt) => {
               setFeaturedImage(url);
-              if (alt !== undefined) {
-                setFeaturedImageAlt(alt);
-              }
+              if (alt !== undefined) setFeaturedImageAlt(alt);
+              triggerChange();
             }}
-            onAltTextChange={(alt) => setFeaturedImageAlt(alt)}
+            onAltTextChange={(alt) => {
+              setFeaturedImageAlt(alt);
+              triggerChange();
+            }}
           />
 
           {/* Tags */}
           <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2">
-              <Tag className="w-4 h-4 text-[var(--accent-teal)]" />
-              <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
-                Article Tags
-              </h3>
-            </div>
+            <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center space-x-1.5">
+              <Tag className="w-3.5 h-3.5 text-[var(--accent-teal)]" />
+              <span>Article Tags</span>
+            </h3>
             <div className="space-y-1">
-              <label className="text-[11px] text-[var(--text-muted)]">
-                Tags (comma separated)
-              </label>
               <input
                 type="text"
                 value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                placeholder="Valuation, Fundamental Analysis, Compounding"
+                onChange={(e) => {
+                  setTagsInput(e.target.value);
+                  triggerChange();
+                }}
+                placeholder="cagr, investing, returns, valuation"
                 className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               />
+              <p className="text-[10px] text-[var(--text-muted)]">
+                Comma-separated tags for search discovery.
+              </p>
             </div>
           </div>
 
@@ -540,57 +823,113 @@ export function ArticleEditorForm({
             <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
               SEO & Social Metadata
             </h3>
+
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Meta Title
               </label>
               <input
                 type="text"
                 value={metaTitle}
-                onChange={(e) => setMetaTitle(e.target.value)}
-                placeholder={title || "Custom Meta Title"}
-                className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                onChange={(e) => {
+                  setMetaTitle(e.target.value);
+                  triggerChange();
+                }}
+                placeholder={title || "Custom search title"}
+                className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               />
             </div>
+
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Meta Description
               </label>
               <textarea
                 value={metaDescription}
-                onChange={(e) => setMetaDescription(e.target.value)}
-                rows={2}
-                placeholder={excerpt || "Search engine description"}
-                className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                onChange={(e) => {
+                  setMetaDescription(e.target.value);
+                  triggerChange();
+                }}
+                rows={3}
+                placeholder={excerpt || "Search description snippet"}
+                className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               />
             </div>
+
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Canonical URL
               </label>
               <input
                 type="url"
                 value={canonicalUrl}
-                onChange={(e) => setCanonicalUrl(e.target.value)}
-                placeholder={`https://volumecall.in/blog/${slug}`}
-                className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                onChange={(e) => {
+                  setCanonicalUrl(e.target.value);
+                  triggerChange();
+                }}
+                placeholder="https://volumecall.in/blog/..."
+                className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               />
             </div>
+
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">
-                OG Social Image URL
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
+                OG Share Image URL
               </label>
               <input
                 type="url"
                 value={ogImage}
-                onChange={(e) => setOgImage(e.target.value)}
-                placeholder={featuredImage || "https://volumecall.in/og.png"}
-                className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                onChange={(e) => {
+                  setOgImage(e.target.value);
+                  triggerChange();
+                }}
+                placeholder="Defaults to Featured Image"
+                className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               />
             </div>
           </div>
         </div>
       </div>
+
+      {/* ─── Unsaved Changes Navigation Modal ─────────────────────────────────── */}
+      {showNavModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center space-x-3 text-amber-500">
+              <AlertTriangle className="w-6 h-6 shrink-0" />
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
+                Save changes before leaving?
+              </h3>
+            </div>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              You have unsaved changes in this article. Would you like to save your draft now or discard your edits?
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-2 border-t border-[var(--border-subtle)]">
+              <button
+                type="button"
+                onClick={() => setShowNavModal(false)}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleModalDiscardAndLeave}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+              >
+                Discard Changes
+              </button>
+              <button
+                type="button"
+                onClick={handleModalSaveAndLeave}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-white bg-[var(--accent-teal)] hover:bg-[var(--accent-teal)]/90 rounded-lg transition-colors cursor-pointer"
+              >
+                Save Draft & Leave
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

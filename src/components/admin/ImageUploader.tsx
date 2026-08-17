@@ -69,7 +69,8 @@ export function ImageUploader({
       }
     } catch (err) {
       console.error("Upload error:", err);
-      setError("An unexpected error occurred while uploading. Please check storage configuration.");
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred while uploading.";
+      setError(msg);
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
