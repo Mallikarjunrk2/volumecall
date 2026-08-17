@@ -35,10 +35,24 @@ export async function saveArticleDraftAction(
   try {
     const user = await requireCmsUser();
 
+    // Server-side author profile enforcement
+    let effectiveAuthorId = input.author_id || null;
+    if (user.role !== "SUPER_ADMIN") {
+      if (!user.author_id) {
+        return {
+          success: false,
+          error: "Your CMS user account is not linked to an author profile. Please ask an administrator to link your profile in User Management.",
+        };
+      }
+      // Force user's linked author profile
+      effectiveAuthorId = user.author_id;
+    }
+
     // Generate safe draft slug if not provided
     const slug = input.slug?.trim() || `draft-${Date.now()}`;
     const draftInput: ArticleInput = {
       ...input,
+      author_id: effectiveAuthorId,
       slug,
       status: "DRAFT",
     };
@@ -53,6 +67,12 @@ export async function saveArticleDraftAction(
       if (!canEditArticle(user, existing)) {
         return { success: false, error: "Permission denied to edit this draft." };
       }
+
+      // Contributors cannot change author_id on existing articles
+      if (user.role === "CONTRIBUTOR") {
+        draftInput.author_id = existing.author_id || user.author_id || null;
+      }
+
       article = await updateArticle(id, draftInput);
     } else {
       if (!canCreateArticle(user)) {
@@ -89,8 +109,21 @@ export async function saveAndPublishArticleAction(
       return { success: false, error: "You do not have permission to publish articles." };
     }
 
+    // Server-side author profile enforcement
+    let effectiveAuthorId = input.author_id || null;
+    if (user.role !== "SUPER_ADMIN") {
+      if (!user.author_id) {
+        return {
+          success: false,
+          error: "Your CMS user account is not linked to an author profile. Please ask an administrator to link your profile in User Management.",
+        };
+      }
+      effectiveAuthorId = user.author_id;
+    }
+
     const publishInput: ArticleInput = {
       ...input,
+      author_id: effectiveAuthorId,
       status: "PUBLISHED",
       published_at: input.published_at || new Date().toISOString(),
     };
@@ -137,6 +170,14 @@ export async function createArticleAction(input: ArticleInput) {
     throw new Error("You do not have permission to create articles.");
   }
 
+  let effectiveAuthorId = input.author_id || null;
+  if (user.role !== "SUPER_ADMIN") {
+    if (!user.author_id) {
+      throw new Error("Your CMS account is not linked to an author profile.");
+    }
+    effectiveAuthorId = user.author_id;
+  }
+
   // Non-publishers (Author, Contributor) can only create Drafts
   let status = input.status;
   if (status === "PUBLISHED" && !canPublishArticle(user)) {
@@ -145,6 +186,7 @@ export async function createArticleAction(input: ArticleInput) {
 
   const effectiveInput: ArticleInput = {
     ...input,
+    author_id: effectiveAuthorId,
     status,
     created_by: user.id,
   };
@@ -169,6 +211,11 @@ export async function updateArticleAction(id: string, input: ArticleInput) {
     throw new Error("You do not have permission to edit this article.");
   }
 
+  let effectiveAuthorId = input.author_id || null;
+  if (user.role !== "SUPER_ADMIN") {
+    effectiveAuthorId = existing.author_id || user.author_id || null;
+  }
+
   // Non-publishers (Author, Contributor) cannot publish directly
   let status = input.status;
   if (status === "PUBLISHED" && !canPublishArticle(user)) {
@@ -177,6 +224,7 @@ export async function updateArticleAction(id: string, input: ArticleInput) {
 
   const effectiveInput: ArticleInput = {
     ...input,
+    author_id: effectiveAuthorId,
     status,
   };
 

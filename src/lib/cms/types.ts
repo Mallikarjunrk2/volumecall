@@ -8,17 +8,42 @@ export interface CmsUser {
   name: string | null;
   image: string | null;
   role: CmsUserRole;
+  author_id?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
   last_login_at: string | null;
+  author_name?: string | null;
+  author_slug?: string | null;
+  author_role?: string | null;
+  author_bio?: string | null;
+  author_avatar?: string | null;
+  author_is_active?: boolean | null;
+  author_article_count?: number;
 }
 
 export interface CmsUserInput {
   email: string;
   name?: string | null;
   role: CmsUserRole;
+  author_id?: string | null;
   is_active?: boolean;
+}
+
+export interface UnifiedUserInput {
+  id?: string;
+  name?: string | null;
+  email: string;
+  role: CmsUserRole;
+  is_active?: boolean;
+  author_mode: "KEEP" | "NONE" | "LINK_EXISTING" | "CREATE_NEW" | "UPDATE_EXISTING";
+  existing_author_id?: string | null;
+  author_name?: string;
+  author_slug?: string;
+  author_role?: string;
+  author_bio?: string | null;
+  author_avatar?: string | null;
+  author_is_active?: boolean;
 }
 
 export interface Author {
@@ -28,8 +53,19 @@ export interface Author {
   role: string;
   bio: string | null;
   avatar_url: string | null;
+  is_active?: boolean;
   created_at: string;
   updated_at: string;
+  article_count?: number;
+}
+
+export interface AuthorInput {
+  name: string;
+  slug: string;
+  role: string;
+  bio?: string | null;
+  avatar_url?: string | null;
+  is_active?: boolean;
 }
 
 export interface ArticleCategory {
@@ -38,7 +74,18 @@ export interface ArticleCategory {
   slug: string;
   description: string | null;
   sort_order: number;
+  is_active?: boolean;
   created_at: string;
+  updated_at?: string;
+  article_count?: number;
+}
+
+export interface ArticleCategoryInput {
+  name: string;
+  slug: string;
+  description?: string | null;
+  sort_order?: number;
+  is_active?: boolean;
 }
 
 export interface ArticleSource {
@@ -75,6 +122,7 @@ export interface Article {
   category_slug?: string | null;
   author_name?: string | null;
   author_role?: string | null;
+  author_bio?: string | null;
   author_avatar?: string | null;
   created_by_name?: string | null;
   created_by_email?: string | null;

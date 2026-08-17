@@ -46,13 +46,19 @@ export async function getCurrentCmsUser(): Promise<CmsUser | null> {
       );
     }
   } else {
-    // Record login timestamp and update latest Google profile metadata
+    // Only update login timestamp if last login was over 15 minutes ago to prevent blocking DB writes on every GET
     if (cmsUser.is_active) {
-      await recordUserLogin(
-        cmsUser.id,
-        session?.user?.name,
-        session?.user?.image
-      );
+      const lastLogin = cmsUser.last_login_at ? new Date(cmsUser.last_login_at).getTime() : 0;
+      const fifteenMinutesAgo = Date.now() - 15 * 60 * 1000;
+      if (lastLogin < fifteenMinutesAgo) {
+        recordUserLogin(
+          cmsUser.id,
+          session?.user?.name,
+          session?.user?.image
+        ).catch((err) => {
+          console.error("[Non-blocking User Login Record Error]:", err);
+        });
+      }
     }
   }
 

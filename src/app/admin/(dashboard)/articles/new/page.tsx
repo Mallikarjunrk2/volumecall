@@ -16,6 +16,7 @@ export default async function NewArticlePage() {
       categories={categories}
       authors={authors}
       userRole={user.role}
+      currentUser={user}
     />
   );
 }

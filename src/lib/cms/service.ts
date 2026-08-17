@@ -4,8 +4,10 @@ import { ensureCmsTables } from "./db-init";
 import {
   Article,
   ArticleCategory,
+  ArticleCategoryInput,
   ArticleInput,
   Author,
+  AuthorInput,
   AdminDashboardStats,
 } from "./types";
 
@@ -28,7 +30,7 @@ export async function getPublicArticles(): Promise<Article[]> {
         a.related_calculators, a.related_symbols, a.tags, a.sources_json,
         a.created_at, a.updated_at,
         c.name as category_name, c.slug as category_slug,
-        au.name as author_name, au.role as author_role, au.avatar_url as author_avatar
+        au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar
       FROM articles a
       LEFT JOIN article_categories c ON a.category_id = c.id
       LEFT JOIN authors au ON a.author_id = au.id
@@ -57,7 +59,7 @@ export async function getPublicArticleBySlug(slug: string): Promise<Article | nu
         a.related_calculators, a.related_symbols, a.tags, a.sources_json,
         a.created_at, a.updated_at,
         c.name as category_name, c.slug as category_slug,
-        au.name as author_name, au.role as author_role, au.avatar_url as author_avatar
+        au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar
       FROM articles a
       LEFT JOIN article_categories c ON a.category_id = c.id
       LEFT JOIN authors au ON a.author_id = au.id
@@ -117,17 +119,104 @@ export async function getRelatedArticles(
 
     return rows as Article[];
   } catch (error) {
-    console.error("[getRelatedArticles Error]:", error);
+    console.error(`[getRelatedArticles Error] for id ${currentId}:`, error);
     return [];
   }
 }
 
 /**
- * Fetch latest published articles for content discovery (excluding current article).
+ * Fetch adjacent articles (previous & next) for public navigation.
  */
-export async function getLatestArticles(
-  excludeId: string,
-  limit: number = 5
+export async function getAdjacentArticles(
+  publishedAt: string | null,
+  currentId?: string
+): Promise<{
+  prev: { title: string; slug: string } | null;
+  next: { title: string; slug: string } | null;
+}> {
+  await checkInit();
+  const effectiveDate = publishedAt || new Date().toISOString();
+  try {
+    const prevRows = currentId
+      ? await sql`
+          SELECT title, slug
+          FROM articles
+          WHERE status = 'PUBLISHED' AND id != ${currentId} AND published_at < ${effectiveDate}
+          ORDER BY published_at DESC
+          LIMIT 1;
+        `
+      : await sql`
+          SELECT title, slug
+          FROM articles
+          WHERE status = 'PUBLISHED' AND published_at < ${effectiveDate}
+          ORDER BY published_at DESC
+          LIMIT 1;
+        `;
+
+    const nextRows = currentId
+      ? await sql`
+          SELECT title, slug
+          FROM articles
+          WHERE status = 'PUBLISHED' AND id != ${currentId} AND published_at > ${effectiveDate}
+          ORDER BY published_at ASC
+          LIMIT 1;
+        `
+      : await sql`
+          SELECT title, slug
+          FROM articles
+          WHERE status = 'PUBLISHED' AND published_at > ${effectiveDate}
+          ORDER BY published_at ASC
+          LIMIT 1;
+        `;
+
+    return {
+      prev: (prevRows[0] as { title: string; slug: string }) || null,
+      next: (nextRows[0] as { title: string; slug: string }) || null,
+    };
+  } catch (error) {
+    console.error("[getAdjacentArticles Error]:", error);
+    return { prev: null, next: null };
+  }
+}
+
+export const getPrevNextArticles = getAdjacentArticles;
+
+/**
+ * Fetch articles related to a stock symbol for the stock detail page.
+ */
+export async function getArticlesForSymbol(
+  symbol: string,
+  limit: number = 3
+): Promise<Article[]> {
+  await checkInit();
+  const upper = symbol.toUpperCase().trim();
+  try {
+    const rows = await sql`
+      SELECT 
+        a.id, a.title, a.slug, a.excerpt, a.featured_image, a.featured_image_alt,
+        a.category_id, a.status, a.published_at, a.created_at,
+        c.name as category_name, c.slug as category_slug,
+        au.name as author_name
+      FROM articles a
+      LEFT JOIN article_categories c ON a.category_id = c.id
+      LEFT JOIN authors au ON a.author_id = au.id
+      WHERE a.status = 'PUBLISHED' AND ${upper} = ANY(a.related_symbols)
+      ORDER BY a.published_at DESC, a.created_at DESC
+      LIMIT ${limit};
+    `;
+    return rows as Article[];
+  } catch (error) {
+    console.error(`[getArticlesForSymbol Error] for symbol ${symbol}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Fetch articles related to a calculator for calculator pages.
+ */
+export async function getArticlesForCalculator(
+  calculatorSlug: string,
+  limit: number = 3
 ): Promise<Article[]> {
   await checkInit();
   try {
@@ -140,58 +229,19 @@ export async function getLatestArticles(
       FROM articles a
       LEFT JOIN article_categories c ON a.category_id = c.id
       LEFT JOIN authors au ON a.author_id = au.id
-      WHERE a.status = 'PUBLISHED' AND a.id != ${excludeId}
+      WHERE a.status = 'PUBLISHED' AND ${calculatorSlug} = ANY(a.related_calculators)
       ORDER BY a.published_at DESC, a.created_at DESC
       LIMIT ${limit};
     `;
     return rows as Article[];
   } catch (error) {
-    console.error("[getLatestArticles Error]:", error);
+    console.error(`[getArticlesForCalculator Error] for calculator ${calculatorSlug}:`, error);
     return [];
   }
 }
 
 /**
- * Fetch the previous and next published articles by publication date.
- */
-export async function getPrevNextArticles(
-  publishedAt: string | null,
-  currentId: string
-): Promise<{
-  prev: { title: string; slug: string } | null;
-  next: { title: string; slug: string } | null;
-}> {
-  await checkInit();
-  try {
-    const pubDate = publishedAt || new Date().toISOString();
-
-    const [prevRows, nextRows] = await Promise.all([
-      sql`
-        SELECT title, slug FROM articles
-        WHERE status = 'PUBLISHED' AND id != ${currentId} AND published_at <= ${pubDate}
-        ORDER BY published_at DESC
-        LIMIT 1;
-      `,
-      sql`
-        SELECT title, slug FROM articles
-        WHERE status = 'PUBLISHED' AND id != ${currentId} AND published_at >= ${pubDate}
-        ORDER BY published_at ASC
-        LIMIT 1;
-      `,
-    ]);
-
-    return {
-      prev: (prevRows[0] as { title: string; slug: string }) || null,
-      next: (nextRows[0] as { title: string; slug: string }) || null,
-    };
-  } catch (error) {
-    console.error("[getPrevNextArticles Error]:", error);
-    return { prev: null, next: null };
-  }
-}
-
-/**
- * Fetch all articles for Admin CMS with optional status filter.
+ * Fetch all articles for Admin management (includes DRAFT, REVIEW, SCHEDULED, PUBLISHED).
  */
 export async function getAdminArticles(statusFilter?: string): Promise<Article[]> {
   await checkInit();
@@ -206,7 +256,7 @@ export async function getAdminArticles(statusFilter?: string): Promise<Article[]
           a.related_calculators, a.related_symbols, a.tags, a.sources_json,
           a.created_at, a.updated_at,
           c.name as category_name, c.slug as category_slug,
-          au.name as author_name, au.role as author_role,
+          au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar,
           cu.name as created_by_name, cu.email as created_by_email
         FROM articles a
         LEFT JOIN article_categories c ON a.category_id = c.id
@@ -224,7 +274,7 @@ export async function getAdminArticles(statusFilter?: string): Promise<Article[]
           a.related_calculators, a.related_symbols, a.tags, a.sources_json,
           a.created_at, a.updated_at,
           c.name as category_name, c.slug as category_slug,
-          au.name as author_name, au.role as author_role,
+          au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar,
           cu.name as created_by_name, cu.email as created_by_email
         FROM articles a
         LEFT JOIN article_categories c ON a.category_id = c.id
@@ -254,7 +304,7 @@ export async function getAdminArticleById(id: string): Promise<Article | null> {
         a.related_calculators, a.related_symbols, a.tags, a.sources_json,
         a.created_at, a.updated_at,
         c.name as category_name, c.slug as category_slug,
-        au.name as author_name, au.role as author_role,
+        au.name as author_name, au.role as author_role, au.bio as author_bio, au.avatar_url as author_avatar,
         cu.name as created_by_name, cu.email as created_by_email
       FROM articles a
       LEFT JOIN article_categories c ON a.category_id = c.id
@@ -357,30 +407,336 @@ export async function publishArticle(id: string): Promise<void> {
   `;
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// ─── CATEGORY MANAGEMENT SERVICE FUNCTIONS ─────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+
 /**
- * Get all available authors.
+ * Get all available categories.
+ * If includeInactive = true, returns all categories with article counts.
+ * If includeInactive = false, returns only active categories.
  */
-export async function getAuthors(): Promise<Author[]> {
+export async function getCategories(includeInactive: boolean = false): Promise<ArticleCategory[]> {
   await checkInit();
   try {
-    const rows = await sql`SELECT * FROM authors ORDER BY name ASC;`;
-    return rows as Author[];
-  } catch {
+    if (includeInactive) {
+      const rows = await sql`
+        SELECT 
+          c.id, c.name, c.slug, c.description, c.sort_order, 
+          COALESCE(c.is_active, true) as is_active,
+          c.created_at, c.updated_at,
+          COUNT(a.id)::int as article_count
+        FROM article_categories c
+        LEFT JOIN articles a ON a.category_id = c.id
+        GROUP BY c.id
+        ORDER BY c.sort_order ASC, c.name ASC;
+      `;
+      return rows as ArticleCategory[];
+    } else {
+      const rows = await sql`
+        SELECT 
+          id, name, slug, description, sort_order, 
+          COALESCE(is_active, true) as is_active,
+          created_at, updated_at
+        FROM article_categories 
+        WHERE COALESCE(is_active, true) = true
+        ORDER BY sort_order ASC, name ASC;
+      `;
+      return rows as ArticleCategory[];
+    }
+  } catch (error) {
+    console.error("[getCategories Error]:", error);
     return [];
   }
 }
 
 /**
- * Get all available categories.
+ * Get a single category by ID.
  */
-export async function getCategories(): Promise<ArticleCategory[]> {
+export async function getCategoryById(id: string): Promise<ArticleCategory | null> {
   await checkInit();
   try {
-    const rows = await sql`SELECT * FROM article_categories ORDER BY sort_order ASC, name ASC;`;
-    return rows as ArticleCategory[];
-  } catch {
+    const rows = await sql`
+      SELECT 
+        c.id, c.name, c.slug, c.description, c.sort_order, 
+        COALESCE(c.is_active, true) as is_active,
+        c.created_at, c.updated_at,
+        COUNT(a.id)::int as article_count
+      FROM article_categories c
+      LEFT JOIN articles a ON a.category_id = c.id
+      WHERE c.id = ${id}
+      GROUP BY c.id
+      LIMIT 1;
+    `;
+    return (rows[0] as ArticleCategory) || null;
+  } catch (error) {
+    console.error(`[getCategoryById Error] for id ${id}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Get a single category by slug.
+ */
+export async function getCategoryBySlug(slug: string): Promise<ArticleCategory | null> {
+  await checkInit();
+  try {
+    const rows = await sql`
+      SELECT 
+        id, name, slug, description, sort_order, 
+        COALESCE(is_active, true) as is_active,
+        created_at, updated_at
+      FROM article_categories
+      WHERE slug = ${slug}
+      LIMIT 1;
+    `;
+    return (rows[0] as ArticleCategory) || null;
+  } catch (error) {
+    console.error(`[getCategoryBySlug Error] for slug ${slug}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Create a new category.
+ */
+export async function createCategory(input: ArticleCategoryInput): Promise<ArticleCategory> {
+  await checkInit();
+  const isActive = input.is_active !== undefined ? input.is_active : true;
+  const sortOrder = input.sort_order ?? 0;
+
+  const rows = await sql`
+    INSERT INTO article_categories (
+      name, slug, description, sort_order, is_active, created_at, updated_at
+    ) VALUES (
+      ${input.name.trim()},
+      ${input.slug.trim()},
+      ${input.description?.trim() || null},
+      ${sortOrder},
+      ${isActive},
+      NOW(),
+      NOW()
+    )
+    RETURNING id, name, slug, description, sort_order, is_active, created_at, updated_at;
+  `;
+  return rows[0] as ArticleCategory;
+}
+
+/**
+ * Update an existing category.
+ */
+export async function updateCategory(id: string, input: ArticleCategoryInput): Promise<ArticleCategory> {
+  await checkInit();
+  const isActive = input.is_active !== undefined ? input.is_active : true;
+  const sortOrder = input.sort_order ?? 0;
+
+  const rows = await sql`
+    UPDATE article_categories SET
+      name = ${input.name.trim()},
+      slug = ${input.slug.trim()},
+      description = ${input.description?.trim() || null},
+      sort_order = ${sortOrder},
+      is_active = ${isActive},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING id, name, slug, description, sort_order, is_active, created_at, updated_at;
+  `;
+  return rows[0] as ArticleCategory;
+}
+
+/**
+ * Safe delete category: Reassigns associated articles if a new category ID is provided,
+ * or safely sets category_id to NULL.
+ */
+export async function deleteCategory(id: string, reassignCategoryId?: string | null): Promise<void> {
+  await checkInit();
+  if (reassignCategoryId && reassignCategoryId !== id) {
+    await sql`UPDATE articles SET category_id = ${reassignCategoryId} WHERE category_id = ${id};`;
+  } else {
+    await sql`UPDATE articles SET category_id = NULL WHERE category_id = ${id};`;
+  }
+  await sql`DELETE FROM article_categories WHERE id = ${id};`;
+}
+
+/**
+ * Toggle category active status.
+ */
+export async function toggleCategoryActive(id: string, isActive: boolean): Promise<ArticleCategory> {
+  await checkInit();
+  const rows = await sql`
+    UPDATE article_categories SET
+      is_active = ${isActive},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING id, name, slug, description, sort_order, is_active, created_at, updated_at;
+  `;
+  return rows[0] as ArticleCategory;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ─── AUTHOR MANAGEMENT SERVICE FUNCTIONS ───────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get all available authors.
+ * If includeInactive = true, returns all authors with article counts.
+ * If includeInactive = false, returns only active authors.
+ */
+export async function getAuthors(includeInactive: boolean = false): Promise<Author[]> {
+  await checkInit();
+  try {
+    if (includeInactive) {
+      const rows = await sql`
+        SELECT 
+          au.id, au.name, au.slug, au.role, au.bio, au.avatar_url,
+          COALESCE(au.is_active, true) as is_active,
+          au.created_at, au.updated_at,
+          COUNT(a.id)::int as article_count
+        FROM authors au
+        LEFT JOIN articles a ON a.author_id = au.id
+        GROUP BY au.id
+        ORDER BY au.name ASC;
+      `;
+      return rows as Author[];
+    } else {
+      const rows = await sql`
+        SELECT 
+          id, name, slug, role, bio, avatar_url,
+          COALESCE(is_active, true) as is_active,
+          created_at, updated_at
+        FROM authors
+        WHERE COALESCE(is_active, true) = true
+        ORDER BY name ASC;
+      `;
+      return rows as Author[];
+    }
+  } catch (error) {
+    console.error("[getAuthors Error]:", error);
     return [];
   }
+}
+
+/**
+ * Get a single author by ID.
+ */
+export async function getAuthorById(id: string): Promise<Author | null> {
+  await checkInit();
+  try {
+    const rows = await sql`
+      SELECT 
+        au.id, au.name, au.slug, au.role, au.bio, au.avatar_url,
+        COALESCE(au.is_active, true) as is_active,
+        au.created_at, au.updated_at,
+        COUNT(a.id)::int as article_count
+      FROM authors au
+      LEFT JOIN articles a ON a.author_id = au.id
+      WHERE au.id = ${id}
+      GROUP BY au.id
+      LIMIT 1;
+    `;
+    return (rows[0] as Author) || null;
+  } catch (error) {
+    console.error(`[getAuthorById Error] for id ${id}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Get a single author by slug.
+ */
+export async function getAuthorBySlug(slug: string): Promise<Author | null> {
+  await checkInit();
+  try {
+    const rows = await sql`
+      SELECT 
+        id, name, slug, role, bio, avatar_url,
+        COALESCE(is_active, true) as is_active,
+        created_at, updated_at
+      FROM authors
+      WHERE slug = ${slug}
+      LIMIT 1;
+    `;
+    return (rows[0] as Author) || null;
+  } catch (error) {
+    console.error(`[getAuthorBySlug Error] for slug ${slug}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Create a new author.
+ */
+export async function createAuthor(input: AuthorInput): Promise<Author> {
+  await checkInit();
+  const isActive = input.is_active !== undefined ? input.is_active : true;
+
+  const rows = await sql`
+    INSERT INTO authors (
+      name, slug, role, bio, avatar_url, is_active, created_at, updated_at
+    ) VALUES (
+      ${input.name.trim()},
+      ${input.slug.trim()},
+      ${input.role.trim()},
+      ${input.bio?.trim() || null},
+      ${input.avatar_url?.trim() || null},
+      ${isActive},
+      NOW(),
+      NOW()
+    )
+    RETURNING id, name, slug, role, bio, avatar_url, is_active, created_at, updated_at;
+  `;
+  return rows[0] as Author;
+}
+
+/**
+ * Update an existing author.
+ */
+export async function updateAuthor(id: string, input: AuthorInput): Promise<Author> {
+  await checkInit();
+  const isActive = input.is_active !== undefined ? input.is_active : true;
+
+  const rows = await sql`
+    UPDATE authors SET
+      name = ${input.name.trim()},
+      slug = ${input.slug.trim()},
+      role = ${input.role.trim()},
+      bio = ${input.bio?.trim() || null},
+      avatar_url = ${input.avatar_url?.trim() || null},
+      is_active = ${isActive},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING id, name, slug, role, bio, avatar_url, is_active, created_at, updated_at;
+  `;
+  return rows[0] as Author;
+}
+
+/**
+ * Safe delete author: Reassigns associated articles if a new author ID is provided,
+ * or safely sets author_id to NULL.
+ */
+export async function deleteAuthor(id: string, reassignAuthorId?: string | null): Promise<void> {
+  await checkInit();
+  if (reassignAuthorId && reassignAuthorId !== id) {
+    await sql`UPDATE articles SET author_id = ${reassignAuthorId} WHERE author_id = ${id};`;
+  } else {
+    await sql`UPDATE articles SET author_id = NULL WHERE author_id = ${id};`;
+  }
+  await sql`DELETE FROM authors WHERE id = ${id};`;
+}
+
+/**
+ * Toggle author active status.
+ */
+export async function toggleAuthorActive(id: string, isActive: boolean): Promise<Author> {
+  await checkInit();
+  const rows = await sql`
+    UPDATE authors SET
+      is_active = ${isActive},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING id, name, slug, role, bio, avatar_url, is_active, created_at, updated_at;
+  `;
+  return rows[0] as Author;
 }
 
 /**

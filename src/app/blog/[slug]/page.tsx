@@ -348,7 +348,7 @@ export default async function BlogPostPage(props: Props) {
                       {article.author_role || "Equity Research & Quantitative Analysis"}
                     </p>
                     <p className="text-xs text-[var(--text-secondary)] leading-relaxed pt-0.5">
-                      Research and analysis published by the VolumeCall editorial team.
+                      {article.author_bio || "Independent equity research and market analysis published by the VolumeCall editorial team."}
                     </p>
                   </div>
                 </div>

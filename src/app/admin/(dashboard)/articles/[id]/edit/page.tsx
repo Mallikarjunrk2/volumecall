@@ -36,6 +36,7 @@ export default async function EditArticlePage(props: Props) {
       categories={categories}
       authors={authors}
       userRole={user.role}
+      currentUser={user}
     />
   );
 }

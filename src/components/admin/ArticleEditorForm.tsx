@@ -8,6 +8,7 @@ import {
   ArticleInput,
   ArticleStatus,
   Author,
+  CmsUser,
   CmsUserRole,
   ArticleSource,
 } from "@/lib/cms/types";
@@ -15,6 +16,8 @@ import {
   saveArticleDraftAction,
   saveAndPublishArticleAction,
 } from "@/lib/cms/actions";
+import { createCategoryAction } from "@/lib/cms/category-actions";
+import { createAuthorAction } from "@/lib/cms/author-actions";
 import { ArticleContentCompiler } from "@/components/blog/ArticleContentCompiler";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { FeaturedImageErrorBoundary } from "@/components/admin/FeaturedImageErrorBoundary";
@@ -41,6 +44,7 @@ interface Props {
   categories: ArticleCategory[];
   authors: Author[];
   userRole?: CmsUserRole;
+  currentUser?: CmsUser | null;
 }
 
 function slugify(text: string): string {
@@ -57,9 +61,34 @@ export function ArticleEditorForm({
   categories,
   authors,
   userRole = "SUPER_ADMIN",
+  currentUser,
 }: Props) {
   const router = useRouter();
+  const isSuperAdmin = userRole === "SUPER_ADMIN";
   const [articleId, setArticleId] = useState<string | null>(initialArticle?.id || null);
+
+  const [categoriesList, setCategoriesList] = useState<ArticleCategory[]>(categories);
+  const [authorsList, setAuthorsList] = useState<Author[]>(authors);
+
+  // Inline Category Creation Modal State
+  const [showInlineCatModal, setShowInlineCatModal] = useState(false);
+  const [inlineCatName, setInlineCatName] = useState("");
+  const [inlineCatSlug, setInlineCatSlug] = useState("");
+  const [inlineCatAutoSlug, setInlineCatAutoSlug] = useState(true);
+  const [inlineCatDesc, setInlineCatDesc] = useState("");
+  const [inlineCatError, setInlineCatError] = useState<string | null>(null);
+  const [inlineCatSaving, setInlineCatSaving] = useState(false);
+
+  // Inline Author Creation Modal State
+  const [showInlineAuthorModal, setShowInlineAuthorModal] = useState(false);
+  const [inlineAuthorName, setInlineAuthorName] = useState("");
+  const [inlineAuthorSlug, setInlineAuthorSlug] = useState("");
+  const [inlineAuthorAutoSlug, setInlineAuthorAutoSlug] = useState(true);
+  const [inlineAuthorRole, setInlineAuthorRole] = useState("");
+  const [inlineAuthorBio, setInlineAuthorBio] = useState("");
+  const [inlineAuthorAvatar, setInlineAuthorAvatar] = useState("");
+  const [inlineAuthorError, setInlineAuthorError] = useState<string | null>(null);
+  const [inlineAuthorSaving, setInlineAuthorSaving] = useState(false);
 
   const [title, setTitle] = useState(initialArticle?.title || "");
   const [slug, setSlug] = useState(initialArticle?.slug || "");
@@ -69,7 +98,9 @@ export function ArticleEditorForm({
   const [featuredImage, setFeaturedImage] = useState(initialArticle?.featured_image || "");
   const [featuredImageAlt, setFeaturedImageAlt] = useState(initialArticle?.featured_image_alt || "");
   const [categoryId, setCategoryId] = useState(initialArticle?.category_id || categories[0]?.id || "");
-  const [authorId, setAuthorId] = useState(initialArticle?.author_id || authors[0]?.id || "");
+  const [authorId, setAuthorId] = useState(
+    initialArticle?.author_id || (isSuperAdmin ? authors[0]?.id || "" : currentUser?.author_id || "")
+  );
   const [status, setStatus] = useState<ArticleStatus>(initialArticle?.status || "DRAFT");
   const [scheduledAt, setScheduledAt] = useState(
     initialArticle?.scheduled_at ? new Date(initialArticle.scheduled_at).toISOString().slice(0, 16) : ""
@@ -417,6 +448,115 @@ export function ArticleEditorForm({
     }
   };
 
+  // Inline Category Creation Handlers
+  const openInlineCatModal = () => {
+    setInlineCatName("");
+    setInlineCatSlug("");
+    setInlineCatAutoSlug(true);
+    setInlineCatDesc("");
+    setInlineCatError(null);
+    setShowInlineCatModal(true);
+  };
+
+  const handleInlineCatNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInlineCatName(val);
+    if (inlineCatAutoSlug) {
+      setInlineCatSlug(slugify(val));
+    }
+  };
+
+  const handleInlineCatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inlineCatName.trim() || !inlineCatSlug.trim()) {
+      setInlineCatError("Category Name and Slug are required.");
+      return;
+    }
+
+    setInlineCatSaving(true);
+    setInlineCatError(null);
+
+    try {
+      const res = await createCategoryAction({
+        name: inlineCatName.trim(),
+        slug: inlineCatSlug.trim(),
+        description: inlineCatDesc.trim() || null,
+        sort_order: categoriesList.length + 1,
+        is_active: true,
+      });
+
+      if (res.success && res.category) {
+        const newCat = res.category;
+        setCategoriesList((prev) => [...prev, newCat]);
+        setCategoryId(newCat.id);
+        triggerChange();
+        setShowInlineCatModal(false);
+      } else {
+        setInlineCatError(res.error || "Failed to create category.");
+      }
+    } catch (err) {
+      setInlineCatError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setInlineCatSaving(false);
+    }
+  };
+
+  // Inline Author Creation Handlers
+  const openInlineAuthorModal = () => {
+    setInlineAuthorName("");
+    setInlineAuthorSlug("");
+    setInlineAuthorAutoSlug(true);
+    setInlineAuthorRole("");
+    setInlineAuthorBio("");
+    setInlineAuthorAvatar("");
+    setInlineAuthorError(null);
+    setShowInlineAuthorModal(true);
+  };
+
+  const handleInlineAuthorNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInlineAuthorName(val);
+    if (inlineAuthorAutoSlug) {
+      setInlineAuthorSlug(slugify(val));
+    }
+  };
+
+  const handleInlineAuthorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inlineAuthorName.trim() || !inlineAuthorSlug.trim() || !inlineAuthorRole.trim()) {
+      setInlineAuthorError("Display Name, Slug, and Role / Title are required.");
+      return;
+    }
+
+    setInlineAuthorSaving(true);
+    setInlineAuthorError(null);
+
+    try {
+      const res = await createAuthorAction({
+        name: inlineAuthorName.trim(),
+        slug: inlineAuthorSlug.trim(),
+        role: inlineAuthorRole.trim(),
+        bio: inlineAuthorBio.trim() || null,
+        avatar_url: inlineAuthorAvatar.trim() || null,
+        is_active: true,
+      });
+
+      if (res.success && res.author) {
+        const newAuthor = res.author;
+        setAuthorsList((prev) => [...prev, newAuthor]);
+        setAuthorId(newAuthor.id);
+        triggerChange();
+        setShowInlineAuthorModal(false);
+      } else {
+        setInlineAuthorError(res.error || "Failed to create author profile.");
+      }
+    } catch (err) {
+      setInlineAuthorError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setInlineAuthorSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto pb-16">
       {/* ─── Top Bar Actions ──────────────────────────────────────────────── */}
@@ -722,45 +862,120 @@ export function ArticleEditorForm({
 
             {/* Category */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">
-                Category
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Category
+                </label>
+                <button
+                  type="button"
+                  onClick={openInlineCatModal}
+                  className="text-[11px] font-semibold text-[var(--accent-teal)] hover:underline flex items-center space-x-1 cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>New</span>
+                </button>
+              </div>
               <select
                 value={categoryId}
                 onChange={(e) => {
+                  if (e.target.value === "__NEW_CATEGORY__") {
+                    openInlineCatModal();
+                    return;
+                  }
                   setCategoryId(e.target.value);
                   triggerChange();
                 }}
                 className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
               >
-                {categories.map((c) => (
+                <option value="">-- Select Category --</option>
+                {categoriesList.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
                   </option>
                 ))}
+                <option value="__NEW_CATEGORY__" className="font-semibold text-[var(--accent-teal)]">
+                  + Create new category...
+                </option>
               </select>
             </div>
 
             {/* Author */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">
-                Public Author Profile
-              </label>
-              <select
-                value={authorId}
-                onChange={(e) => {
-                  setAuthorId(e.target.value);
-                  triggerChange();
-                }}
-                className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
-              >
-                {authors.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} ({a.role})
+            {isSuperAdmin ? (
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-[var(--text-secondary)]">
+                    Public Author Profile
+                  </label>
+                  <button
+                    type="button"
+                    onClick={openInlineAuthorModal}
+                    className="text-[11px] font-semibold text-[var(--accent-teal)] hover:underline flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>New</span>
+                  </button>
+                </div>
+                <select
+                  value={authorId}
+                  onChange={(e) => {
+                    if (e.target.value === "__NEW_AUTHOR__") {
+                      openInlineAuthorModal();
+                      return;
+                    }
+                    setAuthorId(e.target.value);
+                    triggerChange();
+                  }}
+                  className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                >
+                  <option value="">-- Select Author Profile --</option>
+                  {authorsList.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name} ({a.role})
+                    </option>
+                  ))}
+                  <option value="__NEW_AUTHOR__" className="font-semibold text-[var(--accent-teal)]">
+                    + Create new author profile...
                   </option>
-                ))}
-              </select>
-            </div>
+                </select>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Author Profile
+                </label>
+                <div className="px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs">
+                  {currentUser?.author_name ? (
+                    <div className="flex items-center space-x-2.5">
+                      {currentUser.author_avatar ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={currentUser.author_avatar}
+                          alt=""
+                          className="w-6 h-6 rounded-full object-cover shrink-0 border border-[var(--border-subtle)]"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-[var(--accent-teal)]/10 text-[var(--accent-teal)] font-bold text-[10px] flex items-center justify-center shrink-0">
+                          {currentUser.author_name.charAt(0)}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="font-semibold text-[var(--text-primary)] truncate">
+                          {currentUser.author_name}
+                        </div>
+                        <div className="text-[10px] text-[var(--accent-teal)] font-mono truncate">
+                          {currentUser.author_role || "Author"}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-amber-500 text-[11px] font-medium flex items-center space-x-1.5 py-0.5">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      <span>No author profile linked. Contact an admin to link your profile.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Scheduled Date */}
             {status === "SCHEDULED" && (
@@ -930,6 +1145,228 @@ export function ArticleEditorForm({
                 Save Draft & Leave
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Inline Create Category Modal ─────────────────────────────────── */}
+      {showInlineCatModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                Create Category
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowInlineCatModal(false)}
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {inlineCatError && (
+              <div className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-md text-xs text-red-600 dark:text-red-400">
+                {inlineCatError}
+              </div>
+            )}
+
+            <form onSubmit={handleInlineCatSubmit} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[var(--text-primary)]">
+                  Category Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={inlineCatName}
+                  onChange={handleInlineCatNameChange}
+                  placeholder="e.g. Valuation"
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-[var(--text-secondary)]">
+                    URL Slug <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setInlineCatAutoSlug(!inlineCatAutoSlug)}
+                    className="text-[10px] text-[var(--accent-teal)] hover:underline cursor-pointer"
+                  >
+                    {inlineCatAutoSlug ? "Manual Slug" : "Auto Slug"}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={inlineCatSlug}
+                  onChange={(e) => {
+                    setInlineCatAutoSlug(false);
+                    setInlineCatSlug(e.target.value);
+                  }}
+                  placeholder="valuation"
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Description
+                </label>
+                <textarea
+                  value={inlineCatDesc}
+                  onChange={(e) => setInlineCatDesc(e.target.value)}
+                  rows={2}
+                  placeholder="Articles covering stock valuation methods and valuation frameworks."
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-[var(--border-subtle)]">
+                <button
+                  type="button"
+                  onClick={() => setShowInlineCatModal(false)}
+                  className="px-3 py-1.5 rounded-md border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={inlineCatSaving}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#0D9488] hover:bg-[#0F766E] dark:bg-[#2DD4BF] dark:hover:bg-[#20D6C2] text-white dark:text-black font-semibold text-xs rounded-md shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {inlineCatSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Create Category</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Inline Create Author Modal ───────────────────────────────────── */}
+      {showInlineAuthorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="w-full max-w-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95 my-8">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                Create Author Profile
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowInlineAuthorModal(false)}
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {inlineAuthorError && (
+              <div className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-md text-xs text-red-600 dark:text-red-400">
+                {inlineAuthorError}
+              </div>
+            )}
+
+            <form onSubmit={handleInlineAuthorSubmit} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[var(--text-primary)]">
+                  Display Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={inlineAuthorName}
+                  onChange={handleInlineAuthorNameChange}
+                  placeholder="e.g. VolumeCall Research or Dr. Rahul Sharma"
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-[var(--text-secondary)]">
+                    Profile Slug <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setInlineAuthorAutoSlug(!inlineAuthorAutoSlug)}
+                    className="text-[10px] text-[var(--accent-teal)] hover:underline cursor-pointer"
+                  >
+                    {inlineAuthorAutoSlug ? "Manual Slug" : "Auto Slug"}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={inlineAuthorSlug}
+                  onChange={(e) => {
+                    setInlineAuthorAutoSlug(false);
+                    setInlineAuthorSlug(e.target.value);
+                  }}
+                  placeholder="volumecall-research"
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[var(--text-primary)]">
+                  Role / Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={inlineAuthorRole}
+                  onChange={(e) => setInlineAuthorRole(e.target.value)}
+                  placeholder="e.g. Equity Research & Financial Analysis"
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Short Bio
+                </label>
+                <textarea
+                  value={inlineAuthorBio}
+                  onChange={(e) => setInlineAuthorBio(e.target.value)}
+                  rows={2}
+                  placeholder="Write the exact manually controlled description here."
+                  className="w-full px-3 py-1.5 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Profile Image / Avatar (Optional)
+                </label>
+                <ImageUploader
+                  value={inlineAuthorAvatar}
+                  onChange={(url) => setInlineAuthorAvatar(url)}
+                />
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-[var(--border-subtle)]">
+                <button
+                  type="button"
+                  onClick={() => setShowInlineAuthorModal(false)}
+                  className="px-3 py-1.5 rounded-md border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={inlineAuthorSaving}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#0D9488] hover:bg-[#0F766E] dark:bg-[#2DD4BF] dark:hover:bg-[#20D6C2] text-white dark:text-black font-semibold text-xs rounded-md shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {inlineAuthorSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Create Author</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

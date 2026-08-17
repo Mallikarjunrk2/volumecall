@@ -1,8 +1,17 @@
 import { requireAdmin } from "@/lib/cms/auth";
+import { canViewCategories } from "@/lib/cms/permissions";
 import Link from "next/link";
 import { signOut } from "@/auth";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { FileText, PlusCircle, LayoutDashboard, ExternalLink, LogOut, Users } from "lucide-react";
+import {
+  FileText,
+  PlusCircle,
+  LayoutDashboard,
+  ExternalLink,
+  LogOut,
+  Users,
+  Layers,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +38,7 @@ export default async function AdminDashboardLayout({
               </span>
             </Link>
 
-            <nav className="hidden sm:flex items-center space-x-4 text-xs font-medium">
+            <nav className="hidden sm:flex items-center space-x-3 text-xs font-medium">
               <Link
                 href="/admin"
                 className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] transition-colors"
@@ -51,6 +60,15 @@ export default async function AdminDashboardLayout({
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>New Article</span>
               </Link>
+              {canViewCategories(admin) && (
+                <Link
+                  href="/admin/categories"
+                  className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] transition-colors"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Categories</span>
+                </Link>
+              )}
               {admin.role === "SUPER_ADMIN" && (
                 <Link
                   href="/admin/users"

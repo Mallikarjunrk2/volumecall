@@ -6,9 +6,9 @@ import { UploadCloud, Image as ImageIcon, X, AlertCircle, Link as LinkIcon, Load
 
 interface ImageUploaderProps {
   value: string; // The current image URL (Blob or external)
-  altText: string;
+  altText?: string;
   onChange: (url: string, altText?: string) => void;
-  onAltTextChange: (altText: string) => void;
+  onAltTextChange?: (altText: string) => void;
 }
 
 export function ImageUploader({
@@ -196,19 +196,21 @@ export function ImageUploader({
         </div>
       )}
 
-      {/* Alt Text Field */}
-      <div className="space-y-1 pt-1">
-        <label className="text-[11px] font-medium text-[var(--text-secondary)]">
-          Image Alt Text (Accessibility & SEO)
-        </label>
-        <input
-          type="text"
-          value={altText}
-          onChange={(e) => onAltTextChange(e.target.value)}
-          placeholder="e.g. Return on Equity DuPont equation diagram"
-          className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
-        />
-      </div>
+      {/* Alt Text Field (Optional if onAltTextChange provided) */}
+      {onAltTextChange && (
+        <div className="space-y-1 pt-1">
+          <label className="text-[11px] font-medium text-[var(--text-secondary)]">
+            Image Alt Text (Accessibility & SEO)
+          </label>
+          <input
+            type="text"
+            value={altText || ""}
+            onChange={(e) => onAltTextChange(e.target.value)}
+            placeholder="e.g. Return on Equity DuPont equation diagram"
+            className="w-full px-3 py-2 bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-teal)]"
+          />
+        </div>
+      )}
     </div>
   );
 }

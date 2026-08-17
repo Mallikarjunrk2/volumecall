@@ -92,6 +92,18 @@ async function runInitialization(): Promise<void> {
       await sql`
         ALTER TABLE articles ADD COLUMN IF NOT EXISTS sources_json JSONB DEFAULT '[]'::jsonb;
       `;
+      await sql`
+        ALTER TABLE article_categories ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+      `;
+      await sql`
+        ALTER TABLE article_categories ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+      `;
+      await sql`
+        ALTER TABLE authors ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+      `;
+      await sql`
+        ALTER TABLE cms_users ADD COLUMN IF NOT EXISTS author_id UUID REFERENCES authors(id) ON DELETE SET NULL;
+      `;
 
       // 6. Media Table (Phase 2A)
       await sql`
@@ -114,6 +126,7 @@ async function runInitialization(): Promise<void> {
       await sql`CREATE INDEX IF NOT EXISTS idx_cms_users_email ON cms_users(email);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_cms_users_role ON cms_users(role);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_cms_users_is_active ON cms_users(is_active);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_cms_users_author_id ON cms_users(author_id);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_status_published ON articles(status, published_at DESC);`;
       await sql`CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category_id);`;
@@ -162,16 +175,23 @@ async function runInitialization(): Promise<void> {
   }
 }
 
+let isInitialized = false;
+
 /**
  * Idempotently and safely initializes CMS database tables.
  * Safe for concurrent requests across serverless instances and within the same process.
  */
-export function ensureCmsTables(): Promise<void> {
+export async function ensureCmsTables(): Promise<void> {
+  if (isInitialized) return;
   if (!initPromise) {
-    initPromise = runInitialization().catch((err) => {
-      initPromise = null;
-      throw err;
-    });
+    initPromise = runInitialization()
+      .then(() => {
+        isInitialized = true;
+      })
+      .catch((err) => {
+        initPromise = null;
+        throw err;
+      });
   }
   return initPromise;
 }
