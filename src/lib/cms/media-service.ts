@@ -3,8 +3,10 @@ import { sql } from "@/lib/db";
 import { ensureCmsTables } from "./db-init";
 import { MediaInput, MediaRecord } from "./types";
 
-async function checkInit() {
-  await ensureCmsTables();
+// In normal runtime, CMS tables exist permanently in PostgreSQL.
+// checkInit is made a zero-overhead no-op so queries execute directly on first load.
+async function checkInit(): Promise<void> {
+  // No-op for maximum query performance
 }
 
 /**

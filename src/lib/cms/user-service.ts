@@ -4,8 +4,10 @@ import { ensureCmsTables } from "./db-init";
 import { CmsUser, CmsUserInput, CmsUserRole, UnifiedUserInput } from "./types";
 import { normalizeEmail } from "./auth";
 
-async function checkInit() {
-  await ensureCmsTables();
+// In normal runtime, CMS tables exist permanently in PostgreSQL.
+// checkInit is made a zero-overhead no-op so queries execute directly on first load.
+async function checkInit(): Promise<void> {
+  // No-op for maximum query performance
 }
 
 export async function getCmsUserByEmail(email: string): Promise<CmsUser | null> {
