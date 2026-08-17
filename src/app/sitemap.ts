@@ -1,16 +1,18 @@
 import { MetadataRoute } from "next";
+import { sql } from "@/lib/db";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://volumecall.in";
   const currentDate = new Date();
 
-  const routes = [
+  const staticRoutes = [
     "",
     "/stocks",
     "/compare",
     "/ipo",
     "/markets",
     "/calculators",
+    "/blog",
     // 27 Financial Calculators
     "/calculators/sip-calculator",
     "/calculators/goal-sip-calculator",
@@ -47,10 +49,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/disclaimer",
   ];
 
-  return routes.map((route) => ({
+  const entries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: currentDate,
     changeFrequency: route === "" || route.startsWith("/markets") ? "daily" : "weekly",
-    priority: route === "" ? 1.0 : route.startsWith("/calculators") ? 0.8 : 0.6,
+    priority: route === "" ? 1.0 : route.startsWith("/calculators") || route === "/blog" ? 0.8 : 0.6,
   }));
+
+  // Append published articles dynamically
+  try {
+    const publishedArticles = await sql`
+      SELECT slug, updated_at, published_at
+      FROM articles
+      WHERE status = 'PUBLISHED';
+    `.catch(() => []);
+
+    for (const article of publishedArticles) {
+      entries.push({
+        url: `${baseUrl}/blog/${article.slug}`,
+        lastModified: new Date(article.updated_at || article.published_at || currentDate),
+        changeFrequency: "weekly",
+        priority: 0.7,
+      });
+    }
+  } catch (err) {
+    console.error("[Sitemap Articles Query Error]:", err);
+  }
+
+  return entries;
 }
+

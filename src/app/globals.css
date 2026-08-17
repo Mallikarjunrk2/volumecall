@@ -286,3 +286,132 @@ input[type="number"] {
 .animate-ticker-marquee:hover {
   animation-play-state: paused;
 }
+
+/* ─── Article Markdown Typography ─────────────────────────────────────────── */
+.article-compiled-body {
+  width: 100%;
+  max-width: 100%;
+}
+
+.article-markdown-body {
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.article-markdown-body h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.article-markdown-body h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.5rem;
+}
+
+.article-markdown-body h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.article-markdown-body p {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.article-markdown-body ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-secondary);
+}
+
+.article-markdown-body ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-secondary);
+}
+
+.article-markdown-body li {
+  margin-bottom: 0.375rem;
+}
+
+.article-markdown-body blockquote {
+  border-left: 3px solid var(--accent-teal);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.article-markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+}
+
+.article-markdown-body th,
+.article-markdown-body td {
+  border: 1px solid var(--border-subtle);
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+}
+
+.article-markdown-body th {
+  background: var(--bg-surface);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.article-markdown-body a {
+  color: var(--accent-teal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.article-markdown-body code {
+  font-family: var(--font-mono);
+  background: var(--bg-surface);
+  padding: 0.2rem 0.4rem;
+  border-radius: 2px;
+  font-size: 0.875em;
+  border: 1px solid var(--border-subtle);
+}
+
+.article-markdown-body pre {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 1rem;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 1.5rem 0;
+}
+
+.article-markdown-body hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: 2rem 0;
+}
+
