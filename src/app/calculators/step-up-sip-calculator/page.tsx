@@ -203,12 +203,21 @@ export default function StepUpSipCalculatorPage() {
 
   const extraWealth = stepUpResult.totalValue - flatSipResult.totalValue;
 
+  const sipPercent = Math.min(100, Math.max(0, (parsedSip / 500000) * 100));
+  const stepUpPercent = Math.min(100, Math.max(0, (parsedStepUp / 50) * 100));
+  const returnPercent = Math.min(100, Math.max(0, (parsedReturn / 30) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 40) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb Navigation */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -217,35 +226,35 @@ export default function StepUpSipCalculatorPage() {
         </div>
 
         {/* Page Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <TrendingUp className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <TrendingUp className="h-3.5 w-3.5" />
             <span>Wealth Escalator Planning</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Step-Up SIP Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Estimate how much your wealth can grow when you automatically increase your monthly SIP deposit every year to match annual salary appraisals.
           </p>
         </div>
 
         {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 calc-grid mb-10">
           {/* Left Column: Input Form Controls */}
-          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             {/* Input 1: Starting SIP */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="starting-sip" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Starting Monthly SIP
+                  <label htmlFor="starting-sip" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Starting monthly SIP
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Initial monthly contribution in Year 1</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Initial contribution in Year 1</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="starting-sip"
                       type="text"
@@ -253,12 +262,12 @@ export default function StepUpSipCalculatorPage() {
                       autoComplete="off"
                       value={sipInput}
                       onChange={handleSipChange}
-                      className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {sipWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{sipWords}</div>}
                 </div>
               </div>
+              {sipWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{sipWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -267,20 +276,21 @@ export default function StepUpSipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(500000, Math.max(0, parsedSip))}
                 onChange={(e) => setSipInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(sipPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 2: Annual Step-Up % */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="annual-stepup" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Annual Step-Up Rate (%)
+                  <label htmlFor="annual-stepup" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Annual step-up rate (%)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Percentage increase in monthly deposit each year</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Percentage increase each year</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="annual-stepup"
                     type="text"
@@ -288,9 +298,9 @@ export default function StepUpSipCalculatorPage() {
                     autoComplete="off"
                     value={stepUpInput}
                     onChange={handleStepUpChange}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -301,20 +311,21 @@ export default function StepUpSipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(50, Math.max(0, parsedStepUp))}
                 onChange={(e) => setStepUpInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(stepUpPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 3: Expected Return */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="stepup-return" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Expected Return (p.a.)
+                  <label htmlFor="stepup-return" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Expected return rate (p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Assumed annual growth rate of mutual fund portfolio</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Assumed annual growth rate</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="stepup-return"
                     type="text"
@@ -322,9 +333,9 @@ export default function StepUpSipCalculatorPage() {
                     autoComplete="off"
                     value={returnInput}
                     onChange={handleReturnChange}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -335,21 +346,22 @@ export default function StepUpSipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(30, Math.max(0, parsedReturn))}
                 onChange={(e) => setReturnInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(returnPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 4: Duration */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="stepup-duration" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Investment Duration
+                  <label htmlFor="stepup-duration" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Investment duration
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total investment period in years</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Total investment period in years</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="stepup-duration"
                       type="text"
@@ -357,13 +369,13 @@ export default function StepUpSipCalculatorPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={handleYearsChange}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
                 </div>
               </div>
+              {yearsWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{yearsWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -372,71 +384,72 @@ export default function StepUpSipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(40, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
           {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Maturity Corpus</span>
-              <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Estimated Maturity Corpus</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(stepUpResult.totalValue))}
               </span>
-              <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 mt-1 block">
+              <span className="text-xs font-medium text-[var(--calc-accent)] mt-1.5 block">
                 +₹{formatIndianNumber(Math.round(extraWealth))} more than a flat SIP
               </span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Amount Invested</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(stepUpResult.investedAmount))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Amount Invested</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(stepUpResult.investedAmount))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Estimated Returns</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(stepUpResult.estimatedReturns))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Estimated Returns</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(stepUpResult.estimatedReturns))}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[var(--border)]">
-                <span className="text-[var(--text-secondary)] font-medium">Final Monthly SIP (Year {parsedYears})</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(finalMonthlySip))} / month</span>
+              <div className="flex justify-between pt-2.5 border-t border-[var(--calc-border)] text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Final Monthly SIP (Year {parsedYears})</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(finalMonthlySip))} / mo</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Step-Up vs Flat SIP Comparison Table */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-4 mb-12 shadow-xs">
-          <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">
+        <div className="bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-4 mb-10">
+          <h3 className="text-sm font-bold text-[var(--calc-text-primary)]">
             Step-Up SIP vs Regular Flat SIP Comparison ({parsedYears} Years @ {parsedReturn}% p.a.)
           </h3>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-[var(--calc-text-secondary)]">
             Compare how a {parsedStepUp}% annual top-up accelerates long-term wealth creation compared to maintaining a flat monthly deposit.
           </p>
 
           <div className="overflow-x-auto">
             <table className="financial-table text-xs w-full">
               <thead>
-                <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                <tr className="bg-[var(--bg-surface)] border-b border-[var(--calc-border)]">
                   <th className="px-4 py-3 text-left">SIP Strategy</th>
                   <th className="px-4 py-3 text-right">Total Invested</th>
                   <th className="px-4 py-3 text-right">Estimated Growth</th>
                   <th className="px-4 py-3 text-right">Final Maturity Value</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border)] tabular-nums">
-                <tr className="hover:bg-neutral-50 dark:hover:bg-[#121212]">
+              <tbody className="divide-y divide-[var(--calc-border)] tabular-nums">
+                <tr className="hover:bg-[var(--bg-surface)]">
                   <td className="px-4 py-3 font-semibold">Flat SIP (₹{formatIndianNumber(parsedSip)}/mo)</td>
-                  <td className="px-4 py-3 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(Math.round(flatSipResult.investedAmount))}</td>
-                  <td className="px-4 py-3 text-right text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(flatSipResult.estimatedReturns))}</td>
-                  <td className="px-4 py-3 text-right font-bold">₹{formatIndianNumber(Math.round(flatSipResult.totalValue))}</td>
+                  <td className="px-4 py-3 text-right text-[var(--calc-text-secondary)]">₹{formatIndianNumber(Math.round(flatSipResult.investedAmount))}</td>
+                  <td className="px-4 py-3 text-right text-[var(--calc-accent)]">₹{formatIndianNumber(Math.round(flatSipResult.estimatedReturns))}</td>
+                  <td className="px-4 py-3 text-right font-bold text-[var(--calc-text-primary)]">₹{formatIndianNumber(Math.round(flatSipResult.totalValue))}</td>
                 </tr>
                 <tr className="bg-teal-500/10 font-bold">
-                  <td className="px-4 py-3 text-teal-900 dark:text-teal-200">Step-Up SIP (+{parsedStepUp}%/yr)</td>
-                  <td className="px-4 py-3 text-right">₹{formatIndianNumber(Math.round(stepUpResult.investedAmount))}</td>
-                  <td className="px-4 py-3 text-right text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(stepUpResult.estimatedReturns))}</td>
-                  <td className="px-4 py-3 text-right text-teal-800 dark:text-teal-300 font-extrabold">₹{formatIndianNumber(Math.round(stepUpResult.totalValue))}</td>
+                  <td className="px-4 py-3 text-[var(--calc-accent)]">Step-Up SIP (+{parsedStepUp}%/yr)</td>
+                  <td className="px-4 py-3 text-right text-[var(--calc-text-primary)]">₹{formatIndianNumber(Math.round(stepUpResult.investedAmount))}</td>
+                  <td className="px-4 py-3 text-right text-[var(--calc-accent)]">₹{formatIndianNumber(Math.round(stepUpResult.estimatedReturns))}</td>
+                  <td className="px-4 py-3 text-right text-[var(--calc-accent)] font-extrabold">₹{formatIndianNumber(Math.round(stepUpResult.totalValue))}</td>
                 </tr>
               </tbody>
             </table>

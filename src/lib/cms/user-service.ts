@@ -1,6 +1,5 @@
 import "server-only";
 import { sql } from "@/lib/db";
-import { ensureCmsTables } from "./db-init";
 import { CmsUser, CmsUserInput, CmsUserRole, UnifiedUserInput } from "./types";
 import { normalizeEmail } from "./auth";
 

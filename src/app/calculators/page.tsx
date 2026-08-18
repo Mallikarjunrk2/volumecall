@@ -244,9 +244,9 @@ export default function CalculatorsHubPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <span className="text-[var(--foreground)] font-medium">Calculators</span>
@@ -254,30 +254,30 @@ export default function CalculatorsHubPage() {
 
         {/* Centered Page Hero */}
         <div className="text-center max-w-2xl sm:max-w-3xl mx-auto pt-2 pb-8 sm:pt-4 sm:pb-10">
-          <div className="inline-flex items-center justify-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2.5">
-            <Calculator className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+          <div className="inline-flex items-center justify-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-2">
+            <Calculator className="h-3.5 w-3.5" size={14} strokeWidth={1.8} aria-hidden="true" />
             <span>VolumeCall Financial Suite</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl lg:text-[40px] font-black tracking-tight text-neutral-950 dark:text-neutral-50 leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-[38px] font-bold tracking-tight text-[var(--text-primary)] leading-tight">
             Financial & Investment Calculators
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2.5 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 max-w-xl mx-auto leading-relaxed">
             Free, mathematically verified financial calculators to help you plan SIPs, loans, retirement, fixed-income investments, and stock valuations in India.
           </p>
         </div>
 
         {/* Categories Grid */}
-        <div className="space-y-12 mb-16 border-t border-[var(--border)] pt-8 sm:pt-10">
+        <div className="space-y-10 mb-16 border-t border-[var(--calc-border)] pt-8 sm:pt-10">
           {calculatorCategories.map((group, idx) => {
             const Icon = group.icon;
             return (
               <div key={idx} className="space-y-4">
-                <div className="flex items-center space-x-3 pb-2 border-b border-[var(--border)]">
-                  <div className="p-2 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 rounded-xl shrink-0">
-                    <Icon className="h-5 w-5" size={20} strokeWidth={1.8} aria-hidden="true" />
+                <div className="flex items-center space-x-3 pb-2.5 border-b border-[var(--calc-border)]">
+                  <div className="p-2 bg-[var(--calc-panel-bg)] text-[var(--calc-accent)] rounded-lg border border-[var(--calc-border)] shrink-0">
+                    <Icon className="h-4.5 w-4.5" size={18} strokeWidth={1.8} aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-neutral-950 dark:text-neutral-50">
+                    <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
                       {group.category}
                     </h2>
                     <p className="text-xs text-[var(--text-secondary)]">
@@ -291,30 +291,30 @@ export default function CalculatorsHubPage() {
                     <Link
                       key={cIdx}
                       href={calc.href}
-                      className="group p-5 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl hover:border-teal-700/50 dark:hover:border-teal-500/50 transition-all flex flex-col justify-between space-y-3 shadow-xs hover:shadow-sm"
+                      className="group p-5 bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl hover:border-[var(--calc-accent)] transition-all flex flex-col justify-between space-y-3"
                     >
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center space-x-2.5">
-                            <div className="p-1.5 bg-teal-500/10 text-teal-700 dark:text-teal-400 rounded-lg shrink-0">
-                              <CalculatorIcon slug={calc.slug} size={18} strokeWidth={1.8} className="h-4.5 w-4.5" />
+                            <div className="p-1.5 bg-[var(--calc-panel-bg)] text-[var(--calc-accent)] rounded-md border border-[var(--calc-border)] shrink-0">
+                              <CalculatorIcon slug={calc.slug} size={16} strokeWidth={1.8} className="h-4 w-4" />
                             </div>
-                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors">
+                            <h3 className="text-sm font-bold text-[var(--calc-text-primary)] group-hover:text-[var(--calc-accent)] transition-colors">
                               {calc.name}
                             </h3>
                           </div>
                           {calc.badge && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 rounded-full shrink-0">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 bg-[var(--calc-panel-bg)] text-[var(--calc-accent)] border border-[var(--calc-border)] rounded-full shrink-0">
                               {calc.badge}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                        <p className="text-xs text-[var(--calc-text-secondary)] leading-relaxed line-clamp-2">
                           {calc.description}
                         </p>
                       </div>
 
-                      <div className="flex items-center text-xs font-bold text-teal-700 dark:text-teal-400 pt-2 border-t border-[var(--border)] group-hover:translate-x-1 transition-transform">
+                      <div className="flex items-center text-xs font-semibold text-[var(--calc-accent)] pt-2.5 border-t border-[var(--calc-border)] group-hover:translate-x-0.5 transition-transform">
                         <span>Calculate Now</span>
                         <ArrowUpRight className="h-3.5 w-3.5 ml-1" size={14} strokeWidth={1.8} aria-hidden="true" />
                       </div>

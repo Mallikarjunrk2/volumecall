@@ -24,13 +24,13 @@ export default function RelatedCalculators({ currentRoute = "", className = "" }
 
   return (
     <section
-      className={`@container my-6 sm:my-8 border-t border-[var(--border)] pt-6 sm:pt-8 ${className}`}
+      className={`@container my-6 sm:my-8 border-t border-[var(--border-subtle)] pt-6 sm:pt-8 ${className}`}
       aria-labelledby="related-calculators-heading"
     >
       <div className="mb-4 sm:mb-5">
         <h2
           id="related-calculators-heading"
-          className="text-lg sm:text-xl font-bold text-neutral-950 dark:text-neutral-50 tracking-tight"
+          className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight"
         >
           Related Calculators
         </h2>
@@ -44,14 +44,14 @@ export default function RelatedCalculators({ currentRoute = "", className = "" }
           <Link
             key={card.slug}
             href={card.href}
-            className="group p-3.5 sm:p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl sm:rounded-2xl hover:border-teal-600/40 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 h-full"
+            className="group p-3.5 sm:p-4 bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl hover:border-[var(--calc-accent)] transition-all flex flex-col justify-between space-y-3 h-full"
           >
             <div className="space-y-2">
               <div className="flex items-start space-x-2.5">
-                <div className="p-1.5 sm:p-2 bg-teal-500/10 text-teal-700 dark:text-teal-400 rounded-lg sm:rounded-xl shrink-0 mt-0.5">
+                <div className="p-1.5 sm:p-2 bg-teal-500/10 text-[var(--calc-accent)] rounded-lg shrink-0 mt-0.5">
                   <CalculatorIcon slug={card.slug} size={18} strokeWidth={1.8} className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors leading-snug break-words">
+                <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] group-hover:text-[var(--calc-accent)] transition-colors leading-snug break-words">
                   {card.name}
                 </h3>
               </div>
@@ -60,7 +60,7 @@ export default function RelatedCalculators({ currentRoute = "", className = "" }
               </p>
             </div>
 
-            <div className="flex items-center text-xs font-bold text-teal-700 dark:text-teal-400 group-hover:translate-x-0.5 transition-transform pt-1">
+            <div className="flex items-center text-xs font-semibold text-[var(--calc-accent)] group-hover:translate-x-0.5 transition-transform pt-1">
               <span>Try Tool</span>
               <ArrowRight className="h-3.5 w-3.5 ml-1 shrink-0" size={14} strokeWidth={1.8} aria-hidden="true" />
             </div>

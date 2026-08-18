@@ -132,9 +132,9 @@ export default function TwrCalculatorPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -143,51 +143,53 @@ export default function TwrCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Gauge className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Gauge className="h-3.5 w-3.5" />
             <span>Fund Strategy Benchmark Performance</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Time-Weighted Return (TWR) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate the true investment strategy performance of a portfolio across sub-periods, neutralizing the timing distortions of cash deposits and withdrawals.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Form Controls */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
-            <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-5">
+            <div className="flex justify-between items-center pb-3 border-b border-[var(--calc-border)]">
               <div>
-                <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">Portfolio Sub-Periods</h3>
-                <span className="text-[11px] text-[var(--text-muted)]">Valuations at cash deposit/withdrawal events</span>
+                <h3 className="text-[15px] font-semibold text-[var(--calc-text-primary)]">Portfolio sub-periods</h3>
+                <span className="text-[11px] text-[var(--calc-text-muted)]">Valuations at cash deposit/withdrawal events</span>
               </div>
               <button
+                type="button"
                 onClick={addPeriod}
-                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors cursor-pointer"
+                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[var(--bg-subtle)] border border-[var(--calc-border)] text-[var(--calc-accent)] rounded-lg text-xs font-semibold hover:border-[var(--calc-accent)] transition-all cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Sub-Period</span>
               </button>
             </div>
 
-            <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1">
+            <div className="space-y-3.5 max-h-[360px] overflow-y-auto pr-1">
               {periods.map((p, idx) => (
-                <div key={idx} className="p-3 bg-neutral-50/50 dark:bg-[#121212]/50 border border-[var(--border)] rounded-xl space-y-2 text-xs">
+                <div key={idx} className="p-3.5 bg-[var(--bg-subtle)] border border-[var(--calc-border)] rounded-lg space-y-2.5 text-xs">
                   <div className="flex justify-between items-center">
                     <input
                       type="text"
                       value={p.name}
                       onChange={(e) => handlePeriodChange(idx, "name", e.target.value)}
-                      className="font-bold text-neutral-900 dark:text-neutral-100 bg-transparent border-b border-transparent hover:border-[var(--border)] focus:border-teal-600 focus:outline-none"
+                      className="font-bold text-[var(--calc-text-primary)] bg-transparent border-b border-transparent hover:border-[var(--calc-border)] focus:border-[var(--calc-accent)] focus:outline-none text-xs"
                     />
                     {periods.length > 1 && (
                       <button
+                        type="button"
                         onClick={() => removePeriod(idx)}
-                        className="text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer p-1"
+                        className="text-[var(--calc-text-muted)] hover:text-rose-600 transition-colors cursor-pointer p-1"
                         title="Remove period"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -195,32 +197,32 @@ export default function TwrCalculatorPage() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-2.5">
                     <div>
-                      <span className="text-[10px] text-[var(--text-muted)] block mb-1">Start Value (₹)</span>
+                      <span className="text-[10px] font-medium text-[var(--calc-text-muted)] block mb-1">Start Value (₹)</span>
                       <input
                         type="text"
                         value={p.startVal}
                         onChange={(e) => handlePeriodChange(idx, "startVal", e.target.value)}
-                        className="w-full px-2 py-1 border border-[var(--border)] bg-white dark:bg-[#0a0a0a] text-right font-semibold rounded focus:outline-none tabular-nums"
+                        className="w-full px-2.5 py-1 border border-[var(--calc-border-input)] bg-[var(--calc-card-bg)] text-right font-bold text-[var(--calc-text-primary)] rounded-md focus:outline-none focus:border-[var(--calc-accent)] tabular-nums"
                       />
                     </div>
                     <div>
-                      <span className="text-[10px] text-[var(--text-muted)] block mb-1">End Value Pre-CF (₹)</span>
+                      <span className="text-[10px] font-medium text-[var(--calc-text-muted)] block mb-1">End Value Pre-CF (₹)</span>
                       <input
                         type="text"
                         value={p.endValBeforeCf}
                         onChange={(e) => handlePeriodChange(idx, "endValBeforeCf", e.target.value)}
-                        className="w-full px-2 py-1 border border-[var(--border)] bg-white dark:bg-[#0a0a0a] text-right font-semibold rounded focus:outline-none tabular-nums"
+                        className="w-full px-2.5 py-1 border border-[var(--calc-border-input)] bg-[var(--calc-card-bg)] text-right font-bold text-[var(--calc-text-primary)] rounded-md focus:outline-none focus:border-[var(--calc-accent)] tabular-nums"
                       />
                     </div>
                     <div>
-                      <span className="text-[10px] text-[var(--text-muted)] block mb-1">Net Cash Flow (₹)</span>
+                      <span className="text-[10px] font-medium text-[var(--calc-text-muted)] block mb-1">Net Cash Flow (₹)</span>
                       <input
                         type="text"
                         value={p.cashFlow}
                         onChange={(e) => handlePeriodChange(idx, "cashFlow", e.target.value)}
-                        className="w-full px-2 py-1 border border-[var(--border)] bg-white dark:bg-[#0a0a0a] text-right font-semibold rounded focus:outline-none tabular-nums"
+                        className="w-full px-2.5 py-1 border border-[var(--calc-border-input)] bg-[var(--calc-card-bg)] text-right font-bold text-[var(--calc-text-primary)] rounded-md focus:outline-none focus:border-[var(--calc-accent)] tabular-nums"
                       />
                     </div>
                   </div>
@@ -230,27 +232,27 @@ export default function TwrCalculatorPage() {
           </div>
 
           {/* Primary Output Summary Card */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Cumulative Time-Weighted Return (TWR)</span>
-              <span className={`text-3xl sm:text-4xl font-black tabular-nums block mt-1 ${result.twrPercentage >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Cumulative Time-Weighted Return (TWR)</span>
+              <span className={`text-3xl sm:text-4xl font-extrabold tabular-nums block mt-1 ${result.twrPercentage >= 0 ? "text-[var(--calc-accent)]" : "text-rose-600 dark:text-rose-400"}`}>
                 {result.twrPercentage >= 0 ? "+" : ""}{result.twrPercentage.toFixed(2)}%
               </span>
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-[var(--border)] text-xs">
-              <span className="font-bold text-neutral-800 dark:text-neutral-200 block mb-1">Sub-Period Performance Breakdown</span>
+            <div className="space-y-3 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <span className="font-bold text-[var(--calc-text-primary)] block mb-1">Sub-Period Performance Breakdown</span>
               {result.subPeriods.map((sp, idx) => (
-                <div key={idx} className="flex justify-between items-center">
-                  <span className="text-[var(--text-secondary)] font-medium">{periods[idx]?.name || `Period ${idx + 1}`}</span>
-                  <span className={`font-bold tabular-nums ${sp.subPeriodReturn >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
+                <div key={idx} className="flex justify-between items-center text-[var(--calc-text-secondary)]">
+                  <span className="font-medium">{periods[idx]?.name || `Period ${idx + 1}`}</span>
+                  <span className={`font-bold tabular-nums ${sp.subPeriodReturn >= 0 ? "text-[var(--calc-accent)]" : "text-rose-600 dark:text-rose-400"}`}>
                     {sp.subPeriodReturn >= 0 ? "+" : ""}{(sp.subPeriodReturn * 100).toFixed(2)}%
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="p-3 bg-white dark:bg-[#1a1a1a] border border-[var(--border)] rounded-xl text-xs text-[var(--text-secondary)] leading-relaxed">
+            <div className="p-3 bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-lg text-xs text-[var(--calc-text-secondary)] leading-relaxed">
               TWR neutralizes the impact of external capital additions/withdrawals to show pure investment skill.
             </div>
           </div>

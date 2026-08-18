@@ -186,12 +186,21 @@ export default function SwpCalculatorPage() {
   const annualWithdrawalRate = parsedCorpus > 0 ? ((parsedWithdrawal * 12) / parsedCorpus) * 100 : 0;
   const isCorpusSustainable = result.remainingCorpus > 0 && result.monthsSurvived >= parsedYears * 12;
 
+  const corpusPercent = Math.min(100, Math.max(0, (parsedCorpus / 20000000) * 100));
+  const withdrawalPercent = Math.min(100, Math.max(0, (parsedWithdrawal / 200000) * 100));
+  const returnPercent = Math.min(100, Math.max(0, (parsedReturn / 25) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 40) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumbs */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -200,35 +209,35 @@ export default function SwpCalculatorPage() {
         </div>
 
         {/* Page Title & Intro */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <ArrowDownRight className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <ArrowDownRight className="h-3.5 w-3.5" />
             <span>Regular Cashflow & Pension Planning</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Systematic Withdrawal Plan (SWP) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate regular monthly cash withdrawals from your mutual fund portfolio, estimate total income payouts, and track remaining corpus longevity over time.
           </p>
         </div>
 
         {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 calc-grid mb-10">
           {/* Left Column: Input Form Controls */}
-          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             {/* Input 1: Initial Corpus */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="swp-corpus" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Total Investment Corpus
+                  <label htmlFor="swp-corpus" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Total investment corpus
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Starting capital available for withdrawals</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Starting capital for withdrawals</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="swp-corpus"
                       type="text"
@@ -236,12 +245,12 @@ export default function SwpCalculatorPage() {
                       autoComplete="off"
                       value={corpusInput}
                       onChange={handleCorpusChange}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {corpusWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{corpusWords}</div>}
                 </div>
               </div>
+              {corpusWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{corpusWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -250,22 +259,23 @@ export default function SwpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(20000000, Math.max(0, parsedCorpus))}
                 onChange={(e) => setCorpusInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(corpusPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 2: Monthly Withdrawal */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="swp-withdrawal" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Monthly Withdrawal Amount
+                  <label htmlFor="swp-withdrawal" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Monthly withdrawal amount
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Target monthly cash payout required</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Target cash payout required</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="swp-withdrawal"
                       type="text"
@@ -273,12 +283,12 @@ export default function SwpCalculatorPage() {
                       autoComplete="off"
                       value={withdrawalInput}
                       onChange={handleWithdrawalChange}
-                      className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {withdrawalWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{withdrawalWords}</div>}
                 </div>
               </div>
+              {withdrawalWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{withdrawalWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -287,20 +297,21 @@ export default function SwpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(200000, Math.max(0, parsedWithdrawal))}
                 onChange={(e) => setWithdrawalInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(withdrawalPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 3: Expected Return */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="swp-return" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Expected Return (% p.a.)
+                  <label htmlFor="swp-return" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Expected return rate (p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Assumed annual rate of return on remaining corpus</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Assumed annual rate of return</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="swp-return"
                     type="text"
@@ -308,9 +319,9 @@ export default function SwpCalculatorPage() {
                     autoComplete="off"
                     value={returnInput}
                     onChange={handleReturnChange}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -321,21 +332,22 @@ export default function SwpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(25, Math.max(0, parsedReturn))}
                 onChange={(e) => setReturnInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(returnPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 4: Duration */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="swp-duration" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Withdrawal Period (Years)
+                  <label htmlFor="swp-duration" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Withdrawal duration
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Number of years you plan to withdraw cash</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Number of years to withdraw</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="swp-duration"
                       type="text"
@@ -343,13 +355,13 @@ export default function SwpCalculatorPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={handleYearsChange}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
                 </div>
               </div>
+              {yearsWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{yearsWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -358,39 +370,40 @@ export default function SwpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(40, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
           {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Total Withdrawals Paid Out</span>
-              <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Total Withdrawals Paid Out</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(result.totalWithdrawals))}
               </span>
-              <span className={`text-xs font-semibold mt-1 block ${isCorpusSustainable ? "text-teal-700 dark:text-teal-400" : "text-amber-600 dark:text-amber-400"}`}>
+              <span className={`text-xs font-medium mt-1.5 block ${isCorpusSustainable ? "text-[var(--calc-accent)]" : "text-amber-500"}`}>
                 {isCorpusSustainable ? "✓ Corpus survives selected tenure" : "⚠ Corpus exhausted before end of tenure"}
               </span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Initial Corpus</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.startingCorpus))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Initial Corpus</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result.startingCorpus))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Remaining Final Corpus</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.remainingCorpus))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Remaining Final Corpus</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result.remainingCorpus))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Annual Withdrawal Rate</span>
-                <span className="font-bold tabular-nums">{annualWithdrawalRate.toFixed(2)}% p.a.</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Annual Withdrawal Rate</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">{annualWithdrawalRate.toFixed(2)}% p.a.</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[var(--border)]">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Corpus Longevity</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">{result.monthsSurvived} Months ({result.yearsSurvived.toFixed(1)} Years)</span>
+              <div className="flex justify-between pt-2.5 border-t border-[var(--calc-border)] text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Corpus Longevity</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">{result.monthsSurvived} Months ({result.yearsSurvived.toFixed(1)} Years)</span>
               </div>
             </div>
           </div>

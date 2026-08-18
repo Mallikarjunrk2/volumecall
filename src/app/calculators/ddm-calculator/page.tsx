@@ -101,12 +101,19 @@ export default function DdmCalculatorPage() {
     ? ((result.fairValue - parsedCurrentPrice) / parsedCurrentPrice) * 100
     : 0;
 
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
+  const d0Percent = Math.min(100, Math.max(0, (Math.min(200, Math.max(0, parsedD0)) / 200) * 100));
+  const growthPercent = Math.min(100, Math.max(0, (Math.min(20, Math.max(0, parsedGrowth)) / 20) * 100));
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -115,41 +122,41 @@ export default function DdmCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Coins className="h-4 w-4" />
-            <span>Gordon Growth Dividend Valuation</span>
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Coins className="h-3.5 w-3.5" />
+            <span>Gordon Growth Valuation Model</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Dividend Discount Model (DDM) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
-            Estimate the intrinsic fair stock price of dividend-paying companies using the Gordon Growth formula, perpetual dividend expansion, and Cost of Equity (Ke).
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
+            Estimate intrinsic fair value for dividend-paying companies using perpetual dividend growth forecasts and cost of equity.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Form Controls */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             {/* Input 1: Current Annual Dividend (D0) */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="ddm-d0" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Current Annual Dividend Per Share (D₀)
+                  <label htmlFor="ddm-d0" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Current annual dividend per share (D₀)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total dividend paid per share over last 12 months</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Total dividend paid per share over last 12 months</span>
                 </div>
-                <div className="relative flex items-center">
-                  <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                   <input
                     id="ddm-d0"
                     type="text"
                     inputMode="decimal"
                     value={d0Input}
                     onChange={(e) => setD0Input(e.target.value)}
-                    className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
                 </div>
               </div>
@@ -160,29 +167,31 @@ export default function DdmCalculatorPage() {
                 step="0.5"
                 value={Math.min(200, Math.max(0, parsedD0))}
                 onChange={(e) => setD0Input(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(d0Percent)}
+                className="financial-slider w-full"
+                aria-label="Current Annual Dividend Per Share"
               />
             </div>
 
             {/* Input 2: Dividend Growth Rate */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="ddm-g" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Perpetual Dividend Growth Rate (g % p.a.)
+                  <label htmlFor="ddm-g" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Perpetual dividend growth rate (g % p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Expected long-term annual dividend growth</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Expected long-term annual dividend growth</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="ddm-g"
                     type="text"
                     inputMode="decimal"
                     value={growthInput}
                     onChange={(e) => setGrowthInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-24 sm:w-32 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -192,42 +201,44 @@ export default function DdmCalculatorPage() {
                 step="0.25"
                 value={Math.min(20, Math.max(0, parsedGrowth))}
                 onChange={(e) => setGrowthInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(growthPercent)}
+                className="financial-slider w-full"
+                aria-label="Perpetual Dividend Growth Rate"
               />
             </div>
 
             {/* Input 3 & 4: Cost of Equity & Current Price */}
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)] text-xs">
+            <div className="grid grid-cols-2 gap-4 pt-5 border-t border-[var(--calc-border)] text-xs">
               <div>
-                <label htmlFor="ddm-ke" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Cost of Equity / Required Return (Kₑ %)
+                <label htmlFor="ddm-ke" className="text-[13px] font-semibold text-[var(--calc-text-primary)] block mb-1">
+                  Cost of equity / required return (Kₑ %)
                 </label>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="ddm-ke"
                     type="text"
                     inputMode="decimal"
                     value={keInput}
                     onChange={(e) => setKeInput(e.target.value)}
-                    className="w-full pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full bg-transparent text-right text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-xs text-[var(--calc-text-muted)] ml-1">%</span>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="ddm-curr-price" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Current Market Price (₹) (Optional)
+                <label htmlFor="ddm-curr-price" className="text-[13px] font-semibold text-[var(--calc-text-primary)] block mb-1">
+                  Current price (₹) (Optional)
                 </label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                  <span className="text-xs text-[var(--calc-text-muted)] mr-1 select-none">₹</span>
                   <input
                     id="ddm-curr-price"
                     type="text"
                     inputMode="decimal"
                     value={currentPriceInput}
                     onChange={(e) => setCurrentPriceInput(e.target.value)}
-                    className="w-full pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full bg-transparent text-right text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
                 </div>
               </div>
@@ -235,37 +246,37 @@ export default function DdmCalculatorPage() {
           </div>
 
           {/* Primary Output Summary Card */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Fair Intrinsic Value</span>
-              <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Estimated Fair Intrinsic Value</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-accent)] tabular-nums block mt-1">
                 ₹{result ? result.fairValue.toFixed(2) : "N/A (Ke must be > g)"}
               </span>
               {result && parsedCurrentPrice > 0 && (
-                <span className={`text-xs font-semibold mt-1 block ${upsideDownside >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
+                <span className={`text-xs font-semibold mt-1.5 block ${upsideDownside >= 0 ? "text-[var(--calc-accent)]" : "text-rose-600 dark:text-rose-400"}`}>
                   {upsideDownside >= 0 ? "+" : ""}{upsideDownside.toFixed(1)}% {upsideDownside >= 0 ? "Potential Upside" : "Potential Overvaluation"}
                 </span>
               )}
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Expected Next Year Dividend (D₁)</span>
-                <span className="font-bold tabular-nums">₹{result ? result.d1.toFixed(2) : "0.00"}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Expected Next Year Dividend (D₁)</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{result ? result.d1.toFixed(2) : "0.00"}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Current Trailing Dividend Yield</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">{currentYield.toFixed(2)}%</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Current Trailing Dividend Yield</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">{currentYield.toFixed(2)}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Equity Risk Spread (Ke - g)</span>
-                <span className="font-bold tabular-nums">{((parsedKe - parsedGrowth)).toFixed(2)}%</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Equity Risk Spread (Ke - g)</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">{((parsedKe - parsedGrowth)).toFixed(2)}%</span>
               </div>
             </div>
 
             <Link
               href="/calculators/dcf-calculator"
-              className="inline-flex items-center justify-between px-4 py-2.5 bg-white dark:bg-[#1a1a1a] border border-[var(--border)] rounded-xl text-xs font-bold text-teal-700 dark:text-teal-400 hover:bg-neutral-50 transition-colors"
+              className="inline-flex items-center justify-between px-4 py-2.5 bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-lg text-xs font-semibold text-[var(--calc-accent)] hover:border-[var(--calc-accent)] transition-all"
             >
               <span>For non-dividend growth stocks, use DCF Model</span>
               <ArrowRight className="h-3.5 w-3.5 ml-2" />

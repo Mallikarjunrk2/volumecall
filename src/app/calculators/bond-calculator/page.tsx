@@ -179,12 +179,21 @@ export default function BondCalculatorPage() {
     ? (annualCouponAmount / priceResult) * 100
     : (annualCouponAmount / parsedPrice) * 100;
 
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
+  const fvPercent = Math.min(100, Math.max(0, ((Math.min(100000, Math.max(100, parsedFaceValue)) - 100) / (100000 - 100)) * 100));
+  const couponPercent = Math.min(100, Math.max(0, (Math.min(20, Math.max(0, parsedCouponRate)) / 20) * 100));
+  const ytmPercent = Math.min(100, Math.max(0, ((Math.min(25, Math.max(0.1, parsedYtm)) - 0.1) / (25 - 0.1)) * 100));
+  const tenurePercent = Math.min(100, Math.max(0, ((Math.min(30, Math.max(1, parsedTenure)) - 1) / (30 - 1)) * 100));
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -193,38 +202,40 @@ export default function BondCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <ShieldCheck className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <ShieldCheck className="h-3.5 w-3.5" />
             <span>Debt Securities Valuation</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Bond Price & Yield to Maturity (YTM) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate bond market prices, Yield to Maturity (YTM), and coupon cash flows for Indian government securities (G-Secs) and corporate bonds.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                Calculation Mode
+              <label className="text-[13px] font-semibold text-[var(--calc-text-primary)] block">
+                Calculation mode
               </label>
-              <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs">
+              <div className="inline-flex p-1 bg-[var(--calc-panel-bg)] border border-[var(--calc-border)] rounded-lg font-semibold text-xs">
                 <button
+                  type="button"
                   onClick={() => setCalcMode("price")}
-                  className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    calcMode === "price" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                    calcMode === "price" ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] border border-[var(--calc-border)] shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Calculate Fair Bond Price
                 </button>
                 <button
+                  type="button"
                   onClick={() => setCalcMode("ytm")}
-                  className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    calcMode === "ytm" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                    calcMode === "ytm" ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] border border-[var(--calc-border)] shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Calculate YTM (Yield)
@@ -232,17 +243,17 @@ export default function BondCalculatorPage() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="bond-fv" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Face Value / Par Value
+                  <label htmlFor="bond-fv" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Face value / par value
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Principal amount repaid at maturity</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Principal amount repaid at maturity</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="bond-fv"
                       type="text"
@@ -253,10 +264,10 @@ export default function BondCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setFaceValueInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {faceValueWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{faceValueWords}</div>}
+                  {faceValueWords && <div className="text-xs font-semibold text-[var(--calc-accent)] text-right">{faceValueWords}</div>}
                 </div>
               </div>
               <input
@@ -267,19 +278,21 @@ export default function BondCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(100000, Math.max(100, parsedFaceValue))}
                 onChange={(e) => setFaceValueInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(fvPercent)}
+                className="financial-slider w-full"
+                aria-label="Face Value"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="bond-coupon" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Annual Coupon Rate (% p.a.)
+                  <label htmlFor="bond-coupon" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Annual coupon rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Fixed interest rate on face value</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Fixed interest rate on face value</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="bond-coupon"
                     type="text"
@@ -287,9 +300,9 @@ export default function BondCalculatorPage() {
                     autoComplete="off"
                     value={couponRateInput}
                     onChange={(e) => setCouponRateInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-24 sm:w-32 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -300,20 +313,22 @@ export default function BondCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(20, Math.max(0, parsedCouponRate))}
                 onChange={(e) => setCouponRateInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(couponPercent)}
+                className="financial-slider w-full"
+                aria-label="Annual Coupon Rate"
               />
             </div>
 
             {calcMode === "price" ? (
-              <div className="space-y-3">
-                <div className="flex justify-between items-start">
+              <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+                <div className="flex justify-between items-center gap-4">
                   <div>
-                    <label htmlFor="bond-ytm-req" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
+                    <label htmlFor="bond-ytm-req" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
                       Required Yield to Maturity (% p.a.)
                     </label>
-                    <span className="text-[11px] text-[var(--text-muted)]">Market discount rate / investor required return</span>
+                    <span className="text-[11px] text-[var(--calc-text-muted)]">Market discount rate / investor required return</span>
                   </div>
-                  <div className="relative flex items-center">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="bond-ytm-req"
                       type="text"
@@ -321,9 +336,9 @@ export default function BondCalculatorPage() {
                       autoComplete="off"
                       value={ytmInput}
                       onChange={(e) => setYtmInput(e.target.value)}
-                      className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-24 sm:w-32 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                   </div>
                 </div>
                 <input
@@ -334,46 +349,46 @@ export default function BondCalculatorPage() {
                   autoComplete="off"
                   value={Math.min(25, Math.max(0.1, parsedYtm))}
                   onChange={(e) => setYtmInput(e.target.value)}
-                  className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                  style={getSliderTrackStyle(ytmPercent)}
+                  className="financial-slider w-full"
+                  aria-label="Required Yield to Maturity"
                 />
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="flex justify-between items-start">
+              <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+                <div className="flex justify-between items-center gap-4">
                   <div>
-                    <label htmlFor="bond-price-curr" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                      Current Traded Market Price (₹)
+                    <label htmlFor="bond-price-curr" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                      Current traded market price (₹)
                     </label>
-                    <span className="text-[11px] text-[var(--text-muted)]">Current clean price in the market</span>
+                    <span className="text-[11px] text-[var(--calc-text-muted)]">Current clean price in the market</span>
                   </div>
-                  <div className="flex flex-col items-end space-y-1">
-                    <div className="relative flex items-center">
-                      <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
-                      <input
-                        id="bond-price-curr"
-                        type="text"
-                        inputMode="decimal"
-                        autoComplete="off"
-                        value={priceInput}
-                        onChange={(e) => setPriceInput(e.target.value)}
-                        className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
-                      />
-                    </div>
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
+                    <input
+                      id="bond-price-curr"
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={priceInput}
+                      onChange={(e) => setPriceInput(e.target.value)}
+                      className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
+                    />
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="bond-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Tenure / Years to Maturity
+                  <label htmlFor="bond-tenure" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Tenure / years to maturity
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Remaining time until principal repayment</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Remaining time until principal repayment</span>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="bond-tenure"
                       type="text"
@@ -381,11 +396,11 @@ export default function BondCalculatorPage() {
                       autoComplete="off"
                       value={tenureInput}
                       onChange={(e) => setTenureInput(e.target.value.replace(/[^0-9]/g, ""))}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-24 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {tenureWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{tenureWords}</div>}
+                  {tenureWords && <div className="text-xs font-semibold text-[var(--calc-accent)] text-right">{tenureWords}</div>}
                 </div>
               </div>
               <input
@@ -396,35 +411,40 @@ export default function BondCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(30, Math.max(1, parsedTenure))}
                 onChange={(e) => setTenureInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(tenurePercent)}
+                className="financial-slider w-full"
+                aria-label="Tenure in Years"
               />
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-[var(--border)]">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                Coupon Payout Frequency
+            <div className="space-y-2 pt-5 border-t border-[var(--calc-border)]">
+              <label className="text-[13px] font-semibold text-[var(--calc-text-primary)] block">
+                Coupon payout frequency
               </label>
-              <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs">
+              <div className="inline-flex p-1 bg-[var(--calc-panel-bg)] border border-[var(--calc-border)] rounded-lg font-semibold text-xs">
                 <button
+                  type="button"
                   onClick={() => setFrequency(1)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    frequency === 1 ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                    frequency === 1 ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] border border-[var(--calc-border)] shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Annual (1x)
                 </button>
                 <button
+                  type="button"
                   onClick={() => setFrequency(2)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    frequency === 2 ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                    frequency === 2 ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] border border-[var(--calc-border)] shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Semi-Annual (2x)
                 </button>
                 <button
+                  type="button"
                   onClick={() => setFrequency(4)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    frequency === 4 ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                    frequency === 4 ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] border border-[var(--calc-border)] shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Quarterly (4x)
@@ -433,38 +453,45 @@ export default function BondCalculatorPage() {
             </div>
           </div>
 
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             {calcMode === "price" ? (
               <div>
-                <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Fair Bond Price</span>
-                <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+                <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Estimated Fair Bond Price</span>
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-accent)] tabular-nums block mt-1">
                   ₹{priceResult.toFixed(2)}
                 </span>
-                <span className={`text-xs font-semibold mt-1 block ${priceResult > parsedFaceValue ? "text-teal-700 dark:text-teal-400" : "text-amber-600 dark:text-amber-400"}`}>
+                <span className={`text-xs font-semibold mt-1.5 block ${priceResult > parsedFaceValue ? "text-[var(--calc-accent)]" : "text-amber-600 dark:text-amber-400"}`}>
                   {priceResult > parsedFaceValue ? "Trading at a Premium (Price > Face Value)" : priceResult < parsedFaceValue ? "Trading at a Discount (Price < Face Value)" : "Trading at Par (Price = Face Value)"}
                 </span>
               </div>
             ) : (
               <div>
-                <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Yield to Maturity (YTM)</span>
-                <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+                <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Yield to Maturity (YTM)</span>
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-accent)] tabular-nums block mt-1">
                   {ytmResult !== null ? `${ytmResult.toFixed(2)}% p.a.` : "N/A"}
                 </span>
               </div>
             )}
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Annual Coupon Payout</span>
-                <span className="font-bold tabular-nums">₹{annualCouponAmount.toFixed(2)} / year</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Annual Coupon Payout</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{annualCouponAmount.toFixed(2)} / year</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Periodic Coupon Payout</span>
-                <span className="font-bold tabular-nums">₹{(annualCouponAmount / frequency).toFixed(2)} / period</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Current Yield</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">{currentYield.toFixed(2)}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Current Yield</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">{currentYield.toFixed(2)}%</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Coupon Payments Count</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">{(parsedTenure * frequency).toFixed(0)} payouts</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[var(--calc-panel-bg)] border border-[var(--calc-border)] rounded-lg text-xs space-y-1">
+              <div className="font-bold text-[var(--calc-text-primary)]">Pricing Relationship Rules:</div>
+              <div className="text-[var(--calc-text-secondary)] leading-relaxed">
+                When Coupon Rate &gt; YTM, Bond trades at a <strong>Premium</strong> (&gt; Par). When Coupon Rate &lt; YTM, Bond trades at a <strong>Discount</strong> (&lt; Par).
               </div>
             </div>
           </div>

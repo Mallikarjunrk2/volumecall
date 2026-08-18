@@ -108,15 +108,13 @@ function formatDurationToWords(valStr: string): string {
 }
 
 export default function SipCalculatorPage() {
-  // 1. Raw string input states initialized to "0" (fresh page / refresh starts at 0 / 0% / 0 Years)
-  const [paymentInput, setPaymentInput] = useState<string>("0");
-  const [returnInput, setReturnInput] = useState<string>("0");
-  const [yearsInput, setYearsInput] = useState<string>("0");
+  // 1. Raw string input states initialized to standard sensible defaults (₹25,000 / 12% / 10 Years)
+  const [paymentInput, setPaymentInput] = useState<string>("25,000");
+  const [returnInput, setReturnInput] = useState<string>("12");
+  const [yearsInput, setYearsInput] = useState<string>("10");
 
   // 2. Schedule & FAQ Toggle State
   const [showSchedule, setShowSchedule] = useState<boolean>(false);
-  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
-  const [paymentTiming, setPaymentTiming] = useState<"end" | "beginning">("end");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Helper to format raw integer digits into Indian number format
@@ -215,9 +213,21 @@ export default function SipCalculatorPage() {
   const principalPercentage = totalValue > 0 ? (investedAmount / totalValue) * 100 : 50;
   const interestPercentage = 100 - principalPercentage;
 
-  // Circle perimeter for SVG stroke-dasharray (radius = 50, perimeter = 2 * PI * r = 314.16)
-  const strokePerimeter = 314.16;
-  const interestDash = strokePerimeter - (principalPercentage / 100) * strokePerimeter;
+  // Circle perimeter for SVG stroke-dasharray (radius = 48, perimeter = 2 * PI * r = 301.59)
+  const strokePerimeter = 301.59;
+  
+  // Exact non-overlapping arc lengths
+  const principalArcLength = (principalPercentage / 100) * strokePerimeter;
+  const interestArcLength = (interestPercentage / 100) * strokePerimeter;
+
+  // Slider Fill Progress Percentages
+  const paymentPercent = Math.min(100, Math.max(0, (parsedPayment / 2000000) * 100));
+  const returnPercent = Math.min(100, Math.max(0, (parsedReturn / 30) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 40) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
 
   // FAQ Items array matching layout.tsx structured data
   const faqItems = [
@@ -315,9 +325,9 @@ export default function SipCalculatorPage() {
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
 
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumbs */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -326,33 +336,33 @@ export default function SipCalculatorPage() {
         </div>
 
         {/* Title Section */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Calculator className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Calculator className="h-3.5 w-3.5" size={14} strokeWidth={2} aria-hidden="true" />
             <span>Systematic Investment Planning</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
-            Systematic Investment Plan (SIP) Calculator
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+            SIP Calculator
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
-            Use our SIP Calculator to estimate how much your monthly investments could grow over time. Enter your monthly SIP amount, expected annual return and investment duration to calculate your total investment, estimated returns and potential maturity value.
+            Calculate expected maturity wealth and compound interest on monthly mutual fund SIP investments.
           </p>
         </div>
 
         {/* Calculator Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 calc-grid mb-10">
           {/* Left Column: Form Controls */}
-          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             
             {/* Input 1: Monthly Investment */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <label htmlFor="sip-monthly-investment" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider pt-2">
-                  Monthly Investment
+              <div className="flex justify-between items-center gap-4">
+                <label htmlFor="sip-monthly-investment" className="text-[15px] font-semibold text-[var(--calc-text-primary)]">
+                  Monthly investment
                 </label>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="sip-monthly-investment"
                       type="text"
@@ -360,22 +370,22 @@ export default function SipCalculatorPage() {
                       autoComplete="off"
                       value={paymentInput}
                       onChange={handlePaymentChange}
-                      className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {/* Live Number Words - Positioned directly underneath input box */}
-                  {paymentWords && (
-                    <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
-                      {paymentWords}
-                    </div>
-                  )}
-                  {paymentError && (
-                    <p className="text-xs text-red-500 font-medium text-right">{paymentError}</p>
-                  )}
                 </div>
               </div>
 
-              {/* Horizontal Range Slider starting at min=0 */}
+              {paymentWords && (
+                <div className="text-xs font-medium text-[var(--calc-accent)] text-right">
+                  {paymentWords}
+                </div>
+              )}
+              {paymentError && (
+                <p className="text-xs text-red-500 font-medium text-right">{paymentError}</p>
+              )}
+
+              {/* Horizontal Range Slider */}
               <input
                 type="range"
                 min="0"
@@ -387,18 +397,19 @@ export default function SipCalculatorPage() {
                   const val = Number(e.target.value);
                   setPaymentInput(formatIndianNumber(val));
                 }}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(paymentPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 2: Expected Return Rate */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <label htmlFor="sip-expected-return" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider pt-2">
-                  Expected Return (p.a.)
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
+                <label htmlFor="sip-expected-return" className="text-[15px] font-semibold text-[var(--calc-text-primary)]">
+                  Expected return rate (p.a.)
                 </label>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="sip-expected-return"
                       type="text"
@@ -406,23 +417,23 @@ export default function SipCalculatorPage() {
                       autoComplete="off"
                       value={returnInput}
                       onChange={handleReturnChange}
-                      className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                   </div>
-                  {/* Live Number Words - Positioned directly underneath input box */}
-                  {returnWords && (
-                    <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
-                      {returnWords}
-                    </div>
-                  )}
-                  {returnError && (
-                    <p className="text-xs text-red-500 font-medium text-right">{returnError}</p>
-                  )}
                 </div>
               </div>
 
-              {/* Horizontal Range Slider starting at min=0 */}
+              {returnWords && (
+                <div className="text-xs font-medium text-[var(--calc-accent)] text-right">
+                  {returnWords}
+                </div>
+              )}
+              {returnError && (
+                <p className="text-xs text-red-500 font-medium text-right">{returnError}</p>
+              )}
+
+              {/* Horizontal Range Slider */}
               <input
                 type="range"
                 min="0"
@@ -431,18 +442,19 @@ export default function SipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(30, Math.max(0, parsedReturn))}
                 onChange={(e) => setReturnInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(returnPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 3: Duration */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <label htmlFor="sip-time-period" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider pt-2">
-                  Investment Duration
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
+                <label htmlFor="sip-time-period" className="text-[15px] font-semibold text-[var(--calc-text-primary)]">
+                  Investment duration
                 </label>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="sip-time-period"
                       type="text"
@@ -450,23 +462,23 @@ export default function SipCalculatorPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={handleYearsChange}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {/* Live Number Words - Positioned directly underneath input box */}
-                  {yearsWords && (
-                    <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
-                      {yearsWords}
-                    </div>
-                  )}
-                  {yearsError && (
-                    <p className="text-xs text-red-500 font-medium text-right">{yearsError}</p>
-                  )}
                 </div>
               </div>
 
-              {/* Horizontal Range Slider starting at min=0 */}
+              {yearsWords && (
+                <div className="text-xs font-medium text-[var(--calc-accent)] text-right">
+                  {yearsWords}
+                </div>
+              )}
+              {yearsError && (
+                <p className="text-xs text-red-500 font-medium text-right">{yearsError}</p>
+              )}
+
+              {/* Horizontal Range Slider */}
               <input
                 type="range"
                 min="0"
@@ -475,101 +487,111 @@ export default function SipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(40, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
 
           </div>
 
           {/* Right Column: Visual Summary and Analytics */}
-          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#0a0a0a]/50 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between min-h-[380px] shadow-xs">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between min-h-[360px]">
             <div>
-              <h3 className="text-sm font-bold text-neutral-850 dark:text-neutral-150 uppercase tracking-wider mb-6">
-                Investment Summary
-              </h3>
-              
               {/* Output Display Values */}
-              <div className="space-y-5">
-                <div>
-                  <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Total Invested</span>
-                  <span className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tabular-nums">
+              <div className="space-y-4">
+                {/* Secondary breakdown */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--calc-text-secondary)] font-medium flex items-center gap-2.5">
+                    <span className="h-2.5 w-2.5 rounded-xs shrink-0 bg-[var(--calc-donut-invested)]" />
+                    Invested amount
+                  </span>
+                  <span className="text-base sm:text-lg font-bold text-[var(--calc-text-primary)] tabular-nums">
                     ₹{formatIndianNumber(investedAmount)}
                   </span>
                 </div>
-                <div>
-                  <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Est. Returns</span>
-                  <span className="text-xl sm:text-2xl font-extrabold text-teal-650 dark:text-teal-400 tabular-nums">
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--calc-text-secondary)] font-medium flex items-center gap-2.5">
+                    <span className="h-2.5 w-2.5 rounded-xs shrink-0 bg-[var(--calc-donut-returns)]" />
+                    Estimated returns
+                  </span>
+                  <span className="text-base sm:text-lg font-bold text-[var(--calc-accent)] tabular-nums">
                     ₹{formatIndianNumber(Math.round(estimatedReturns))}
                   </span>
                 </div>
-                <div className="pt-4 border-t border-[var(--border)]">
-                  <span className="text-[10px] text-[var(--text-secondary)] font-semibold uppercase tracking-wider block">Total Value</span>
-                  <span className="text-2xl sm:text-3xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums">
+
+                {/* Primary Dominant Result */}
+                <div className="pt-4 border-t border-[var(--calc-border)] flex items-center justify-between">
+                  <span className="text-sm font-semibold text-[var(--calc-text-primary)] uppercase tracking-wider">
+                    Total Value
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-extrabold text-[var(--calc-text-primary)] tabular-nums tracking-tight">
                     ₹{formatIndianNumber(totalValue, totalValue > 0)}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Split Donut Graph */}
-            <div className="mt-8 flex items-center justify-between gap-6 border-t border-[var(--border)] pt-6">
-              <div className="relative h-28 w-28 shrink-0 flex items-center justify-center">
-                <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 120 120">
+            {/* Split Donut Graph — Exact Disjoint Segment Arcs */}
+            <div className="mt-6 pt-6 border-t border-[var(--calc-border)] flex items-center justify-between gap-6">
+              <div className="relative h-32 w-32 shrink-0 flex items-center justify-center">
+                <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120">
                   {/* Underlay base track */}
                   <circle
                     cx="60"
                     cy="60"
-                    r="50"
+                    r="48"
                     fill="transparent"
-                    stroke="var(--border)"
-                    strokeWidth="12"
+                    stroke="var(--calc-track-bg)"
+                    strokeWidth="16"
                   />
-                  {/* Est Returns Arc (teal-600) */}
+                  {/* Segment 1: Invested Principal Arc */}
                   <circle
                     cx="60"
                     cy="60"
-                    r="50"
+                    r="48"
                     fill="transparent"
-                    stroke="#0f766e"
-                    strokeWidth="12"
-                    strokeDasharray={strokePerimeter}
+                    stroke="var(--calc-donut-invested)"
+                    strokeWidth="16"
+                    strokeDasharray={`${principalArcLength} ${strokePerimeter}`}
                     strokeDashoffset={0}
+                    className="transition-all duration-300 ease-out"
                   />
-                  {/* Total Invested Arc (teal-100) */}
+                  {/* Segment 2: Estimated Returns Arc */}
                   <circle
                     cx="60"
                     cy="60"
-                    r="50"
+                    r="48"
                     fill="transparent"
-                    stroke="#ccfbf1"
-                    className="dark:stroke-teal-950"
-                    strokeWidth="12"
-                    strokeDasharray={strokePerimeter}
-                    strokeDashoffset={interestDash}
+                    stroke="var(--calc-donut-returns)"
+                    strokeWidth="16"
+                    strokeDasharray={`${interestArcLength} ${strokePerimeter}`}
+                    strokeDashoffset={-principalArcLength}
+                    className="transition-all duration-300 ease-out"
                   />
                 </svg>
                 {/* Center visual percentage info */}
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Returns</span>
-                  <span className="text-xs font-bold text-neutral-900 dark:text-white">{Math.round(interestPercentage)}%</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-[10px] text-[var(--calc-text-muted)] font-medium uppercase tracking-wider">Returns</span>
+                  <span className="text-sm font-extrabold text-[var(--calc-text-primary)] tabular-nums">{Math.round(interestPercentage)}%</span>
                 </div>
               </div>
 
-              {/* Legend details */}
-              <div className="flex-1 space-y-3.5 text-[11px] font-medium">
-                <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-xs bg-[#ccfbf1] dark:bg-teal-950 shrink-0" />
-                  <div className="flex justify-between w-full">
-                    <span className="text-[var(--text-secondary)]">Invested Principal</span>
-                    <span className="font-bold tabular-nums">{Math.round(principalPercentage)}%</span>
-                  </div>
+              {/* Legend details — exact 1-to-1 Color Match */}
+              <div className="flex-1 space-y-2.5 text-xs font-semibold">
+                <div className="flex items-center justify-between text-[var(--calc-text-secondary)]">
+                  <span className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-xs shrink-0 bg-[var(--calc-donut-invested)]" />
+                    Invested
+                  </span>
+                  <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">{Math.round(principalPercentage)}%</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 rounded-xs bg-teal-700 shrink-0" />
-                  <div className="flex justify-between w-full">
-                    <span className="text-[var(--text-secondary)]">Estimated Interest</span>
-                    <span className="font-bold tabular-nums">{Math.round(interestPercentage)}%</span>
-                  </div>
+                <div className="flex items-center justify-between text-[var(--calc-text-secondary)]">
+                  <span className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-xs shrink-0 bg-[var(--calc-donut-returns)]" />
+                    Returns
+                  </span>
+                  <span className="font-bold text-[var(--calc-accent)] tabular-nums">{Math.round(interestPercentage)}%</span>
                 </div>
               </div>
             </div>
@@ -579,19 +601,19 @@ export default function SipCalculatorPage() {
 
         {/* Month-on-Month Amortization Schedule with Preview */}
         {schedule.length > 0 && (
-          <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xs mb-8">
-            <div className="px-6 py-4 flex items-center justify-between text-xs sm:text-sm font-bold text-neutral-900 dark:text-white bg-neutral-50/50 dark:bg-[#121212]/30 border-b border-[var(--border)]">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border-subtle)] rounded-xl overflow-hidden mb-8">
+            <div className="px-6 py-4 flex items-center justify-between text-xs sm:text-sm font-semibold text-[var(--text-primary)] bg-[var(--bg-surface)] border-b border-[var(--border-subtle)]">
               <span className="uppercase tracking-wider">
-                MONTH-ON-MONTH AMORTIZATION SCHEDULE ({schedule.length} MONTHS)
+                Month-on-Month Amortization Schedule ({schedule.length} Months)
               </span>
               {schedule.length > 5 && (
                 <button
                   type="button"
                   onClick={() => setShowSchedule(!showSchedule)}
-                  className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 flex items-center gap-1.5 transition-colors focus:outline-none cursor-pointer"
+                  className="text-xs font-medium text-[var(--accent-teal)] hover:underline flex items-center gap-1.5 transition-colors focus:outline-none cursor-pointer"
                   aria-expanded={showSchedule}
                 >
-                  <span>{showSchedule ? "Hide Full Schedule" : "View Full Schedule"}</span>
+                  <span>{showSchedule ? "Hide full schedule" : "View full schedule"}</span>
                   {showSchedule ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
               )}
@@ -601,7 +623,7 @@ export default function SipCalculatorPage() {
               <div className={showSchedule ? "max-h-[500px] overflow-y-auto" : ""}>
                 <table className="financial-table min-w-full">
                   <thead>
-                    <tr className="sticky top-0 bg-neutral-50 dark:bg-[#161616] border-b border-[var(--border)] z-10 text-[11px] font-semibold text-[var(--text-secondary)]">
+                    <tr className="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-subtle)] z-10 text-[11px] font-semibold text-[var(--text-secondary)]">
                       <th className="px-6 py-3 text-left">Period</th>
                       <th className="px-6 py-3 text-right">Investment</th>
                       <th className="px-6 py-3 text-right">Interest Earned</th>
@@ -609,12 +631,12 @@ export default function SipCalculatorPage() {
                       <th className="px-6 py-3 text-right">Closing Balance</th>
                     </tr>
                   </thead>
-                  <tbody className="text-xs divide-y divide-[var(--border)] tabular-nums">
+                  <tbody className="text-xs divide-y divide-[var(--border-subtle)] tabular-nums">
                     {(showSchedule ? schedule : schedule.slice(0, 5)).map((row) => (
-                      <tr key={row.period} className="hover:bg-neutral-50/50 dark:hover:bg-[#121212]/20">
+                      <tr key={row.period} className="hover:bg-[var(--bg-surface)]">
                         <td className="px-6 py-2.5 text-left font-medium text-[var(--text-secondary)]">Month {row.period}</td>
                         <td className="px-6 py-2.5 text-right font-medium">₹{formatIndianNumber(row.deposit)}</td>
-                        <td className="px-6 py-2.5 text-right text-teal-650 dark:text-teal-400 font-medium">₹{formatIndianNumber(row.interestEarned, true)}</td>
+                        <td className="px-6 py-2.5 text-right text-[var(--accent-teal)] font-medium">₹{formatIndianNumber(row.interestEarned, true)}</td>
                         <td className="px-6 py-2.5 text-right text-[var(--text-secondary)]">₹{formatIndianNumber(row.totalInvested)}</td>
                         <td className="px-6 py-2.5 text-right font-bold">₹{formatIndianNumber(row.closingBalance, true)}</td>
                       </tr>
@@ -625,11 +647,11 @@ export default function SipCalculatorPage() {
             </div>
 
             {schedule.length > 5 && (
-              <div className="p-3 border-t border-[var(--border)] bg-neutral-50/30 dark:bg-[#121212]/20 text-center">
+              <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] text-center">
                 <button
                   type="button"
                   onClick={() => setShowSchedule(!showSchedule)}
-                  className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 py-1.5 px-4 rounded-lg hover:bg-neutral-100 dark:hover:bg-[#1a1a1a] transition-colors focus:outline-none cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-[var(--accent-teal)] hover:underline py-1.5 px-4 rounded-md hover:bg-[var(--bg-subtle)] transition-colors focus:outline-none cursor-pointer"
                   aria-expanded={showSchedule}
                 >
                   <span>{showSchedule ? "Hide Full Schedule ↑" : `View Full Schedule (${schedule.length} Months) ↓`}</span>
@@ -640,9 +662,9 @@ export default function SipCalculatorPage() {
         )}
 
         {/* Goal SIP CTA Card */}
-        <div className="my-8 p-6 sm:p-8 bg-neutral-50 dark:bg-[#0a0a0a]/60 border border-[var(--border)] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xs">
+        <div className="my-8 p-6 sm:p-7 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-xl">
-            <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center space-x-2 text-[var(--accent-teal)] font-semibold text-xs uppercase tracking-wider">
               <Target className="h-4 w-4" />
               <span>Plan Your Financial Goal</span>
             </div>
@@ -655,7 +677,7 @@ export default function SipCalculatorPage() {
           </div>
           <Link
             href="/calculators/goal-sip-calculator"
-            className="inline-flex items-center justify-center px-5 py-3 bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition-colors shadow-xs shrink-0 space-x-2"
+            className="inline-flex items-center justify-center px-5 py-2.5 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 text-white text-xs font-semibold rounded-lg transition-colors shrink-0 space-x-2"
           >
             <span>Calculate Goal SIP</span>
             <ArrowRight className="h-4 w-4" />
@@ -671,11 +693,11 @@ export default function SipCalculatorPage() {
         </div>
 
         {/* Educational Content & Related Calculators Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border)] pt-10 mb-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 border-t border-[var(--border-subtle)] pt-10 mb-12 items-start">
           {/* Left Column: Educational Content & FAQs */}
           <div className="lg:col-span-8 space-y-10">
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a SIP?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">What Is a SIP?</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 A Systematic Investment Plan (SIP) is a disciplined method of investing a fixed sum of money at regular monthly intervals into mutual funds or equity products. Rather than attempting to time the stock market with a single large deposit, a SIP allows retail investors to build wealth gradually over time.
               </p>
@@ -685,7 +707,7 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Is a SIP Calculator?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">What Is a SIP Calculator?</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 A SIP calculator is an online financial estimation tool that helps you project the potential future value of your recurring monthly investments. By entering three simple inputs — your monthly SIP amount, expected annual return rate, and investment duration — the calculator computes your total out-of-pocket investment, estimated returns earned, and final maturity value.
               </p>
@@ -695,7 +717,7 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Does a SIP Calculator Work?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">How Does a SIP Calculator Work?</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
                 Calculating your estimated SIP maturity value follows a clear, step-by-step process:
               </p>
@@ -710,11 +732,11 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP Calculator Formula</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">SIP Calculator Formula</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
                 The potential maturity value of a SIP is computed using the future value of an ordinary annuity formula:
               </p>
-              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-mono text-xs text-teal-800 dark:text-teal-400 space-y-1.5 mb-3">
+              <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl font-mono text-xs text-[var(--accent-teal)] space-y-1.5 mb-3">
                 <div className="font-bold text-sm">M = P × [ (1 + r)<sup>n</sup> - 1 ] / r</div>
                 <div className="text-[var(--text-muted)] font-sans text-[11px] space-y-0.5 pt-2">
                   <div><strong>M (or FV)</strong> = Estimated Maturity Value (Future Value)</div>
@@ -724,68 +746,32 @@ export default function SipCalculatorPage() {
                 </div>
               </div>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                In our implementation, this formula is executed directly by our underlying financial engine (<code className="text-xs bg-neutral-100 dark:bg-[#1a1a1a] px-1 py-0.5 rounded">calculateSip</code>), maintaining high mathematical precision without formula duplication.
+                In our implementation, this formula is executed directly by our underlying financial engine (<code className="text-xs bg-[var(--bg-surface)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]">calculateSip</code>), maintaining high mathematical precision without formula duplication.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Is the Monthly SIP Return Rate Calculated?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">How Is the Monthly SIP Return Rate Calculated?</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 An annual return expectation must be converted into an equivalent monthly rate for periodic compounding. This calculator uses the mathematically precise <strong>Effective Annual Rate (EAR)</strong> conversion formula:
               </p>
-              <div className="p-3 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-lg text-center font-mono text-xs text-teal-800 dark:text-teal-400 my-3">
+              <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg text-center font-mono text-xs text-[var(--accent-teal)] my-3">
                 Monthly Rate = (1 + Annual Return)<sup>(1 / 12)</sup> - 1
               </div>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-2">
                 For example, if your expected annual return is <strong>12%</strong> (0.12):
               </p>
-              <div className="p-3 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-lg font-mono text-xs text-neutral-700 dark:text-neutral-300 space-y-1 mb-3">
+              <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg font-mono text-xs text-[var(--text-secondary)] space-y-1 mb-3">
                 <div>Monthly Rate = (1 + 0.12)<sup>(1/12)</sup> - 1</div>
-                <div>Monthly Rate ≈ 0.00948879 (or <strong>~0.95%</strong> per month)</div>
+                <div>Monthly Rate ≈ 0.0094888 (approx. <strong>0.9489% per month</strong>)</div>
               </div>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                Simply dividing 12% by 12 gives 1% per month, but compounding 1% every month produces an annualized return higher than 12% (12.68% p.a.). Therefore, this calculator converts the annual effective return into its equivalent monthly compounded rate, ensuring compounding 12 times yields exactly the 12% annualized return.
+                This exact periodic rate compounding ensures that your returns correctly compound to 12% over 12 months.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP Calculator Example</h2>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3">
-                Let us analyze a practical benchmark calculation for a monthly equity mutual fund SIP:
-              </p>
-              <div className="p-4 bg-neutral-50 dark:bg-[#121212] border border-[var(--border)] rounded-xl space-y-2 text-xs">
-                <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                  <span className="font-semibold text-[var(--text-secondary)]">Monthly SIP Contribution</span>
-                  <span className="font-bold tabular-nums">₹10,000 / month</span>
-                </div>
-                <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                  <span className="font-semibold text-[var(--text-secondary)]">Investment Horizon</span>
-                  <span className="font-bold tabular-nums">10 Years (120 Months)</span>
-                </div>
-                <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                  <span className="font-semibold text-[var(--text-secondary)]">Expected Return Rate</span>
-                  <span className="font-bold tabular-nums">12.0% p.a.</span>
-                </div>
-                <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                  <span className="font-semibold text-[var(--text-secondary)]">Total Amount Invested</span>
-                  <span className="font-bold tabular-nums">₹12,00,000</span>
-                </div>
-                <div className="flex justify-between border-b border-[var(--border)] pb-2">
-                  <span className="font-semibold text-teal-700 dark:text-teal-400">Estimated Returns Earned</span>
-                  <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹10,19,000</span>
-                </div>
-                <div className="flex justify-between pt-1 font-bold text-sm">
-                  <span>Estimated Maturity Value</span>
-                  <span className="tabular-nums">₹22,19,000</span>
-                </div>
-              </div>
-              <p className="text-xs text-[var(--text-muted)] mt-2">
-                Notice how in 10 years, the estimated wealth generated (₹10.19 Lakhs) almost equals the principal amount invested (₹12 Lakhs). Over 15 or 20 years, compound interest causes returns to far exceed total principal.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Benefits of Using a SIP Calculator</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">Benefits of Using a SIP Calculator</h2>
               <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-disc list-inside">
                 <li><strong>Goal-Based Wealth Planning:</strong> Calculate how much monthly SIP is needed to buy a home, fund higher education, or build a retirement fund.</li>
                 <li><strong>Understanding Compounding Power:</strong> Visualize how extending your investment tenure by a few years multiplies your maturity capital.</li>
@@ -796,7 +782,7 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Much Should I Invest in a SIP?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">How Much Should I Invest in a SIP?</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 There is no universal SIP amount suitable for everyone. Your ideal monthly investment depends on your personal income, essential household expenses, existing debt obligations, emergency funds, and specific financial goals.
               </p>
@@ -806,7 +792,7 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">How Long Should I Invest Through SIP?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">How Long Should I Invest Through SIP?</h2>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 SIP investments produce the most dramatic wealth creation when held over long time horizons — ideally 5 to 20 years or longer. In equity mutual funds, short-term horizons (under 3 years) carry higher market volatility risks.
               </p>
@@ -816,10 +802,10 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">SIP vs Lump Sum Investment</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">SIP vs Lump Sum Investment</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mt-3">
-                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
-                  <h3 className="font-bold text-sm text-neutral-900 dark:text-white">SIP (Systematic Investment)</h3>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border-subtle)] rounded-xl space-y-2">
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">SIP (Systematic Investment)</h3>
                   <ul className="space-y-1.5 text-[var(--text-secondary)] list-disc list-inside">
                     <li>Invests fixed monthly amounts regularly.</li>
                     <li>Averages out market entry price (rupee-cost averaging).</li>
@@ -827,8 +813,8 @@ export default function SipCalculatorPage() {
                     <li>Lower impact from short-term market timing errors.</li>
                   </ul>
                 </div>
-                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-xl space-y-2">
-                  <h3 className="font-bold text-sm text-neutral-900 dark:text-white">Lump Sum Investment</h3>
+                <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-[var(--border-subtle)] rounded-xl space-y-2">
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">Lump Sum Investment</h3>
                   <ul className="space-y-1.5 text-[var(--text-secondary)] list-disc list-inside">
                     <li>Invests entire principal amount at once on day one.</li>
                     <li>Full capital compounds from the initial date.</li>
@@ -840,7 +826,7 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">What Affects SIP Returns?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">What Affects SIP Returns?</h2>
               <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-1.5 list-disc list-inside">
                 <li><strong>Monthly Investment Capital:</strong> Larger monthly deposits increase total portfolio value linearly.</li>
                 <li><strong>Investment Horizon:</strong> Longer investment durations increase maturity value exponentially due to compounding.</li>
@@ -851,54 +837,54 @@ export default function SipCalculatorPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Key Benefits of SIP Mutual Fund Investing</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">Key Benefits of SIP Mutual Fund Investing</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
-                  <h3 className="font-bold text-neutral-900 dark:text-white">Rupee-Cost Averaging</h3>
+                <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-[var(--text-primary)]">Rupee-Cost Averaging</h3>
                   <p className="text-[var(--text-secondary)]">Automated regular buying eliminates market timing stress and lowers average acquisition cost over volatility cycles.</p>
                 </div>
-                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
-                  <h3 className="font-bold text-neutral-900 dark:text-white">Power of Compounding</h3>
+                <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-[var(--text-primary)]">Power of Compounding</h3>
                   <p className="text-[var(--text-secondary)]">Reinvested returns generate exponential portfolio growth over long multi-year investment horizons.</p>
                 </div>
-                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
-                  <h3 className="font-bold text-neutral-900 dark:text-white">Financial Discipline</h3>
+                <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-[var(--text-primary)]">Financial Discipline</h3>
                   <p className="text-[var(--text-secondary)]">Auto-debit mandates enforce regular monthly savings commitment directly from your bank account.</p>
                 </div>
-                <div className="p-4 bg-neutral-50/50 dark:bg-[#121212]/40 border border-[var(--border)] rounded-xl space-y-1">
-                  <h3 className="font-bold text-neutral-900 dark:text-white">Flexible Capital</h3>
+                <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl space-y-1">
+                  <h3 className="font-bold text-[var(--text-primary)]">Flexible Capital</h3>
                   <p className="text-[var(--text-secondary)]">Start with as little as ₹500/month, and pause, increase, or redeem open-ended funds without heavy lock-in penalties.</p>
                 </div>
               </div>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-3">Important Things to Know About SIP Calculations</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-3">Important Things to Know About SIP Calculations</h2>
               <ul className="text-sm text-[var(--text-secondary)] leading-relaxed space-y-2 list-disc list-inside">
                 <li>SIP calculator outputs are statistical projections based on assumed return rates.</li>
                 <li>Mutual fund investments are subject to market risks, and actual returns are not guaranteed.</li>
                 <li>Calculations assume a constant rate of return, whereas real market returns vary year to year.</li>
                 <li>Taxes (such as LTCG tax on equity funds above ₹1.25 Lakh) and fund expense ratios are not deducted in standard SIP tools.</li>
-                <li>You can explore stock fundamentals and market benchmarks using VolumeCall&apos;s research tools like our <Link href="/stocks" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Stock Screener</Link>, <Link href="/compare" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Stock Comparison</Link>, and <Link href="/markets" className="text-teal-700 dark:text-teal-400 font-semibold hover:underline">Market Indices</Link>.</li>
+                <li>You can explore stock fundamentals and market benchmarks using VolumeCall&apos;s research tools like our <Link href="/stocks" className="text-[var(--accent-teal)] font-semibold hover:underline">Stock Screener</Link>, <Link href="/compare" className="text-[var(--accent-teal)] font-semibold hover:underline">Stock Comparison</Link>, and <Link href="/markets" className="text-[var(--accent-teal)] font-semibold hover:underline">Market Indices</Link>.</li>
               </ul>
             </section>
 
             {/* FAQ Section */}
-            <div className="border-t border-[var(--border)] pt-8">
-              <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-6">Frequently Asked Questions</h2>
+            <div className="border-t border-[var(--border-subtle)] pt-8">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-6">Frequently Asked Questions</h2>
               <div className="space-y-3">
                 {faqItems.map((faq, idx) => (
-                  <div key={idx} className="border border-[var(--border)] rounded-xl overflow-hidden">
+                  <div key={idx} className="border border-[var(--border-subtle)] rounded-xl overflow-hidden">
                     <button
                       onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-neutral-900 dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-neutral-50 dark:hover:bg-[#121212]/50 transition-colors focus:outline-none"
+                      className="w-full px-5 py-3.5 flex items-center justify-between text-left text-sm font-semibold text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)] transition-colors focus:outline-none"
                       aria-expanded={openFaq === idx}
                     >
                       <span>{faq.q}</span>
                       {openFaq === idx ? <ChevronUp className="h-4 w-4 shrink-0 ml-3" /> : <ChevronDown className="h-4 w-4 shrink-0 ml-3" />}
                     </button>
                     {openFaq === idx && (
-                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-neutral-50/50 dark:bg-[#0a0a0a]">
+                      <div className="px-5 pb-4 text-xs text-[var(--text-secondary)] leading-relaxed bg-[var(--bg-surface)] border-t border-[var(--border-subtle)] pt-3">
                         {faq.a}
                       </div>
                     )}

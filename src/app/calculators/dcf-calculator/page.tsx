@@ -137,9 +137,9 @@ export default function DcfCalculatorPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -148,31 +148,32 @@ export default function DcfCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <LineChart className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <LineChart className="h-3.5 w-3.5" />
             <span>Intrinsic Stock Valuation</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Discounted Cash Flow (DCF) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate the fundamental Enterprise Value, Equity Value, and intrinsic Fair Value Per Share using multi-year Free Cash Flow (FCF) projections and terminal value.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Form Controls */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
-            <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-5">
+            <div className="flex justify-between items-center pb-3 border-b border-[var(--calc-border)]">
               <div>
-                <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">Projected Free Cash Flows (FCF)</h3>
-                <span className="text-[11px] text-[var(--text-muted)]">Figures in ₹ Crores (or normalized units)</span>
+                <h3 className="text-[15px] font-semibold text-[var(--calc-text-primary)]">Projected Free Cash Flows (FCF)</h3>
+                <span className="text-[11px] text-[var(--calc-text-muted)]">Figures in ₹ Crores (or normalized units)</span>
               </div>
               <button
+                type="button"
                 onClick={addYear}
-                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors cursor-pointer"
+                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[var(--bg-subtle)] border border-[var(--calc-border)] text-[var(--calc-accent)] rounded-lg text-xs font-semibold hover:border-[var(--calc-accent)] transition-all cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Year</span>
@@ -182,22 +183,23 @@ export default function DcfCalculatorPage() {
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
               {fcfs.map((f, idx) => (
                 <div key={idx} className="flex items-center justify-between space-x-3 text-xs">
-                  <span className="font-bold text-neutral-800 dark:text-neutral-200 w-24 shrink-0">
+                  <span className="font-semibold text-[var(--calc-text-primary)] w-24 shrink-0">
                     Year {idx + 1} FCF
                   </span>
-                  <div className="relative flex-grow flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                  <div className="relative flex-grow flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-xs text-[var(--calc-text-muted)] font-medium mr-1 select-none">₹</span>
                     <input
                       type="text"
                       value={f}
                       onChange={(e) => handleFcfChange(idx, e.target.value)}
-                      className="w-full pl-6 pr-3 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs sm:text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                      className="w-full bg-transparent text-right text-xs sm:text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
                   {fcfs.length > 1 && (
                     <button
+                      type="button"
                       onClick={() => removeYear(idx)}
-                      className="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
+                      className="p-1.5 text-[var(--calc-text-muted)] hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
                       title="Remove year"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -208,98 +210,110 @@ export default function DcfCalculatorPage() {
             </div>
 
             {/* Rates & Parameters */}
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[var(--border)] text-xs">
+            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[var(--calc-border)] text-xs">
               <div>
-                <label htmlFor="dcf-wacc" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Discount Rate (WACC %)
+                <label htmlFor="dcf-wacc" className="text-[13px] font-semibold text-[var(--calc-text-primary)] block mb-1">
+                  Discount rate (WACC %)
                 </label>
-                <input
-                  id="dcf-wacc"
-                  type="text"
-                  inputMode="decimal"
-                  value={waccInput}
-                  onChange={(e) => setWaccInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                  <input
+                    id="dcf-wacc"
+                    type="text"
+                    inputMode="decimal"
+                    value={waccInput}
+                    onChange={(e) => setWaccInput(e.target.value)}
+                    className="w-full bg-transparent text-right text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
+                  />
+                  <span className="text-xs text-[var(--calc-text-muted)] ml-1">%</span>
+                </div>
               </div>
 
               <div>
-                <label htmlFor="dcf-g" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Terminal Growth Rate (%)
+                <label htmlFor="dcf-g" className="text-[13px] font-semibold text-[var(--calc-text-primary)] block mb-1">
+                  Terminal growth rate (%)
                 </label>
-                <input
-                  id="dcf-g"
-                  type="text"
-                  inputMode="decimal"
-                  value={termGrowthInput}
-                  onChange={(e) => setTermGrowthInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                  <input
+                    id="dcf-g"
+                    type="text"
+                    inputMode="decimal"
+                    value={termGrowthInput}
+                    onChange={(e) => setTermGrowthInput(e.target.value)}
+                    className="w-full bg-transparent text-right text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
+                  />
+                  <span className="text-xs text-[var(--calc-text-muted)] ml-1">%</span>
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <label htmlFor="dcf-debt" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Net Debt (₹ Cr)
+                <label htmlFor="dcf-debt" className="text-[13px] font-semibold text-[var(--calc-text-primary)] block mb-1">
+                  Net debt (₹ Cr)
                 </label>
-                <input
-                  id="dcf-debt"
-                  type="text"
-                  inputMode="decimal"
-                  value={netDebtInput}
-                  onChange={(e) => setNetDebtInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                  <span className="text-xs text-[var(--calc-text-muted)] mr-1 select-none">₹</span>
+                  <input
+                    id="dcf-debt"
+                    type="text"
+                    inputMode="decimal"
+                    value={netDebtInput}
+                    onChange={(e) => setNetDebtInput(e.target.value)}
+                    className="w-full bg-transparent text-right text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
+                  />
+                </div>
               </div>
 
               <div>
-                <label htmlFor="dcf-shares" className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-1">
-                  Shares Outstanding (Cr Shares)
+                <label htmlFor="dcf-shares" className="text-[13px] font-semibold text-[var(--calc-text-primary)] block mb-1">
+                  Shares (Cr Shares)
                 </label>
-                <input
-                  id="dcf-shares"
-                  type="text"
-                  inputMode="decimal"
-                  value={sharesInput}
-                  onChange={(e) => setSharesInput(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
-                />
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                  <input
+                    id="dcf-shares"
+                    type="text"
+                    inputMode="decimal"
+                    value={sharesInput}
+                    onChange={(e) => setSharesInput(e.target.value)}
+                    className="w-full bg-transparent text-right text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
+                  />
+                  <span className="text-xs text-[var(--calc-text-muted)] ml-1">Cr</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Primary Output Summary Card */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Estimated Fair Value Per Share</span>
-              <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Estimated Fair Value Per Share</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-accent)] tabular-nums block mt-1">
                 ₹{result?.fairValuePerShare !== undefined ? result.fairValuePerShare.toFixed(2) : "N/A"}
               </span>
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Enterprise Value (EV)</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result?.enterpriseValue ?? 0))} Cr</span>
+            <div className="space-y-3 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Enterprise Value (EV)</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result?.enterpriseValue ?? 0))} Cr</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Equity Value</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result?.equityValue ?? 0))} Cr</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Equity Value</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(result?.equityValue ?? 0))} Cr</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">PV of Explicit Forecast FCFs</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result?.pvForecastFcf ?? 0))} Cr</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">PV of Explicit Forecast FCFs</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result?.pvForecastFcf ?? 0))} Cr</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">PV of Terminal Value</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result?.pvTerminalValue ?? 0))} Cr</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">PV of Terminal Value</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result?.pvTerminalValue ?? 0))} Cr</span>
               </div>
             </div>
 
             <Link
               href="/calculators/reverse-dcf-calculator"
-              className="inline-flex items-center justify-between px-4 py-2.5 bg-white dark:bg-[#1a1a1a] border border-[var(--border)] rounded-xl text-xs font-bold text-teal-700 dark:text-teal-400 hover:bg-neutral-50 transition-colors"
+              className="inline-flex items-center justify-between px-4 py-2.5 bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-lg text-xs font-semibold text-[var(--calc-accent)] hover:border-[var(--calc-accent)] transition-all"
             >
               <span>Know the current market price? Run Reverse DCF</span>
               <ArrowRight className="h-3.5 w-3.5 ml-2" />

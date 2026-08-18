@@ -138,12 +138,19 @@ export default function EmergencyFundCalculatorPage() {
     ? Math.min(100, (parsedSavings / result.requiredEmergencyFund) * 100)
     : 100;
 
+  const expensePercent = Math.min(100, Math.max(0, (parsedExpense / 500000) * 100));
+  const savingsPercent = Math.min(100, Math.max(0, (parsedSavings / 2000000) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -152,32 +159,32 @@ export default function EmergencyFundCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Umbrella className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Umbrella className="h-3.5 w-3.5" />
             <span>Financial Safety Net</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Emergency Fund Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate how many months of mandatory living expenses you should keep in safe, liquid savings to protect against medical emergencies and unforeseen job loss.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="ef-expense" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Monthly Essential Expenses
+                  <label htmlFor="ef-expense" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Monthly essential expenses
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Rent/EMI, groceries, bills, school fees, medicine</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Rent/EMI, groceries, bills, school fees, medicine</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="ef-expense"
                       type="text"
@@ -188,12 +195,12 @@ export default function EmergencyFundCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setExpenseInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {expenseWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{expenseWords}</div>}
                 </div>
               </div>
+              {expenseWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{expenseWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -202,47 +209,49 @@ export default function EmergencyFundCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(500000, Math.max(0, parsedExpense))}
                 onChange={(e) => setExpenseInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(expensePercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                Coverage Horizon (Months)
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <label className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                Coverage horizon (months)
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
-                  { label: "3 Months (Dual Income)", val: 3 },
-                  { label: "6 Months (Standard)", val: 6 },
-                  { label: "9 Months (Single Income)", val: 9 },
-                  { label: "12 Months (Business)", val: 12 },
+                  { label: "3 Mo (Dual Income)", val: 3 },
+                  { label: "6 Mo (Standard)", val: 6 },
+                  { label: "9 Mo (Single Income)", val: 9 },
+                  { label: "12 Mo (Business)", val: 12 },
                 ].map((m) => (
                   <button
+                    type="button"
                     key={m.val}
                     onClick={() => setMonthsInput(m.val)}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer border text-center ${
+                    className={`py-2 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border text-center ${
                       monthsInput === m.val
-                        ? "bg-teal-700 border-teal-700 text-white shadow-xs"
-                        : "bg-neutral-50 dark:bg-[#121212] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--foreground)]"
+                        ? "bg-[var(--calc-accent)] border-[var(--calc-accent)] text-white font-bold shadow-xs"
+                        : "bg-[var(--calc-card-bg)] border-[var(--calc-border)] text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                     }`}
                   >
-                    {m.val} Mo
+                    {m.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="ef-savings" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Current Liquid Savings Already Set Aside
+                  <label htmlFor="ef-savings" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Current liquid savings already set aside
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Savings account balance, sweep FDs, liquid funds</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Savings account balance, sweep FDs, liquid funds</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="ef-savings"
                       type="text"
@@ -253,12 +262,12 @@ export default function EmergencyFundCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setCurrentSavingsInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {savingsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{savingsWords}</div>}
                 </div>
               </div>
+              {savingsWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{savingsWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -267,38 +276,39 @@ export default function EmergencyFundCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(2000000, Math.max(0, parsedSavings))}
                 onChange={(e) => setCurrentSavingsInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(savingsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">
                 Total Recommended Emergency Fund ({monthsInput} Months)
               </span>
-              <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(result.requiredEmergencyFund))}
               </span>
-              <div className="mt-3">
-                <div className="flex justify-between text-xs font-semibold mb-1">
+              <div className="mt-4">
+                <div className="flex justify-between text-xs font-semibold mb-1.5 text-[var(--calc-text-secondary)]">
                   <span>Fund Progress</span>
-                  <span>{coverageProgress.toFixed(0)}% Funded</span>
+                  <span className="font-bold text-[var(--calc-text-primary)]">{coverageProgress.toFixed(0)}% Funded</span>
                 </div>
-                <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-2 rounded-full overflow-hidden">
-                  <div className="bg-teal-700 dark:bg-teal-400 h-full rounded-full transition-all" style={{ width: `${coverageProgress}%` }} />
+                <div className="w-full bg-[var(--calc-track-bg)] h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-[var(--calc-accent)] h-full rounded-full transition-all" style={{ width: `${coverageProgress}%` }} />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Already Saved</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.currentSavings))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Already Saved</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result.currentSavings))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Additional Savings Needed</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result.additionalSavingsNeeded))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Additional Savings Needed</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(result.additionalSavingsNeeded))}</span>
               </div>
             </div>
           </div>

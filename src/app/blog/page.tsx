@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // 1 hour background ISR fallback (invalidated on-demand via revalidatePath)
 
 interface Props {
   searchParams: Promise<{ category?: string }>;

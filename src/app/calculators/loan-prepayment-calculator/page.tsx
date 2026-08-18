@@ -165,12 +165,22 @@ export default function LoanPrepaymentPage() {
     }
   }, [parsedBalance, parsedRate, parsedYears, parsedPrepay, prepayMethod]);
 
+  const balancePercent = Math.min(100, Math.max(0, (parsedBalance / 20000000) * 100));
+  const prepayMax = Math.max(100000, parsedBalance);
+  const prepayPercent = Math.min(100, Math.max(0, (parsedPrepay / prepayMax) * 100));
+  const ratePercent = Math.min(100, Math.max(0, (parsedRate / 20) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 30) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -179,41 +189,43 @@ export default function LoanPrepaymentPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Zap className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Zap className="h-3.5 w-3.5" />
             <span>Debt Acceleration & Interest Savings</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Loan Prepayment Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate how much interest you can save and how many months or years you can cut off your loan tenure by making a part-prepayment on your home or personal loan.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Form Controls */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             {/* Mode Switcher */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                Prepayment Strategy
+              <label className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                Prepayment strategy
               </label>
-              <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs">
+              <div className="inline-flex p-1 bg-[var(--bg-subtle)] border border-[var(--calc-border)] rounded-lg font-semibold text-xs">
                 <button
+                  type="button"
                   onClick={() => setPrepayMethod("reduceTenure")}
-                  className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    prepayMethod === "reduceTenure" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+                    prepayMethod === "reduceTenure" ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] font-bold shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Reduce Tenure (Maximum Savings)
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPrepayMethod("reduceEmi")}
-                  className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    prepayMethod === "reduceEmi" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+                    prepayMethod === "reduceEmi" ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] font-bold shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Reduce Monthly EMI
@@ -222,17 +234,17 @@ export default function LoanPrepaymentPage() {
             </div>
 
             {/* Input 1: Outstanding Loan Balance */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="lp-balance" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Outstanding Principal Balance (₹)
+                  <label htmlFor="lp-balance" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Outstanding principal balance
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Current remaining loan principal</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Current remaining loan principal</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="lp-balance"
                       type="text"
@@ -243,12 +255,12 @@ export default function LoanPrepaymentPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setBalanceInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {balanceWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{balanceWords}</div>}
                 </div>
               </div>
+              {balanceWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{balanceWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -257,22 +269,23 @@ export default function LoanPrepaymentPage() {
                 autoComplete="off"
                 value={Math.min(20000000, Math.max(0, parsedBalance))}
                 onChange={(e) => setBalanceInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(balancePercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 2: Prepayment Lump Sum */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="lp-prepay" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Part-Prepayment Lump Sum (₹)
+                  <label htmlFor="lp-prepay" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Part-prepayment lump sum
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Extra payment toward principal</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Extra payment toward principal</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="lp-prepay"
                       type="text"
@@ -283,34 +296,35 @@ export default function LoanPrepaymentPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setPrepayInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {prepayWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{prepayWords}</div>}
                 </div>
               </div>
+              {prepayWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{prepayWords}</div>}
               <input
                 type="range"
                 min="0"
-                max={Math.max(100000, parsedBalance)}
+                max={prepayMax}
                 step="10000"
                 autoComplete="off"
                 value={Math.min(parsedBalance, Math.max(0, parsedPrepay))}
                 onChange={(e) => setPrepayInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(prepayPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 3: Interest Rate */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="lp-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Interest Rate (% p.a.)
+                  <label htmlFor="lp-rate" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Interest rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Annual loan interest rate</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Annual loan interest rate</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="lp-rate"
                     type="text"
@@ -318,9 +332,9 @@ export default function LoanPrepaymentPage() {
                     autoComplete="off"
                     value={rateInput}
                     onChange={(e) => setRateInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -331,21 +345,22 @@ export default function LoanPrepaymentPage() {
                 autoComplete="off"
                 value={Math.min(20, Math.max(1, parsedRate))}
                 onChange={(e) => setRateInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(ratePercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 4: Remaining Tenure */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="lp-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Remaining Loan Tenure (Years)
+                  <label htmlFor="lp-years" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Remaining loan tenure (years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Time left on loan</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Time left on loan</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="lp-years"
                       type="text"
@@ -353,13 +368,13 @@ export default function LoanPrepaymentPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={(e) => setYearsInput(e.target.value.replace(/[^0-9]/g, ""))}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
                 </div>
               </div>
+              {yearsWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{yearsWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -368,40 +383,41 @@ export default function LoanPrepaymentPage() {
                 autoComplete="off"
                 value={Math.min(30, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
           {/* Output Card */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Total Interest Saved</span>
-              <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Total Interest Saved</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-accent)] tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(result?.interestSavings ?? 0))}
               </span>
               {prepayMethod === "reduceTenure" && result?.tenureReductionMonths !== undefined && (
-                <span className="text-xs font-semibold text-neutral-900 dark:text-white mt-1 block">
+                <span className="text-xs font-medium text-[var(--calc-text-primary)] mt-1.5 block">
                   Loan closes {(result.tenureReductionMonths / 12).toFixed(1)} years ({result.tenureReductionMonths} months) earlier!
                 </span>
               )}
               {prepayMethod === "reduceEmi" && result?.newMonthlyEmi !== undefined && (
-                <span className="text-xs font-semibold text-neutral-900 dark:text-white mt-1 block">
+                <span className="text-xs font-medium text-[var(--calc-text-primary)] mt-1.5 block">
                   New Monthly EMI: ₹{formatIndianNumber(Math.round(result.newMonthlyEmi))} / month
                 </span>
               )}
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Original Total Interest</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result?.originalSchedule.totalInterest ?? 0))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Original Total Interest</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result?.originalSchedule.totalInterest ?? 0))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">New Total Interest</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result?.newSchedule.totalInterest ?? 0))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">New Total Interest</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result?.newSchedule.totalInterest ?? 0))}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[var(--border)] font-bold text-sm">
+              <div className="flex justify-between pt-2.5 border-t border-[var(--calc-border)] font-bold text-sm text-[var(--calc-text-primary)]">
                 <span>New Total Loan Cost</span>
                 <span className="tabular-nums">₹{formatIndianNumber(Math.round(result?.newSchedule.totalPayment ?? 0))}</span>
               </div>

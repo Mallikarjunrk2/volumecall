@@ -1,6 +1,6 @@
 import "server-only";
+import { cache } from "react";
 import { sql } from "@/lib/db";
-import { ensureCmsTables } from "./db-init";
 import {
   Article,
   ArticleCategory,
@@ -21,8 +21,9 @@ async function checkInit(): Promise<void> {
  * Fetch all PUBLISHED articles for the public blog.
  * Strictly filters by status = 'PUBLISHED'.
  * Excludes heavy content_markdown for fast list transfer.
+ * Deduplicated per-request using React cache().
  */
-export async function getPublicArticles(): Promise<Article[]> {
+export const getPublicArticles = cache(async function getPublicArticles(): Promise<Article[]> {
   await checkInit();
   try {
     const rows = await sql`
@@ -45,13 +46,14 @@ export async function getPublicArticles(): Promise<Article[]> {
     console.error("[getPublicArticles Error]:", error);
     return [];
   }
-}
+});
 
 /**
  * Fetch a single PUBLISHED article by slug for public reading.
  * Returns null if the article does not exist or is not published.
+ * Deduplicated per-request using React cache() so generateMetadata() and BlogPostPage() share 1 query.
  */
-export async function getPublicArticleBySlug(slug: string): Promise<Article | null> {
+export const getPublicArticleBySlug = cache(async function getPublicArticleBySlug(slug: string): Promise<Article | null> {
   await checkInit();
   try {
     const rows = await sql`
@@ -74,13 +76,14 @@ export async function getPublicArticleBySlug(slug: string): Promise<Article | nu
     console.error(`[getPublicArticleBySlug Error] for slug ${slug}:`, error);
     return null;
   }
-}
+});
 
 /**
  * Fetch related articles for the public article page.
  * Prefers articles in the same category, falls back to recent published articles.
+ * Deduplicated per-request using React cache().
  */
-export async function getRelatedArticles(
+export const getRelatedArticles = cache(async function getRelatedArticles(
   currentId: string,
   categoryId?: string | null,
   limit: number = 3
@@ -99,7 +102,7 @@ export async function getRelatedArticles(
         LEFT JOIN article_categories c ON a.category_id = c.id
         LEFT JOIN authors au ON a.author_id = au.id
         WHERE a.status = 'PUBLISHED' AND a.id != ${currentId} AND a.category_id = ${categoryId}
-        ORDER BY a.published_at DESC, a.created_at DESC
+        ORDER BY a.published_at DESC
         LIMIT ${limit};
       `;
     }
@@ -115,22 +118,23 @@ export async function getRelatedArticles(
         LEFT JOIN article_categories c ON a.category_id = c.id
         LEFT JOIN authors au ON a.author_id = au.id
         WHERE a.status = 'PUBLISHED' AND a.id != ${currentId}
-        ORDER BY a.published_at DESC, a.created_at DESC
+        ORDER BY a.published_at DESC
         LIMIT ${limit};
       `;
     }
 
     return rows as Article[];
   } catch (error) {
-    console.error(`[getRelatedArticles Error] for id ${currentId}:`, error);
+    console.error("[getRelatedArticles Error]:", error);
     return [];
   }
-}
+});
 
 /**
  * Fetch adjacent articles (previous & next) for public navigation.
+ * Deduplicated per-request using React cache().
  */
-export async function getAdjacentArticles(
+export const getAdjacentArticles = cache(async function getAdjacentArticles(
   publishedAt: string | null,
   currentId?: string
 ): Promise<{
@@ -180,7 +184,7 @@ export async function getAdjacentArticles(
     console.error("[getAdjacentArticles Error]:", error);
     return { prev: null, next: null };
   }
-}
+});
 
 export const getPrevNextArticles = getAdjacentArticles;
 
@@ -437,8 +441,9 @@ export async function publishArticle(id: string): Promise<void> {
  * Get all available categories.
  * If includeInactive = true, returns all categories with article counts.
  * If includeInactive = false, returns only active categories.
+ * Deduplicated per-request using React cache().
  */
-export async function getCategories(includeInactive: boolean = false): Promise<ArticleCategory[]> {
+export const getCategories = cache(async function getCategories(includeInactive: boolean = false): Promise<ArticleCategory[]> {
   await checkInit();
   try {
     if (includeInactive) {
@@ -470,7 +475,7 @@ export async function getCategories(includeInactive: boolean = false): Promise<A
     console.error("[getCategories Error]:", error);
     return [];
   }
-}
+});
 
 /**
  * Get a single category by ID.
@@ -603,8 +608,9 @@ export async function toggleCategoryActive(id: string, isActive: boolean): Promi
  * Get all available authors.
  * If includeInactive = true, returns all authors with article counts.
  * If includeInactive = false, returns only active authors.
+ * Deduplicated per-request using React cache().
  */
-export async function getAuthors(includeInactive: boolean = false): Promise<Author[]> {
+export const getAuthors = cache(async function getAuthors(includeInactive: boolean = false): Promise<Author[]> {
   await checkInit();
   try {
     if (includeInactive) {
@@ -636,7 +642,7 @@ export async function getAuthors(includeInactive: boolean = false): Promise<Auth
     console.error("[getAuthors Error]:", error);
     return [];
   }
-}
+});
 
 /**
  * Get a single author by ID.

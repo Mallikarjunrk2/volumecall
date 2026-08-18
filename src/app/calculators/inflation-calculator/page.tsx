@@ -163,12 +163,20 @@ export default function InflationCalculatorPage() {
     return calculateRealReturn(parsedNominal / 100, parsedInflation / 100);
   }, [parsedNominal, parsedInflation]);
 
+  const amountPercent = Math.min(100, Math.max(0, (parsedAmount / 10000000) * 100));
+  const inflationPercent = Math.min(100, Math.max(0, (parsedInflation / 25) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 40) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumbs */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -177,38 +185,40 @@ export default function InflationCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Flame className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Flame className="h-3.5 w-3.5" size={16} strokeWidth={1.8} aria-hidden="true" />
             <span>Purchasing Power & Cost of Living</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Inflation & Real Return Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate the future inflated cost of living, purchasing power erosion on cash savings, and exact Fisher real returns in India.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                Inflation Calculation Mode
+              <label className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                Inflation calculation mode
               </label>
-              <div className="inline-flex p-1 bg-neutral-100 dark:bg-[#121212] border border-[var(--border)] rounded-xl font-bold text-xs">
+              <div className="inline-flex p-1 bg-[var(--bg-subtle)] border border-[var(--calc-border)] rounded-lg font-semibold text-xs">
                 <button
+                  type="button"
                   onClick={() => setCalcMode("futureCost")}
-                  className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    calcMode === "futureCost" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+                    calcMode === "futureCost" ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] font-bold shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Future Cost of Living
                 </button>
                 <button
+                  type="button"
                   onClick={() => setCalcMode("purchasingPower")}
-                  className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    calcMode === "purchasingPower" ? "bg-white dark:bg-[#1a1a1a] text-teal-700 dark:text-teal-400 shadow-xs" : "text-[var(--text-secondary)]"
+                  className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+                    calcMode === "purchasingPower" ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] font-bold shadow-xs" : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                   }`}
                 >
                   Purchasing Power Erosion
@@ -216,17 +226,17 @@ export default function InflationCalculatorPage() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="inf-amount" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    {calcMode === "futureCost" ? "Today's Expense / Target Amount" : "Future Cash Sum to Discount"}
+                  <label htmlFor="inf-amount" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    {calcMode === "futureCost" ? "Today's expense / target amount" : "Future cash sum to discount"}
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Base financial value</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Base financial value</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="inf-amount"
                       type="text"
@@ -237,12 +247,12 @@ export default function InflationCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setAmountInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {amountWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{amountWords}</div>}
                 </div>
               </div>
+              {amountWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{amountWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -251,19 +261,20 @@ export default function InflationCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(10000000, Math.max(0, parsedAmount))}
                 onChange={(e) => setAmountInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(amountPercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="inf-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Expected Inflation Rate (% p.a.)
+                  <label htmlFor="inf-rate" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Expected inflation rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Annual cost of living increase</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Annual cost of living increase</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="inf-rate"
                     type="text"
@@ -271,9 +282,9 @@ export default function InflationCalculatorPage() {
                     autoComplete="off"
                     value={inflationInput}
                     onChange={(e) => setInflationInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -284,20 +295,21 @@ export default function InflationCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(25, Math.max(0, parsedInflation))}
                 onChange={(e) => setInflationInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(inflationPercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="inf-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Time Horizon (Years)
+                  <label htmlFor="inf-years" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Time horizon (years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Future time period</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Future time period</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="inf-years"
                       type="text"
@@ -305,13 +317,13 @@ export default function InflationCalculatorPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={(e) => setYearsInput(e.target.value.replace(/[^0-9]/g, ""))}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
                 </div>
               </div>
+              {yearsWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{yearsWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -320,56 +332,55 @@ export default function InflationCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(40, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             {calcMode === "futureCost" ? (
               <div>
-                <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
+                <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">
                   Future Cost in {parsedYears} Years (@ {parsedInflation}% Inflation)
                 </span>
-                <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                   ₹{formatIndianNumber(Math.round(futureCostResult.futureValue))}
                 </span>
-                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1 block">
+                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1.5 block">
                   Prices rise by {(Math.pow(1 + parsedInflation / 100, parsedYears) * 100 - 100).toFixed(1)}% (+₹{formatIndianNumber(Math.round(futureCostResult.futureValue - parsedAmount))})
                 </span>
               </div>
             ) : (
               <div>
-                <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
+                <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">
                   Purchasing Power Value in Today&apos;s Terms
                 </span>
-                <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                   ₹{formatIndianNumber(Math.round(purchasingPowerResult.presentValue))}
                 </span>
-                <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1 block">
+                <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1.5 block">
                   Purchasing power falls by {((1 - purchasingPowerResult.presentValue / (parsedAmount || 1)) * 100).toFixed(1)}%
                 </span>
               </div>
             )}
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-neutral-900 dark:text-white">Calculate Real Return (Fisher Equation):</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[var(--text-secondary)]">If Nominal Portfolio Return is</span>
-                  <div className="relative flex items-center">
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="space-y-2.5">
+                <span className="font-semibold text-[var(--calc-text-primary)] block">Calculate Real Return (Fisher Equation):</span>
+                <div className="flex justify-between items-center text-[var(--calc-text-secondary)]">
+                  <span>If Nominal Portfolio Return is</span>
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-2.5 py-1 focus-within:border-[var(--calc-accent)]">
                     <input
                       type="text"
                       value={nominalReturnInput}
                       onChange={(e) => setNominalReturnInput(e.target.value)}
-                      className="w-16 px-1.5 py-0.5 text-right font-bold border border-[var(--border)] rounded bg-white dark:bg-[#1a1a1a]"
+                      className="w-14 bg-transparent text-right font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="ml-1 text-[11px] text-[var(--text-secondary)]">%</span>
+                    <span className="ml-1 text-[11px] text-[var(--calc-text-muted)] select-none">%</span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center font-bold text-teal-700 dark:text-teal-400">
+                <div className="flex justify-between items-center pt-2 border-t border-[var(--calc-border)] font-bold text-[var(--calc-accent)]">
                   <span>Exact Real Return (Purchasing Power Growth)</span>
                   <span className="tabular-nums text-sm">{(fisherRealReturn.realReturn * 100).toFixed(2)}% p.a.</span>
                 </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import {
+  getPublicArticles,
   getPublicArticleBySlug,
   getRelatedArticles,
   getCategories,
@@ -21,7 +22,18 @@ import { ArticleDisclaimer } from "@/components/blog/ArticleDisclaimer";
 import { ArticleShareBar } from "@/components/blog/ArticleShareBar";
 import { Calendar, ArrowLeft, Clock, Tag, RefreshCw } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // 1 hour background ISR fallback (invalidated on-demand via revalidatePath)
+export const dynamicParams = true;
+
+/**
+ * Generate static params for pre-rendering all published articles at build time.
+ */
+export async function generateStaticParams() {
+  const articles = await getPublicArticles();
+  return articles.map((article) => ({
+    slug: article.slug,
+  }));
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -271,6 +283,8 @@ export default async function BlogPostPage(props: Props) {
                   src={article.featured_image}
                   alt={article.featured_image_alt || article.title}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
             )}

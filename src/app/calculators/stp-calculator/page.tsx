@@ -161,12 +161,20 @@ export default function StpCalculatorPage() {
   const combinedValue = result.sourceRemaining + result.targetValue;
   const totalGain = combinedValue - parsedSource;
 
+  const sourcePercent = Math.min(100, Math.max(0, (parsedSource / 10000000) * 100));
+  const transferPercent = Math.min(100, Math.max(0, (parsedTransfer / 500000) * 100));
+  const monthsPercent = Math.min(100, Math.max(0, (parsedMonths / 120) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Breadcrumb Navigation */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
+        {/* Breadcrumbs */}
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -174,36 +182,36 @@ export default function StpCalculatorPage() {
           <span className="text-[var(--foreground)] font-medium">STP Calculator</span>
         </div>
 
-        {/* Page Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <ArrowRightLeft className="h-4 w-4" />
+        {/* Page Title & Intro */}
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <ArrowRightLeft className="h-3.5 w-3.5" />
             <span>Inter-Fund Systematic Transfer</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Systematic Transfer Plan (STP) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate systematic transfers from a source fund (e.g. debt/liquid fund) to a target fund (e.g. equity fund) and track combined portfolio value.
           </p>
         </div>
 
         {/* Calculator Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 calc-grid mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 calc-grid mb-10">
           {/* Left Column: Input Form Controls */}
-          <div className="lg:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             {/* Input 1: Source Fund Initial */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="stp-source" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Source Fund Initial Balance
+                  <label htmlFor="stp-source" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Source fund initial balance
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Lump sum parked in liquid/debt fund</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Lump sum parked in liquid/debt fund</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="stp-source"
                       type="text"
@@ -214,12 +222,12 @@ export default function StpCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setSourceCorpus(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {sourceWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{sourceWords}</div>}
                 </div>
               </div>
+              {sourceWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{sourceWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -228,22 +236,23 @@ export default function StpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(10000000, Math.max(0, parsedSource))}
                 onChange={(e) => setSourceCorpus(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(sourcePercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 2: Monthly Transfer */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="stp-transfer" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Monthly Transfer Amount
+                  <label htmlFor="stp-transfer" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Monthly transfer amount
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Fixed tranche shifted to equity fund monthly</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Fixed tranche shifted to equity fund monthly</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="stp-transfer"
                       type="text"
@@ -254,12 +263,12 @@ export default function StpCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setMonthlyTransfer(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-28 sm:w-36 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {transferWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{transferWords}</div>}
                 </div>
               </div>
+              {transferWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{transferWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -268,17 +277,18 @@ export default function StpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(500000, Math.max(0, parsedTransfer))}
                 onChange={(e) => setMonthlyTransfer(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(transferPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 3 & 4: Source & Target Returns */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-[var(--calc-border)]">
               <div className="space-y-2">
-                <label htmlFor="stp-src-return" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                  Source Return (% p.a.)
+                <label htmlFor="stp-src-return" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                  Source return (% p.a.)
                 </label>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)]">
                   <input
                     id="stp-src-return"
                     type="text"
@@ -286,16 +296,16 @@ export default function StpCalculatorPage() {
                     autoComplete="off"
                     value={sourceReturn}
                     onChange={(e) => setSourceReturn(e.target.value)}
-                    className="w-full pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full bg-transparent text-right text-base font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <div className="space-y-2">
-                <label htmlFor="stp-tgt-return" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                  Target Return (% p.a.)
+                <label htmlFor="stp-tgt-return" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                  Target return (% p.a.)
                 </label>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)]">
                   <input
                     id="stp-tgt-return"
                     type="text"
@@ -303,23 +313,23 @@ export default function StpCalculatorPage() {
                     autoComplete="off"
                     value={targetReturn}
                     onChange={(e) => setTargetReturn(e.target.value)}
-                    className="w-full pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                    className="w-full bg-transparent text-right text-base font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
             </div>
 
             {/* Input 5: Duration */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="stp-duration" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Duration (Months)
+                  <label htmlFor="stp-duration" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Duration (months)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total systematic transfer window</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Total systematic transfer window</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="stp-duration"
                     type="text"
@@ -327,9 +337,9 @@ export default function StpCalculatorPage() {
                     autoComplete="off"
                     value={monthsInput}
                     onChange={(e) => setMonthsInput(e.target.value.replace(/[^0-9]/g, ""))}
-                    className="w-36 sm:w-44 pr-16 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Months</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Mo</span>
                 </div>
               </div>
               <input
@@ -340,35 +350,36 @@ export default function StpCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(120, Math.max(0, parsedMonths))}
                 onChange={(e) => setMonthsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(monthsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
           {/* Right Column: Output Card */}
-          <div className="lg:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Combined Portfolio Value</span>
-              <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Combined Portfolio Value</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(combinedValue))}
               </span>
-              <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 mt-1 block">
+              <span className="text-xs font-medium text-[var(--calc-accent)] mt-1.5 block">
                 Total Gain: +₹{formatIndianNumber(Math.round(totalGain))}
               </span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Capital Transferred</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.totalTransferred))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Capital Transferred</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result.totalTransferred))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Source Fund Remaining Balance</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.sourceRemaining))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Source Fund Remaining Balance</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result.sourceRemaining))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Target Equity Fund Final Value</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result.targetValue))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Target Equity Fund Final Value</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(result.targetValue))}</span>
               </div>
             </div>
           </div>

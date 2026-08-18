@@ -153,12 +153,20 @@ export default function CagrCalculatorPage() {
     }
   }, [parsedInitial, parsedFinal, parsedYears]);
 
+  const initialPercent = Math.min(100, Math.max(0, (parsedInitial / 10000000) * 100));
+  const finalPercent = Math.min(100, Math.max(0, (parsedFinal / 50000000) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 40) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumbs */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -167,32 +175,32 @@ export default function CagrCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <TrendingUp className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <TrendingUp className="h-3.5 w-3.5" size={16} strokeWidth={1.8} aria-hidden="true" />
             <span>Investment Performance Metric</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Compound Annual Growth Rate (CAGR) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate the annualized compound growth rate of your lump sum investments across stocks, mutual funds, gold, and real estate.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="cagr-initial" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Initial Investment Value
+                  <label htmlFor="cagr-initial" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Initial investment value
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Starting capital / buy price</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Starting capital / buy price</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="cagr-initial"
                       type="text"
@@ -203,12 +211,12 @@ export default function CagrCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setInitialInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {initialWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{initialWords}</div>}
                 </div>
               </div>
+              {initialWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{initialWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -217,21 +225,22 @@ export default function CagrCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(10000000, Math.max(0, parsedInitial))}
                 onChange={(e) => setInitialInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(initialPercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="cagr-final" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Final Investment Value
+                  <label htmlFor="cagr-final" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Final investment value
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Ending portfolio balance / sell price</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Ending portfolio balance / sell price</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="cagr-final"
                       type="text"
@@ -242,12 +251,12 @@ export default function CagrCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setFinalInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-36 sm:w-44 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {finalWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{finalWords}</div>}
                 </div>
               </div>
+              {finalWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{finalWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -256,19 +265,20 @@ export default function CagrCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(50000000, Math.max(0, parsedFinal))}
                 onChange={(e) => setFinalInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(finalPercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="cagr-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Duration (Years)
+                  <label htmlFor="cagr-years" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Investment duration
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Time horizon held</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Time horizon held in years</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="cagr-years"
                     type="text"
@@ -276,9 +286,9 @@ export default function CagrCalculatorPage() {
                     autoComplete="off"
                     value={yearsInput}
                     onChange={(e) => setYearsInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                 </div>
               </div>
               <input
@@ -289,32 +299,33 @@ export default function CagrCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(40, Math.max(0.1, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Compound Annual Growth Rate</span>
-              <span className={`text-3xl sm:text-4xl font-black tabular-nums block mt-1 ${result.cagr >= 0 ? "text-teal-700 dark:text-teal-400" : "text-red-600 dark:text-red-400"}`}>
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Compound Annual Growth Rate</span>
+              <span className={`text-3xl sm:text-4xl font-extrabold tabular-nums block mt-1 ${result.cagr >= 0 ? "text-[var(--calc-accent)]" : "text-red-500"}`}>
                 {result.cagr.toFixed(2)}%
               </span>
-              <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Annualized geometric rate of return</span>
+              <span className="text-xs font-medium text-[var(--calc-text-muted)] mt-1.5 block">Annualized geometric rate of return</span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Net Gain / Loss</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(parsedFinal - parsedInitial))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Net Gain / Loss</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(parsedFinal - parsedInitial))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Absolute Return</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">{((parsedInitial > 0 ? (parsedFinal - parsedInitial) / parsedInitial : 0) * 100).toFixed(2)}%</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Absolute Return</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">{((parsedInitial > 0 ? (parsedFinal - parsedInitial) / parsedInitial : 0) * 100).toFixed(2)}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Growth Multiple</span>
-                <span className="font-bold tabular-nums">{(parsedInitial > 0 ? parsedFinal / parsedInitial : 0).toFixed(2)}x</span>
+              <div className="flex justify-between pt-2.5 border-t border-[var(--calc-border)] text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Growth Multiple</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">{(parsedInitial > 0 ? parsedFinal / parsedInitial : 0).toFixed(2)}x</span>
               </div>
             </div>
           </div>

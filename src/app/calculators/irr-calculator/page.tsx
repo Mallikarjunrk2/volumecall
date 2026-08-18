@@ -128,9 +128,9 @@ export default function IrrCalculatorPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumbs */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -139,31 +139,32 @@ export default function IrrCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Activity className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Activity className="h-3.5 w-3.5" />
             <span>Capital Budgeting & Project Return</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Internal Rate of Return (IRR) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate the Internal Rate of Return (IRR) and Net Present Value (NPV) for multi-year capital investments, real estate projects, and irregular cash flow streams.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Form Controls */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
-            <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-5">
+            <div className="flex justify-between items-center pb-3 border-b border-[var(--calc-border)]">
               <div>
-                <h3 className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">Cash Flow Streams</h3>
-                <span className="text-[11px] text-[var(--text-muted)]">Year 0 is initial outlay (negative)</span>
+                <h3 className="text-[15px] font-semibold text-[var(--calc-text-primary)]">Cash flow streams</h3>
+                <span className="text-[11px] text-[var(--calc-text-muted)]">Year 0 is initial outlay (negative)</span>
               </div>
               <button
+                type="button"
                 onClick={addFlow}
-                className="px-2.5 py-1 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors inline-flex items-center space-x-1 cursor-pointer"
+                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[var(--bg-subtle)] border border-[var(--calc-border)] text-[var(--calc-accent)] rounded-lg text-xs font-semibold hover:border-[var(--calc-accent)] transition-all cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Year</span>
@@ -173,23 +174,24 @@ export default function IrrCalculatorPage() {
             <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
               {cashFlows.map((cf, idx) => (
                 <div key={idx} className="flex items-center space-x-3">
-                  <span className="w-16 text-xs font-bold text-[var(--text-secondary)] shrink-0">
+                  <span className="w-16 text-xs font-bold text-[var(--calc-text-secondary)] shrink-0">
                     {idx === 0 ? "Year 0" : `Year ${idx}`}
                   </span>
-                  <div className="relative flex-grow flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                  <div className="relative flex-grow flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-xs text-[var(--calc-text-muted)] font-medium mr-1 select-none">₹</span>
                     <input
                       type="text"
                       value={cf}
                       onChange={(e) => handleFlowChange(idx, e.target.value)}
                       placeholder="-10,00,000"
-                      className="w-full pl-6 pr-3 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs sm:text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                      className="w-full bg-transparent text-right text-xs sm:text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
                   {cashFlows.length > 2 && (
                     <button
+                      type="button"
                       onClick={() => removeFlow(idx)}
-                      className="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
+                      className="p-1.5 text-[var(--calc-text-muted)] hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
                       title="Remove row"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -199,56 +201,56 @@ export default function IrrCalculatorPage() {
               ))}
             </div>
 
-            <div className="pt-3 border-t border-[var(--border)] flex justify-between items-center">
-              <label htmlFor="irr-hurdle" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider">
-                Discount Rate / Hurdle Rate (% p.a.)
+            <div className="pt-3 border-t border-[var(--calc-border)] flex justify-between items-center">
+              <label htmlFor="irr-hurdle" className="text-[15px] font-semibold text-[var(--calc-text-primary)]">
+                Discount rate / hurdle rate (% p.a.)
               </label>
-              <div className="relative flex items-center">
+              <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                 <input
                   id="irr-hurdle"
                   type="text"
                   inputMode="decimal"
                   value={discountRateInput}
                   onChange={(e) => setDiscountRateInput(e.target.value)}
-                  className="w-24 pr-6 pl-2.5 py-1 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                  className="w-20 bg-transparent text-right text-base font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                 />
-                <span className="absolute right-2 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
               </div>
             </div>
           </div>
 
           {/* Primary Output Summary Card */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Internal Rate of Return (IRR)</span>
-              <span className={`text-3xl sm:text-4xl font-black tabular-nums block mt-1 ${
-                irrVal !== null && irrVal >= parsedDiscountRate ? "text-teal-700 dark:text-teal-400" : "text-amber-600 dark:text-amber-400"
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Internal Rate of Return (IRR)</span>
+              <span className={`text-3xl sm:text-4xl font-extrabold tabular-nums block mt-1 ${
+                irrVal !== null && irrVal >= parsedDiscountRate ? "text-[var(--calc-accent)]" : "text-amber-600 dark:text-amber-400"
               }`}>
                 {irrVal !== null ? `${irrVal.toFixed(2)}%` : "N/A"}
               </span>
-              <span className="text-xs font-semibold text-[var(--text-secondary)] mt-1 block">
+              <span className="text-xs font-semibold text-[var(--calc-text-secondary)] mt-1.5 block">
                 {irrVal !== null && irrVal >= parsedDiscountRate ? "Exceeds Hurdle Rate (Feasible Project)" : "Below Hurdle Rate"}
               </span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Net Present Value (NPV @ {parsedDiscountRate}%)</span>
-                <span className={`font-bold tabular-nums ${npvAtDiscount >= 0 ? "text-teal-700 dark:text-teal-400" : "text-rose-600 dark:text-rose-400"}`}>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Net Present Value (NPV @ {parsedDiscountRate}%)</span>
+                <span className={`font-bold tabular-nums ${npvAtDiscount >= 0 ? "text-[var(--calc-accent)]" : "text-rose-600 dark:text-rose-400"}`}>
                   ₹{formatIndianNumber(Math.round(npvAtDiscount))}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Inflows</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(totalInflows))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Inflows</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(totalInflows))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Outlay (Investment)</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(totalOutflows))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Outlay (Investment)</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(totalOutflows))}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[var(--border)] font-bold">
+              <div className="flex justify-between pt-2 border-t border-[var(--calc-border)] text-[var(--calc-text-secondary)] font-bold">
                 <span>Net Cash Profit</span>
-                <span className="tabular-nums">₹{formatIndianNumber(Math.round(netCashProfit))}</span>
+                <span className="tabular-nums text-[var(--calc-text-primary)]">₹{formatIndianNumber(Math.round(netCashProfit))}</span>
               </div>
             </div>
           </div>

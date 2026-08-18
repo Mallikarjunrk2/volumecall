@@ -229,13 +229,20 @@ export default function GoalSipCalculatorPage() {
 
   const frequencySuffix = frequency === "monthly" ? "month" : frequency === "quarterly" ? "quarter" : "year";
 
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 40) * 100));
+  const returnPercent = Math.min(100, Math.max(0, (activeReturnPercent / 30) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
 
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumbs */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -244,35 +251,35 @@ export default function GoalSipCalculatorPage() {
         </div>
 
         {/* Header Title & Simple Introduction */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Target className="h-4 w-4" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Target className="h-3.5 w-3.5" />
             <span>Goal-Based Wealth Planning</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Goal SIP Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Have a financial goal in mind? Find out how much you may need to invest regularly to reach your target amount. Tell us your target goal amount, time horizon, and assumed return rate to estimate the required investment.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Left Sub-card: Input Form Controls */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             {/* Input 1: Target Goal Amount */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="goal-target-amount" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    What&apos;s your target amount?
+                  <label htmlFor="goal-target-amount" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Target goal amount
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">How much money would you like to have at the end?</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Target wealth corpus needed</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="goal-target-amount"
                       type="text"
@@ -280,29 +287,29 @@ export default function GoalSipCalculatorPage() {
                       autoComplete="off"
                       value={goalInput}
                       onChange={handleGoalChange}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-36 sm:w-44 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {goalWords && (
-                    <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
-                      {goalWords}
-                    </div>
-                  )}
                 </div>
               </div>
+              {goalWords && (
+                <div className="text-xs font-medium text-[var(--calc-accent)] text-right">
+                  {goalWords}
+                </div>
+              )}
             </div>
 
             {/* Input 2: Investment Duration */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="goal-duration-years" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    How much time do you have?
+                  <label htmlFor="goal-duration-years" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Investment duration
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">How many years do you want to take to reach your goal?</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Years to reach your goal</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="goal-duration-years"
                       type="text"
@@ -310,18 +317,17 @@ export default function GoalSipCalculatorPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={handleYearsChange}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {yearsWords && (
-                    <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">
-                      {yearsWords}
-                    </div>
-                  )}
                 </div>
               </div>
-
+              {yearsWords && (
+                <div className="text-xs font-medium text-[var(--calc-accent)] text-right">
+                  {yearsWords}
+                </div>
+              )}
               <input
                 type="range"
                 min="1"
@@ -330,35 +336,34 @@ export default function GoalSipCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(40, Math.max(1, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
 
             {/* Input 3: Assumed Annual Return Rate */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <label htmlFor="goal-return-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Assumed Rate of Return (p.a.)
-                  </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Select a standard scenario or type a custom return rate</span>
-                </div>
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div>
+                <label htmlFor="goal-return-rate" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                  Expected return rate (p.a.)
+                </label>
+                <span className="text-[11px] text-[var(--calc-text-muted)]">Select scenario or enter custom rate</span>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {[
-                  { label: "10% p.a. (Conservative)", val: "10" },
-                  { label: "12% p.a. (Moderate)", val: "12" },
-                  { label: "15% p.a. (Aggressive)", val: "15" },
+                  { label: "10% Conservative", val: "10" },
+                  { label: "12% Moderate", val: "12" },
+                  { label: "15% Aggressive", val: "15" },
                 ].map((btn) => (
                   <button
                     key={btn.val}
                     type="button"
                     onClick={() => setScenarioMode(btn.val as "10" | "12" | "15")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
                       scenarioMode === btn.val
-                        ? "bg-teal-700 text-white border-teal-700 shadow-xs"
-                        : "bg-neutral-50 dark:bg-[#121212] text-[var(--text-secondary)] border-[var(--border)] hover:bg-neutral-100 dark:hover:bg-[#1a1a1a]"
+                        ? "bg-[var(--calc-accent)] text-white border-[var(--calc-accent)] font-bold"
+                        : "bg-[var(--calc-input-bg)] text-[var(--calc-text-secondary)] border-[var(--calc-border-input)] hover:text-[var(--calc-text-primary)]"
                     }`}
                   >
                     {btn.label}
@@ -367,9 +372,9 @@ export default function GoalSipCalculatorPage() {
               </div>
 
               <div className="pt-2">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-medium text-[var(--text-secondary)]">Custom Return Rate</span>
-                  <div className="relative flex items-center">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-semibold text-[var(--calc-text-secondary)]">Custom Return Rate</span>
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)]">
                     <input
                       id="goal-return-rate"
                       type="text"
@@ -377,9 +382,9 @@ export default function GoalSipCalculatorPage() {
                       autoComplete="off"
                       value={customReturnInput}
                       onChange={handleCustomReturnChange}
-                      className="w-24 pr-6 pl-2.5 py-1 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                      className="w-16 bg-transparent text-right text-xs font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                    <span className="text-xs font-medium text-[var(--calc-text-muted)] ml-1 select-none">%</span>
                   </div>
                 </div>
 
@@ -394,17 +399,18 @@ export default function GoalSipCalculatorPage() {
                     setScenarioMode("custom");
                     setCustomReturnInput(e.target.value);
                   }}
-                  className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                  style={getSliderTrackStyle(returnPercent)}
+                  className="financial-slider"
                 />
               </div>
             </div>
 
             {/* Input 4: Investment Frequency Toggle */}
-            <div className="pt-2 border-t border-[var(--border)]">
-              <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block mb-2">
-                Investment Frequency
+            <div className="pt-5 border-t border-[var(--calc-border)] space-y-3">
+              <label className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                Investment frequency
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="inline-flex p-1 bg-[var(--bg-subtle)] border border-[var(--calc-border)] rounded-lg font-semibold text-xs">
                 {[
                   { id: "monthly", label: "Monthly" },
                   { id: "quarterly", label: "Quarterly" },
@@ -414,10 +420,10 @@ export default function GoalSipCalculatorPage() {
                     key={item.id}
                     type="button"
                     onClick={() => setFrequency(item.id as InvestmentFrequency)}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold text-center transition-all border ${
+                    className={`py-1.5 px-4 rounded-md transition-all cursor-pointer ${
                       frequency === item.id
-                        ? "bg-teal-700 text-white border-teal-700 shadow-xs"
-                        : "bg-neutral-50 dark:bg-[#121212] text-[var(--text-secondary)] border-[var(--border)] hover:bg-neutral-100 dark:hover:bg-[#1a1a1a]"
+                        ? "bg-[var(--calc-card-bg)] text-[var(--calc-accent)] font-bold shadow-xs"
+                        : "text-[var(--calc-text-secondary)] hover:text-[var(--calc-text-primary)]"
                     }`}
                   >
                     {item.label}
@@ -428,89 +434,85 @@ export default function GoalSipCalculatorPage() {
           </div>
 
           {/* Right Sub-card: Primary Result Display */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">
                 Required Regular Investment
               </span>
 
               <div className="mt-3">
-                <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block">
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block">
                   ₹{formatIndianNumber(Math.ceil(mainGoalResult.requiredPayment))}
                 </span>
-                <span className="text-xs font-semibold text-[var(--text-secondary)]">per {frequencySuffix}</span>
+                <span className="text-xs font-medium text-[var(--calc-text-muted)]">per {frequencySuffix}</span>
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Target Goal Amount</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(mainGoalResult.targetCorpus)}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Target Goal Amount</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(mainGoalResult.targetCorpus)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Investment Period</span>
-                <span className="font-bold tabular-nums">{parsedYears} Years</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Amount Invested</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(mainGoalResult.totalInvested))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Amount Invested</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(mainGoalResult.totalInvested))}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Estimated Growth</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(mainGoalResult.estimatedGrowth))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Estimated Growth</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(mainGoalResult.estimatedGrowth))}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Return Scenario Comparison Table */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-4 shadow-xs mb-12">
-          <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">
+        <div className="bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-4 mb-10">
+          <h3 className="text-sm font-bold text-[var(--calc-text-primary)]">
             See how the assumed return changes the required investment
           </h3>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-[var(--calc-text-secondary)]">
             These are illustrative scenarios, not guaranteed returns.
           </p>
 
           <div className="overflow-x-auto">
             <table className="financial-table text-xs w-full">
               <thead>
-                <tr className="bg-neutral-50 dark:bg-[#121212] border-b border-[var(--border)]">
+                <tr className="bg-[var(--bg-surface)] border-b border-[var(--calc-border)]">
                   <th className="px-4 py-3 text-left">Expected Return</th>
                   <th className="px-4 py-3 text-right">Required Investment (per {frequencySuffix})</th>
                   <th className="px-4 py-3 text-right">Total Invested</th>
                   <th className="px-4 py-3 text-right">Estimated Growth</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border)] tabular-nums">
+              <tbody className="divide-y divide-[var(--calc-border)] tabular-nums">
                 {[
-                  { rate: "10%", val: "10", res: scenario10Result },
-                  { rate: "12%", val: "12", res: scenario12Result },
-                  { rate: "15%", val: "15", res: scenario15Result },
-                ].map((row) => (
+                  { rate: "10% Conservative", val: "10", res: scenario10Result },
+                  { rate: "12% Moderate", val: "12", res: scenario12Result },
+                  { rate: "15% Aggressive", val: "15", res: scenario15Result },
+                ].map((sc) => (
                   <tr
-                    key={row.rate}
-                    onClick={() => setScenarioMode(row.val as "10" | "12" | "15")}
+                    key={sc.rate}
+                    onClick={() => setScenarioMode(sc.val as "10" | "12" | "15")}
                     className={`cursor-pointer transition-colors ${
-                      scenarioMode === row.val
+                      scenarioMode === sc.val
                         ? "bg-teal-500/10 font-bold"
-                        : "hover:bg-neutral-50 dark:hover:bg-[#121212]"
+                        : "hover:bg-[var(--bg-surface)]"
                     }`}
                   >
                     <td className="px-4 py-3 font-semibold flex items-center space-x-2">
-                      <span>{row.rate}</span>
-                      {scenarioMode === row.val && (
-                        <span className="text-[10px] bg-teal-700 text-white px-2 py-0.5 rounded-full font-bold">Active</span>
+                      <span>{sc.rate}</span>
+                      {scenarioMode === sc.val && (
+                        <span className="text-[10px] bg-[var(--calc-accent)] text-white px-2 py-0.5 rounded-full font-bold">Active</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-teal-700 dark:text-teal-400">
-                      ₹{formatIndianNumber(Math.ceil(row.res.requiredPayment))} / {frequencySuffix}
+                    <td className="px-4 py-3 text-right font-bold text-[var(--calc-accent)]">
+                      ₹{formatIndianNumber(Math.ceil(sc.res.requiredPayment))} / {frequencySuffix}
                     </td>
-                    <td className="px-4 py-3 text-right text-[var(--text-secondary)]">
-                      ₹{formatIndianNumber(Math.round(row.res.totalInvested))}
+                    <td className="px-4 py-3 text-right text-[var(--calc-text-secondary)]">
+                      ₹{formatIndianNumber(Math.round(sc.res.totalInvested))}
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      ₹{formatIndianNumber(Math.round(row.res.estimatedGrowth))}
+                    <td className="px-4 py-3 text-right text-[var(--calc-text-primary)]">
+                      ₹{formatIndianNumber(Math.round(sc.res.estimatedGrowth))}
                     </td>
                   </tr>
                 ))}

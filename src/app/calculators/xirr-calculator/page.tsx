@@ -129,9 +129,9 @@ export default function XirrCalculatorPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -140,31 +140,32 @@ export default function XirrCalculatorPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Activity className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Activity className="h-3.5 w-3.5" size={16} strokeWidth={1.8} aria-hidden="true" />
             <span>SIP & Irregular Cash Flow Return</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Extended Internal Rate of Return (XIRR) Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate the exact annualized XIRR for mutual fund SIPs, staggered stock purchases, and multiple cash flow transactions on specific calendar dates.
           </p>
         </div>
 
         {/* Top Calculator Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
           {/* Left Column: Cash Flow Table */}
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-5 shadow-xs">
-            <div className="flex justify-between items-center pb-2 border-b border-[var(--border)]">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-5">
+            <div className="flex justify-between items-center pb-3 border-b border-[var(--calc-border)]">
               <div>
-                <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-50">Transaction Dates & Amounts</h3>
-                <span className="text-[11px] text-[var(--text-muted)]">Negative (-) for investments/buys, Positive (+) for current value/sales</span>
+                <h3 className="text-[15px] font-semibold text-[var(--calc-text-primary)]">Transaction dates & amounts</h3>
+                <span className="text-[11px] text-[var(--calc-text-muted)]">Negative (-) for investments/buys, Positive (+) for current value/sales</span>
               </div>
               <button
+                type="button"
                 onClick={addRow}
-                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors cursor-pointer"
+                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[var(--bg-subtle)] border border-[var(--calc-border)] text-[var(--calc-accent)] rounded-lg text-xs font-semibold hover:border-[var(--calc-accent)] transition-all cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Date</span>
@@ -178,22 +179,23 @@ export default function XirrCalculatorPage() {
                     type="date"
                     value={r.date}
                     onChange={(e) => handleRowChange(idx, "date", e.target.value)}
-                    className="w-36 px-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-xs rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 shrink-0 font-medium"
+                    className="w-36 px-2.5 py-1.5 border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] text-xs font-semibold text-[var(--calc-text-primary)] rounded-lg focus:outline-none focus:border-[var(--calc-accent)] shrink-0"
                   />
-                  <div className="relative flex-grow flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                  <div className="relative flex-grow flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-xs text-[var(--calc-text-muted)] font-medium mr-1 select-none">₹</span>
                     <input
                       type="text"
                       value={r.amount}
                       onChange={(e) => handleRowChange(idx, "amount", e.target.value)}
                       placeholder="-50,000"
-                      className="w-full pl-6 pr-3 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-xs sm:text-sm font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 tabular-nums"
+                      className="w-full bg-transparent text-right text-xs sm:text-sm font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
                   {rows.length > 2 && (
                     <button
+                      type="button"
                       onClick={() => removeRow(idx)}
-                      className="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
+                      className="p-1.5 text-[var(--calc-text-muted)] hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
                       title="Remove row"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -205,28 +207,28 @@ export default function XirrCalculatorPage() {
           </div>
 
           {/* Primary Output Summary Card */}
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Extended Internal Rate of Return (XIRR)</span>
-              <span className="text-3xl sm:text-4xl font-black text-teal-700 dark:text-teal-400 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Extended Internal Rate of Return (XIRR)</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-accent)] tabular-nums block mt-1">
                 {result.success && result.xirr !== null
                   ? `${(result.xirr * 100).toFixed(2)}% p.a.`
                   : "N/A (Check Inputs)"}
               </span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Total Capital Invested</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(totalInvested))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Capital Invested</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(totalInvested))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Current Portfolio / Exit Value</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(finalValue))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Current Portfolio / Exit Value</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(finalValue))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Net Profit Earned</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(netGain))}</span>
+              <div className="flex justify-between pt-2 border-t border-[var(--calc-border)] text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Net Profit Earned</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(netGain))}</span>
               </div>
             </div>
           </div>

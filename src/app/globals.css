@@ -52,6 +52,20 @@
   --text-secondary-alias: var(--text-secondary);
   --text-muted-alias: var(--text-muted);
   --border: var(--border-subtle);
+  /* Calculator Specific Semantic Design Tokens (Light Mode) */
+  --calc-card-bg: #ffffff;
+  --calc-panel-bg: #ffffff;
+  --calc-result-bg: #f8fafc;
+  --calc-input-bg: #ffffff;
+  --calc-border: #e2e8f0;
+  --calc-border-input: #cbd5e1;
+  --calc-text-primary: #0f172a;
+  --calc-text-secondary: #475569;
+  --calc-text-muted: #64748b;
+  --calc-accent: #0d9488;
+  --calc-track-bg: #e2e8f0;
+  --calc-donut-invested: #cbd5e1;
+  --calc-donut-returns: #0d9488;
 }
 
 .dark {
@@ -93,6 +107,21 @@
   --text-secondary-alias: var(--text-secondary);
   --text-muted-alias: var(--text-muted);
   --border: var(--border-subtle);
+
+  /* Calculator Specific Semantic Design Tokens (Dark Mode) */
+  --calc-card-bg: #0a0a0a;
+  --calc-panel-bg: #0a0a0a;
+  --calc-result-bg: #111111;
+  --calc-input-bg: #161616;
+  --calc-border: rgba(255, 255, 255, 0.12);
+  --calc-border-input: rgba(255, 255, 255, 0.18);
+  --calc-text-primary: #f8fafc;
+  --calc-text-secondary: #94a3b8;
+  --calc-text-muted: #64748b;
+  --calc-accent: #2dd4bf;
+  --calc-track-bg: #262626;
+  --calc-donut-invested: #334155;
+  --calc-donut-returns: #2dd4bf;
 }
 
 body {
@@ -178,6 +207,71 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* ─── High-Precision Financial Range Slider ─────────────────────────────── */
+.financial-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  background: var(--calc-track-bg, #e2e8f0);
+  transition: background 0.1s ease;
+}
+
+.financial-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--calc-accent, #0d9488);
+  border: 2px solid var(--calc-card-bg, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.dark .financial-slider::-webkit-slider-thumb {
+  background: var(--calc-accent, #2dd4bf);
+  border: 2px solid var(--calc-card-bg, #0a0a0a);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.financial-slider:hover::-webkit-slider-thumb,
+.financial-slider:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+.financial-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--calc-accent, #0d9488);
+  border: 2px solid var(--calc-card-bg, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.dark .financial-slider::-moz-range-thumb {
+  background: var(--calc-accent, #2dd4bf);
+  border: 2px solid var(--calc-card-bg, #0a0a0a);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.financial-slider:hover::-moz-range-thumb,
+.financial-slider:active::-moz-range-thumb {
+  transform: scale(1.15);
+}
+
+.financial-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: transparent;
 }
 
 /* ─── Institutional Financial Table Classes ───────────────────────────────── */

@@ -251,6 +251,9 @@ export async function deleteArticleAction(id: string) {
   await deleteArticle(id);
   revalidatePath("/admin/articles");
   revalidatePath("/blog");
+  if (existing?.slug) {
+    revalidatePath(`/blog/${existing.slug}`);
+  }
 }
 
 export async function publishArticleAction(id: string) {
@@ -260,7 +263,11 @@ export async function publishArticleAction(id: string) {
     throw new Error("You do not have permission to publish articles.");
   }
 
+  const article = await getAdminArticleById(id);
   await publishArticle(id);
   revalidatePath("/admin/articles");
   revalidatePath("/blog");
+  if (article?.slug) {
+    revalidatePath(`/blog/${article.slug}`);
+  }
 }

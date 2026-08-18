@@ -148,12 +148,20 @@ export default function EmiCalculatorPage() {
     return calculateEmi(parsedPrincipal, parsedRate / 100, parsedYears);
   }, [parsedPrincipal, parsedRate, parsedYears]);
 
+  const principalPercent = Math.min(100, Math.max(0, (parsedPrincipal / 20000000) * 100));
+  const ratePercent = Math.min(100, Math.max(0, (parsedRate / 25) * 100));
+  const yearsPercent = Math.min(100, Math.max(0, (parsedYears / 30) * 100));
+
+  const getSliderTrackStyle = (percent: number) => ({
+    background: `linear-gradient(to right, var(--calc-accent) 0%, var(--calc-accent) ${percent}%, var(--calc-track-bg) ${percent}%, var(--calc-track-bg) 100%)`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
-      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {/* Breadcrumb */}
-        <div className="text-xs text-[var(--text-secondary)] mb-4 flex items-center space-x-1.5 font-normal">
+        <div className="text-xs text-[var(--text-secondary)] mb-3 flex items-center space-x-1.5 font-normal">
           <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/calculators" className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors">Calculators</Link>
@@ -162,32 +170,32 @@ export default function EmiCalculatorPage() {
         </div>
 
         {/* Page Title & Intro */}
-        <div className="mb-8 max-w-3xl">
-          <div className="flex items-center space-x-2 text-teal-700 dark:text-teal-400 font-bold text-xs uppercase tracking-wider mb-2">
-            <Home className="h-4 w-4" size={16} strokeWidth={1.8} aria-hidden="true" />
+        <div className="mb-6 max-w-3xl">
+          <div className="flex items-center space-x-2 text-[var(--calc-accent)] font-semibold text-xs uppercase tracking-wider mb-1.5">
+            <Home className="h-3.5 w-3.5" size={16} strokeWidth={1.8} aria-hidden="true" />
             <span>Loan Installment Planning</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 dark:text-neutral-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Loan EMI Calculator
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
             Calculate your monthly loan EMI, total interest payable, and total loan cost for home loans, car loans, and personal loans in India.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-12">
-          <div className="md:col-span-7 h-full bg-white dark:bg-[#0a0a0a] border border-[var(--border)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-10">
+          <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="emi-principal" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Loan Amount (Principal)
+                  <label htmlFor="emi-principal" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Loan amount (principal)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total borrowed capital</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Total borrowed capital</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-xs text-[var(--text-secondary)] font-medium">₹</span>
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] mr-1.5 select-none">₹</span>
                     <input
                       id="emi-principal"
                       type="text"
@@ -198,12 +206,12 @@ export default function EmiCalculatorPage() {
                         const clean = e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
                         setPrincipalInput(clean === "" ? "" : formatRawDigits(clean));
                       }}
-                      className="w-40 sm:w-48 pl-6 pr-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-32 sm:w-40 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
                   </div>
-                  {principalWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{principalWords}</div>}
                 </div>
               </div>
+              {principalWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{principalWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -212,19 +220,20 @@ export default function EmiCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(20000000, Math.max(0, parsedPrincipal))}
                 onChange={(e) => setPrincipalInput(formatIndianNumber(Number(e.target.value)))}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(principalPercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="emi-rate" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Interest Rate (% p.a.)
+                  <label htmlFor="emi-rate" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Interest rate (% p.a.)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Annual reducing balance interest rate</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Annual reducing balance interest rate</span>
                 </div>
-                <div className="relative flex items-center">
+                <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                   <input
                     id="emi-rate"
                     type="text"
@@ -232,9 +241,9 @@ export default function EmiCalculatorPage() {
                     autoComplete="off"
                     value={rateInput}
                     onChange={(e) => setRateInput(e.target.value)}
-                    className="w-36 sm:w-44 pr-6 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                    className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                   />
-                  <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">%</span>
+                  <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">%</span>
                 </div>
               </div>
               <input
@@ -245,20 +254,21 @@ export default function EmiCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(25, Math.max(0, parsedRate))}
                 onChange={(e) => setRateInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(ratePercent)}
+                className="financial-slider"
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            <div className="space-y-3 pt-5 border-t border-[var(--calc-border)]">
+              <div className="flex justify-between items-center gap-4">
                 <div>
-                  <label htmlFor="emi-tenure" className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider block">
-                    Loan Tenure (Years)
+                  <label htmlFor="emi-tenure" className="text-[15px] font-semibold text-[var(--calc-text-primary)] block">
+                    Loan tenure (years)
                   </label>
-                  <span className="text-[11px] text-[var(--text-muted)]">Total repayment duration</span>
+                  <span className="text-[11px] text-[var(--calc-text-muted)]">Total repayment duration</span>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="relative flex items-center">
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center rounded-lg border border-[var(--calc-border-input)] bg-[var(--calc-input-bg)] px-3 py-1.5 focus-within:border-[var(--calc-accent)] focus-within:ring-1 focus-within:ring-[var(--calc-accent)] transition-all">
                     <input
                       id="emi-tenure"
                       type="text"
@@ -266,13 +276,13 @@ export default function EmiCalculatorPage() {
                       autoComplete="off"
                       value={yearsInput}
                       onChange={(e) => setYearsInput(e.target.value.replace(/[^0-9]/g, ""))}
-                      className="w-36 sm:w-44 pr-12 pl-2.5 py-1.5 border border-[var(--border)] bg-neutral-50/50 dark:bg-[#121212]/50 text-right text-sm sm:text-base font-bold rounded-lg focus:outline-none focus:ring-1.5 focus:ring-teal-650 transition-all tabular-nums"
+                      className="w-20 sm:w-28 bg-transparent text-right text-base sm:text-lg font-bold text-[var(--calc-text-primary)] focus:outline-none tabular-nums"
                     />
-                    <span className="absolute right-2.5 text-xs text-[var(--text-secondary)] font-medium">Years</span>
+                    <span className="text-sm font-medium text-[var(--calc-text-muted)] ml-1.5 select-none">Yr</span>
                   </div>
-                  {yearsWords && <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 text-right">{yearsWords}</div>}
                 </div>
               </div>
+              {yearsWords && <div className="text-xs font-medium text-[var(--calc-accent)] text-right">{yearsWords}</div>}
               <input
                 type="range"
                 min="0"
@@ -281,32 +291,33 @@ export default function EmiCalculatorPage() {
                 autoComplete="off"
                 value={Math.min(30, Math.max(0, parsedYears))}
                 onChange={(e) => setYearsInput(e.target.value)}
-                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-teal-700 dark:accent-teal-400"
+                style={getSliderTrackStyle(yearsPercent)}
+                className="financial-slider"
               />
             </div>
           </div>
 
-          <div className="md:col-span-5 h-full bg-neutral-50 dark:bg-[#121212]/60 border border-[var(--border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-xs min-h-[380px]">
+          <div className="lg:col-span-5 h-full bg-[var(--calc-result-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 min-h-[360px]">
             <div>
-              <span className="text-[10px] text-[var(--text-secondary)] font-medium uppercase tracking-wider block">Monthly Loan EMI</span>
-              <span className="text-3xl sm:text-4xl font-black text-neutral-950 dark:text-neutral-50 tabular-nums block mt-1">
+              <span className="text-[11px] font-semibold text-[var(--calc-text-muted)] uppercase tracking-wider block">Monthly Loan EMI</span>
+              <span className="text-3xl sm:text-4xl font-extrabold text-[var(--calc-text-primary)] tabular-nums block mt-1">
                 ₹{formatIndianNumber(Math.round(result.monthlyEmi))}
               </span>
-              <span className="text-xs font-semibold text-[var(--text-secondary)] mt-1 block">
+              <span className="text-xs font-medium text-[var(--calc-text-muted)] mt-1.5 block">
                 for {parsedYears * 12} monthly installments
               </span>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-[var(--border)] text-xs">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-secondary)] font-medium">Principal Amount</span>
-                <span className="font-bold tabular-nums">₹{formatIndianNumber(Math.round(result.principal))}</span>
+            <div className="space-y-3.5 pt-4 border-t border-[var(--calc-border)] text-xs font-semibold">
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Principal Amount</span>
+                <span className="font-bold text-[var(--calc-text-primary)] tabular-nums">₹{formatIndianNumber(Math.round(result.principal))}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-teal-700 dark:text-teal-400 font-medium">Total Interest Payable</span>
-                <span className="font-bold tabular-nums text-teal-700 dark:text-teal-400">₹{formatIndianNumber(Math.round(result.totalInterest))}</span>
+              <div className="flex justify-between text-[var(--calc-text-secondary)]">
+                <span className="font-medium">Total Interest Payable</span>
+                <span className="font-bold text-[var(--calc-accent)] tabular-nums">₹{formatIndianNumber(Math.round(result.totalInterest))}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[var(--border)] font-bold text-sm">
+              <div className="flex justify-between pt-2.5 border-t border-[var(--calc-border)] font-bold text-sm text-[var(--calc-text-primary)]">
                 <span>Total Payment (Principal + Interest)</span>
                 <span className="tabular-nums">₹{formatIndianNumber(Math.round(result.totalPayment))}</span>
               </div>
@@ -314,7 +325,7 @@ export default function EmiCalculatorPage() {
 
             <Link
               href="/calculators/loan-amortization-calculator"
-              className="inline-flex items-center justify-between px-4 py-2.5 bg-white dark:bg-[#1a1a1a] border border-[var(--border)] rounded-xl text-xs font-bold text-teal-700 dark:text-teal-400 hover:bg-neutral-50 transition-colors"
+              className="inline-flex items-center justify-between px-4 py-2.5 bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-lg text-xs font-semibold text-[var(--calc-accent)] hover:bg-[var(--bg-surface)] transition-colors"
             >
               <span>View Full Month-by-Month Amortization Schedule</span>
               <ArrowRight className="h-3.5 w-3.5 ml-2" />

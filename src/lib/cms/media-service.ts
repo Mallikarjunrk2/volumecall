@@ -1,6 +1,5 @@
 import "server-only";
 import { sql } from "@/lib/db";
-import { ensureCmsTables } from "./db-init";
 import { MediaInput, MediaRecord } from "./types";
 
 // In normal runtime, CMS tables exist permanently in PostgreSQL.
