@@ -240,16 +240,21 @@ describe("Sitemap & SSR/SEO Audit Tests", () => {
   });
 
   describe("5. Stock Symbol Resolution Tests", () => {
-    it("resolves M&M to Mahindra & Mahindra Ltd using authoritative special-symbol mapping", async () => {
+    it("resolves M&M and M%26M to Mahindra & Mahindra Ltd using authoritative special-symbol mapping", async () => {
       const { resolveSymbol } = await import("@/lib/upstox/service");
-      const res = await resolveSymbol("M&M");
+      const res1 = await resolveSymbol("M&M");
 
-      expect(res).not.toBeNull();
-      expect(res?.symbol).toBe("M&M");
-      expect(res?.name).toBe("Mahindra & Mahindra Ltd");
-      expect(res?.isin).toBe("INE101A01026");
-      expect(res?.instrumentKey).toBe("NSE_EQ|INE101A01026");
-      expect(res?.exchange).toBe("NSE");
+      expect(res1).not.toBeNull();
+      expect(res1?.symbol).toBe("M&M");
+      expect(res1?.name).toBe("Mahindra & Mahindra Ltd");
+      expect(res1?.isin).toBe("INE101A01026");
+      expect(res1?.instrumentKey).toBe("NSE_EQ|INE101A01026");
+      expect(res1?.exchange).toBe("NSE");
+
+      const res2 = await resolveSymbol("M%26M");
+      expect(res2).not.toBeNull();
+      expect(res2?.symbol).toBe("M&M");
+      expect(res2?.name).toBe("Mahindra & Mahindra Ltd");
     });
 
     it("resolves MBEL to M AND B ENGINEERING LTD", async () => {

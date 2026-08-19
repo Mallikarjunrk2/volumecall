@@ -76,18 +76,39 @@ const SPECIAL_SYMBOL_MAP: Record<string, SearchInstrument> = {
     instrumentKey: "NSE_EQ|INE101A01026",
     symbol: "M&M",
   },
+  "M%26M": {
+    segment: "NSE_EQ",
+    name: "Mahindra & Mahindra Ltd",
+    exchange: "NSE",
+    isin: "INE101A01026",
+    instrumentKey: "NSE_EQ|INE101A01026",
+    symbol: "M&M",
+  },
 };
 
 /**
  * Resolves a symbol (e.g., RELIANCE, M&M) to its instrument key, ISIN, and name.
  */
 export async function resolveSymbol(symbol: string): Promise<SearchInstrument | null> {
-  const cleanSymbol = symbol.trim().toUpperCase();
+  if (!symbol) return null;
+
+  let decoded = symbol;
+  try {
+    decoded = decodeURIComponent(symbol);
+  } catch {
+    // Preserve raw string if malformed percent-encoding
+  }
+
+  const cleanSymbol = decoded.trim().toUpperCase();
+  const rawUpper = symbol.trim().toUpperCase();
   if (!cleanSymbol) return null;
 
   // 1. Check authoritative special-symbol dictionary first
   if (SPECIAL_SYMBOL_MAP[cleanSymbol]) {
     return SPECIAL_SYMBOL_MAP[cleanSymbol];
+  }
+  if (SPECIAL_SYMBOL_MAP[rawUpper]) {
+    return SPECIAL_SYMBOL_MAP[rawUpper];
   }
 
   try {
