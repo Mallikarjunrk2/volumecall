@@ -19,6 +19,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "VolumeCall | Indian Stock Research & Analysis",
   description: "Professional, cyber-clean stock research and analysis for NSE equities.",
+  verification: {
+    google: "google2489c3421a4201c6",
+  },
 };
 
 export default function RootLayout({
