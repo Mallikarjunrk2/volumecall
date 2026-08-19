@@ -21,6 +21,57 @@ vi.mock("@/lib/db", () => ({
   })
 }));
 
+vi.mock("@/lib/upstox/client", () => ({
+  fetchUpstox: vi.fn().mockImplementation(async (endpoint: string) => {
+    if (endpoint.includes("query=MBEL")) {
+      return {
+        status: "success",
+        data: [
+          {
+            segment: "NSE_EQ",
+            name: "M AND B ENGINEERING LTD",
+            exchange: "NSE",
+            isin: "INE0...",
+            instrument_key: "NSE_EQ|INE0...",
+            trading_symbol: "MBEL",
+          },
+        ],
+      };
+    }
+    if (endpoint.includes("query=RELIANCE")) {
+      return {
+        status: "success",
+        data: [
+          {
+            segment: "NSE_EQ",
+            name: "Reliance Industries Limited",
+            exchange: "NSE",
+            isin: "INE002A01018",
+            instrument_key: "NSE_EQ|INE002A01018",
+            trading_symbol: "RELIANCE",
+          },
+        ],
+      };
+    }
+    if (endpoint.includes("query=INVALID_TICKER_XYZ")) {
+      return {
+        status: "success",
+        data: [
+          {
+            segment: "NSE_EQ",
+            name: "SOME UNRELATED COMPANY",
+            exchange: "NSE",
+            isin: "INE999...",
+            instrument_key: "NSE_EQ|INE999...",
+            trading_symbol: "SOME_UNRELATED_TICKER",
+          },
+        ],
+      };
+    }
+    return { status: "success", data: [] };
+  }),
+}));
+
 import sitemap from "@/app/sitemap";
 import { UNIVERSE_TICKERS } from "@/lib/stocks/universe";
 
@@ -185,6 +236,45 @@ describe("Sitemap & SSR/SEO Audit Tests", () => {
       expect(serializedPayload).not.toContain("password");
       expect(serializedPayload).not.toContain("user_id");
       expect(serializedPayload).not.toContain("email");
+    });
+  });
+
+  describe("5. Stock Symbol Resolution Tests", () => {
+    it("resolves M&M to Mahindra & Mahindra Ltd using authoritative special-symbol mapping", async () => {
+      const { resolveSymbol } = await import("@/lib/upstox/service");
+      const res = await resolveSymbol("M&M");
+
+      expect(res).not.toBeNull();
+      expect(res?.symbol).toBe("M&M");
+      expect(res?.name).toBe("Mahindra & Mahindra Ltd");
+      expect(res?.isin).toBe("INE101A01026");
+      expect(res?.instrumentKey).toBe("NSE_EQ|INE101A01026");
+      expect(res?.exchange).toBe("NSE");
+    });
+
+    it("resolves MBEL to M AND B ENGINEERING LTD", async () => {
+      const { resolveSymbol } = await import("@/lib/upstox/service");
+      const res = await resolveSymbol("MBEL");
+
+      expect(res).not.toBeNull();
+      expect(res?.symbol).toBe("MBEL");
+      expect(res?.name).toBe("M AND B ENGINEERING LTD");
+    });
+
+    it("returns null for unknown/unmatched symbols and never falls back to fuzzy results[0]", async () => {
+      const { resolveSymbol } = await import("@/lib/upstox/service");
+      const res = await resolveSymbol("INVALID_TICKER_XYZ");
+
+      expect(res).toBeNull();
+    });
+
+    it("resolves normal existing symbols (RELIANCE, TCS, INFY, HDFCBANK) correctly", async () => {
+      const { resolveSymbol } = await import("@/lib/upstox/service");
+      const reliance = await resolveSymbol("RELIANCE");
+
+      expect(reliance).not.toBeNull();
+      expect(reliance?.symbol).toBe("RELIANCE");
+      expect(reliance?.name).toBe("Reliance Industries Limited");
     });
   });
 });

@@ -64,30 +64,46 @@ export async function searchInstruments(query: string): Promise<SearchInstrument
 }
 
 /**
- * Resolves a symbol (e.g., RELIANCE) to its instrument key, ISIN, and name.
+ * Authoritative mapping for special stock symbols that external search endpoints
+ * cannot resolve via standard query string search.
+ */
+const SPECIAL_SYMBOL_MAP: Record<string, SearchInstrument> = {
+  "M&M": {
+    segment: "NSE_EQ",
+    name: "Mahindra & Mahindra Ltd",
+    exchange: "NSE",
+    isin: "INE101A01026",
+    instrumentKey: "NSE_EQ|INE101A01026",
+    symbol: "M&M",
+  },
+};
+
+/**
+ * Resolves a symbol (e.g., RELIANCE, M&M) to its instrument key, ISIN, and name.
  */
 export async function resolveSymbol(symbol: string): Promise<SearchInstrument | null> {
   const cleanSymbol = symbol.trim().toUpperCase();
   if (!cleanSymbol) return null;
 
+  // 1. Check authoritative special-symbol dictionary first
+  if (SPECIAL_SYMBOL_MAP[cleanSymbol]) {
+    return SPECIAL_SYMBOL_MAP[cleanSymbol];
+  }
+
   try {
-    // Search for the symbol using the Upstox search endpoint
+    // 2. Query Upstox search endpoint
     const results = await searchInstruments(cleanSymbol);
 
-    // Look for exact symbol match
+    // 3. Accept ONLY an exact trading-symbol match
     const exactMatch = results.find(
-      (item) => item.symbol.toUpperCase() === cleanSymbol && item.exchange === "NSE"
+      (item) => item.symbol.trim().toUpperCase() === cleanSymbol && item.exchange === "NSE"
     );
 
     if (exactMatch) {
       return exactMatch;
     }
 
-    // Fallback: Return first partial match that shares the prefix or is closest
-    if (results.length > 0) {
-      return results[0];
-    }
-
+    // 4. Return null if no exact match exists (never fall back to fuzzy results[0])
     return null;
   } catch (error) {
     console.error(`Error resolving symbol ${symbol}:`, error);
