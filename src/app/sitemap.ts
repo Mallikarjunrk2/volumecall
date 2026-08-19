@@ -1,5 +1,8 @@
 import { MetadataRoute } from "next";
 import { sql } from "@/lib/db";
+import { UNIVERSE_TICKERS } from "@/lib/stocks/universe";
+
+export const revalidate = 3600; // Background ISR revalidation every 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://volumecall.in";
@@ -56,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === "" ? 1.0 : route.startsWith("/calculators") || route === "/blog" ? 0.8 : 0.6,
   }));
 
-  // Append published articles dynamically
+  // 1. Append published articles dynamically
   try {
     const publishedArticles = await sql`
       SELECT slug, updated_at, published_at
@@ -76,6 +79,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("[Sitemap Articles Query Error]:", err);
   }
 
+  // 2. Append all valid stock symbols dynamically (combining UNIVERSE_TICKERS and DB companies)
+  try {
+    const stockSymbolSet = new Set<string>();
+
+    // Add universe tickers
+    for (const ticker of UNIVERSE_TICKERS) {
+      if (ticker) stockSymbolSet.add(ticker.trim().toUpperCase());
+    }
+
+    // Add DB persisted companies
+    const dbCompanies = await sql`
+      SELECT symbol, updated_at
+      FROM companies
+      WHERE symbol IS NOT NULL AND symbol != '';
+    `.catch(() => []);
+
+    const dbSymbolMap = new Map<string, Date>();
+    for (const row of dbCompanies) {
+      if (row.symbol) {
+        const norm = row.symbol.trim().toUpperCase();
+        stockSymbolSet.add(norm);
+        if (row.updated_at) {
+          dbSymbolMap.set(norm, new Date(row.updated_at));
+        }
+      }
+    }
+
+    // Generate dynamic stock entries sorted alphabetically
+    const sortedSymbols = Array.from(stockSymbolSet).sort();
+
+    for (const symbol of sortedSymbols) {
+      const lastMod = dbSymbolMap.get(symbol) || currentDate;
+      entries.push({
+        url: `${baseUrl}/stocks/${symbol}`,
+        lastModified: lastMod,
+        changeFrequency: "daily",
+        priority: 0.8,
+      });
+    }
+  } catch (err) {
+    console.error("[Sitemap Stocks Query Error]:", err);
+  }
+
   return entries;
 }
-

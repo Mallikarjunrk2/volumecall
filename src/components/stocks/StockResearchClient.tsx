@@ -182,6 +182,7 @@ interface StockResearchClientProps {
   isin: string;
   name: string;
   initialCandles: Candle[];
+  initialOverview?: OverviewData | null;
 }
 
 const safeJsonParse = async (res: Response) => {
@@ -214,6 +215,7 @@ export function StockResearchClient({
   isin,
   name,
   initialCandles,
+  initialOverview = null,
 }: StockResearchClientProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const tabContainerRef = useRef<HTMLDivElement>(null);
@@ -293,7 +295,7 @@ export function StockResearchClient({
   };
 
   // Section States
-  const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [overview, setOverview] = useState<OverviewData | null>(initialOverview || null);
   const [financials, setFinancials] = useState<FinancialsData | null>(null);
   const [shareholding, setShareholding] = useState<ShareholdingData | null>(null);
   const [peers, setPeers] = useState<PeersData | null>(null);
