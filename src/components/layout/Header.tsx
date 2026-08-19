@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { SearchAutocomplete } from "../stocks/SearchAutocomplete";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { MarketTicker } from "./MarketTicker";
+import { UserAccountMenu } from "./UserAccountMenu";
 
 interface HeaderProps {
   showTicker?: boolean;
@@ -16,6 +17,7 @@ const NAV_LINKS = [
   { href: "/compare", label: "Compare" },
   { href: "/calculators", label: "Calculators" },
   { href: "/blog", label: "Blog" },
+  { href: "/watchlist", label: "Watchlist" },
 ];
 
 export function Header({ showTicker }: HeaderProps) {
@@ -37,6 +39,9 @@ export function Header({ showTicker }: HeaderProps) {
     }
     if (href === "/blog") {
       return pathname.startsWith("/blog");
+    }
+    if (href === "/watchlist") {
+      return pathname.startsWith("/watchlist");
     }
     return pathname === href;
   };
@@ -85,8 +90,9 @@ export function Header({ showTicker }: HeaderProps) {
           </div>
 
           {/* Right Controls */}
-          <div className="flex items-center space-x-3 shrink-0">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 shrink-0">
             <ThemeToggle />
+            <UserAccountMenu />
           </div>
         </div>
 

@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { auth } from "@/auth";
+import { checkOrRecordStockResearch, VC_ANON_COOKIE_NAME } from "@/lib/user/research-gate-service";
 import { resolveSymbol, getStockPrice, getStockProfile, getKeyRatios, getHistoricalCandles, getUpstoxIncomeStatement, getUpstoxShareholdings } from "@/lib/upstox/service";
 import { normalizeFinancialPeriods, normalizeShareholdingHistory } from "@/lib/providers/indianapi/normalize";
 import { StockDataService } from "@/lib/stocks/stockDataService";
@@ -42,6 +45,34 @@ export async function POST(req: NextRequest) {
 
     // 1. Context Builders
     if (type === "stock" && symbol) {
+      // ── ANONYMOUS RESEARCH GATE ──
+      const session = await auth();
+      const authUserId = session?.user?.id || null;
+
+      const cookieStore = await cookies();
+      const existingAnonCookie = cookieStore.get(VC_ANON_COOKIE_NAME)?.value || null;
+
+      const gateResult = await checkOrRecordStockResearch(symbol, existingAnonCookie, authUserId);
+
+      if (!gateResult.allowed) {
+        const response = NextResponse.json(
+          { error: "LOGIN_REQUIRED", reason: "stock_limit" },
+          { status: 403 }
+        );
+        if (gateResult.isNewAnonCookie && gateResult.anonId) {
+          response.cookies.set({
+            name: VC_ANON_COOKIE_NAME,
+            value: gateResult.anonId,
+            httpOnly: true,
+            sameSite: "lax",
+            path: "/",
+            maxAge: 31536000,
+            secure: process.env.NODE_ENV === "production",
+          });
+        }
+        return response;
+      }
+
       // Reconstruct single stock context using IndianAPI + Upstox fallbacks
       const companyData = await StockDataService.getCompanyData(symbol);
       if (!companyData) {

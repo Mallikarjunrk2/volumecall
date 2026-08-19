@@ -139,6 +139,23 @@ async function run() {
     ADD COLUMN IF NOT EXISTS ratios_retrieved_at TIMESTAMP WITH TIME ZONE;
   `;
 
+  // Create public users table
+  console.log("Creating public users table...");
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      google_id VARCHAR(255),
+      email VARCHAR(255) UNIQUE NOT NULL,
+      name VARCHAR(255),
+      image TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      last_login_at TIMESTAMP WITH TIME ZONE
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id)`;
+
   console.log("Migrations applied successfully.");
 }
 

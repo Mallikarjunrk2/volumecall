@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { signIn } from "next-auth/react";
 import { 
-  ArrowUpRight, ArrowDownRight, Calendar, ShieldAlert, Info, ChevronRight, Sparkles
+  ArrowUpRight, ArrowDownRight, Calendar, ShieldAlert, Info, ChevronRight, Sparkles, Bookmark, BookmarkCheck, Lock
 } from "lucide-react";
 import { formatCurrency, formatPercent, formatIndianNumber, formatDate } from "@/lib/stocks/formatting";
 import InteractiveChart from "./InteractiveChart";
 import { getMetricValue } from "@/lib/providers/indianapi/normalize";
 import VolumeCallAIDrawer from "./VolumeCallAIDrawer";
 import { CompanyLogo } from "./CompanyLogo";
+import { LoginRequiredModal, LoginReason } from "@/components/auth/LoginRequiredModal";
 
 interface Candle {
   time: string;
@@ -183,7 +185,6 @@ interface StockResearchClientProps {
 }
 
 const safeJsonParse = async (res: Response) => {
-  if (!res.ok) return null;
   const text = await res.text();
   if (!text || text.trim() === "") return null;
   try {
@@ -217,6 +218,16 @@ export function StockResearchClient({
   const [activeTab, setActiveTab] = useState("overview");
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
+  // Modal & Auth Gating State
+  const [isGated, setIsGated] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [loginModalReason, setLoginModalReason] = useState<LoginReason>("stock_limit");
+
+  // Watchlist State
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [watchlistSaving, setWatchlistSaving] = useState(false);
+
   // Auto-scroll the active tab into view on mobile
   useEffect(() => {
     if (tabContainerRef.current) {
@@ -230,6 +241,56 @@ export function StockResearchClient({
       }
     }
   }, [activeTab]);
+
+  // Check Watchlist status on mount
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/stocks/${symbol}/watchlist-status`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (active) {
+          if (data?.authenticated) {
+            setIsAuthenticated(true);
+            setInWatchlist(Boolean(data.inWatchlist));
+          } else {
+            setIsAuthenticated(false);
+            setInWatchlist(false);
+          }
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [symbol]);
+
+  const handleWatchlistToggle = async () => {
+    if (!isAuthenticated) {
+      setLoginModalReason("watchlist");
+      setLoginModalOpen(true);
+      return;
+    }
+
+    if (watchlistSaving) return;
+    const nextState = !inWatchlist;
+    setInWatchlist(nextState);
+    setWatchlistSaving(true);
+
+    try {
+      const res = await fetch("/api/stocks/watchlist", {
+        method: nextState ? "POST" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol }),
+      });
+      if (!res.ok) throw new Error("Failed to update watchlist");
+    } catch {
+      // Revert state on error
+      setInWatchlist(!nextState);
+    } finally {
+      setWatchlistSaving(false);
+    }
+  };
 
   // Section States
   const [overview, setOverview] = useState<OverviewData | null>(null);
@@ -257,18 +318,30 @@ export function StockResearchClient({
   const [growthMode, setGrowthMode] = useState<"value" | "yoy" | "qoq">("value");
   const [activeRatioTooltip, setActiveRatioTooltip] = useState<string | null>(null);
 
+  const triggerGate = () => {
+    setIsGated(true);
+    setLoginModalReason("stock_limit");
+    setLoginModalOpen(true);
+  };
+
   // Prefetch AI analysis on hover
   const prefetchAnalysis = async () => {
-    if (analysis || loadingAnalysis || errorAnalysis) return;
+    if (analysis || loadingAnalysis || errorAnalysis || isGated) return;
     setLoadingAnalysis(true);
     setErrorAnalysis(null);
     try {
       const res = await fetch(`/api/stocks/${symbol}/analysis`, { cache: "no-store" });
+      if (res.status === 403) {
+        triggerGate();
+        throw new Error("LOGIN_REQUIRED");
+      }
       if (!res.ok) throw new Error("Failed to generate AI trend analysis.");
       const data = await safeJsonParse(res);
       setAnalysis(data);
     } catch (err: unknown) {
-      setErrorAnalysis((err as Error).message || "AI Analysis summary is temporarily unavailable.");
+      if ((err as Error).message !== "LOGIN_REQUIRED") {
+        setErrorAnalysis((err as Error).message || "AI Analysis summary is temporarily unavailable.");
+      }
     } finally {
       setLoadingAnalysis(false);
     }
@@ -282,6 +355,13 @@ export function StockResearchClient({
       setErrorOverview(null);
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=overview`, { cache: "no-store" });
+        if (res.status === 403) {
+          if (active) {
+            triggerGate();
+            setErrorOverview("Guest stock limit reached. Sign in with Google to continue.");
+          }
+          return;
+        }
         if (!res.ok) throw new Error("Failed to load overview snapshot.");
         const data = await safeJsonParse(res);
         if (active) setOverview(data);
@@ -308,6 +388,10 @@ export function StockResearchClient({
       setErrorFinancials(null);
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=financials`, { cache: "no-store" });
+        if (res.status === 403) {
+          if (active) triggerGate();
+          return;
+        }
         if (!res.ok) throw new Error("Failed to load financial statements.");
         const data = await safeJsonParse(res);
         if (active) setFinancials(data);
@@ -323,6 +407,10 @@ export function StockResearchClient({
       setErrorShareholding(null);
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=shareholding`, { cache: "no-store" });
+        if (res.status === 403) {
+          if (active) triggerGate();
+          return;
+        }
         if (!res.ok) throw new Error("Failed to load shareholding history.");
         const data = await safeJsonParse(res);
         if (active) setShareholding(data);
@@ -338,6 +426,10 @@ export function StockResearchClient({
       setErrorPeers(null);
       try {
         const res = await fetch(`/api/stocks/${symbol}/research?section=peers`, { cache: "no-store" });
+        if (res.status === 403) {
+          if (active) triggerGate();
+          return;
+        }
         if (!res.ok) throw new Error("Failed to resolve industry peers.");
         const data = await safeJsonParse(res);
         if (active) setPeers(data);
@@ -353,6 +445,10 @@ export function StockResearchClient({
       setErrorAnalysis(null);
       try {
         const res = await fetch(`/api/stocks/${symbol}/analysis`, { cache: "no-store" });
+        if (res.status === 403) {
+          if (active) triggerGate();
+          return;
+        }
         if (!res.ok) throw new Error("Failed to generate AI trend analysis.");
         const data = await safeJsonParse(res);
         if (active) setAnalysis(data);
@@ -465,6 +561,79 @@ export function StockResearchClient({
     interestCoverage: "Operating profit relative to interest expenses to evaluate debt service safety margins.",
   };
 
+  if (isGated) {
+    return (
+      <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-neutral-900 dark:text-neutral-100 min-h-screen">
+        {/* HUD HEADER */}
+        <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-neutral-200 dark:border-[#1f1f1f]">
+          <div className="flex items-center space-x-3.5">
+            <CompanyLogo
+              symbol={symbol}
+              isin={isin}
+              companyName={name}
+              className="h-10 w-10 md:h-12 md:w-12 rounded-lg"
+              textClassName="text-base md:text-lg"
+            />
+            <div>
+              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight">{name}</h1>
+              <div className="flex items-center gap-2 text-xs text-neutral-500 font-medium mt-1">
+                <span className="font-bold text-[#0F766E] dark:text-teal-400 font-mono">{symbol}</span>
+                <span>·</span>
+                <span className="px-1.5 py-0.5 bg-neutral-100 dark:bg-[#161616] border border-neutral-200 dark:border-neutral-800 rounded-xs font-mono uppercase text-[10px]">
+                  {exchange}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* GUEST RESEARCH CONVERSION CARD */}
+        <div className="max-w-xl mx-auto my-12 p-8 sm:p-10 border border-[var(--border-subtle)] bg-[var(--bg-base)] rounded-xl shadow-xl space-y-6 text-center">
+          <div className="mx-auto h-14 w-14 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400">
+            <Lock className="w-6 h-6" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              Keep exploring stocks
+            </h2>
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-md mx-auto">
+              You've explored 3 stocks as a guest. Sign in with Google to continue researching all stocks on VolumeCall with unlimited access.
+            </p>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <button
+              onClick={() => {
+                const callbackUrl = typeof window !== "undefined" ? window.location.href : "/";
+                signIn("google", { callbackUrl });
+              }}
+              className="w-full py-3 px-4 bg-teal-700 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500 text-white text-sm font-semibold rounded-md flex items-center justify-center space-x-2.5 transition-colors shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            <p className="text-xs text-[var(--text-muted)] font-medium">
+              Free account · No payment required · Unlimited stock research
+            </p>
+          </div>
+        </div>
+
+        <LoginRequiredModal
+          isOpen={loginModalOpen}
+          onClose={() => setLoginModalOpen(false)}
+          reason="stock_limit"
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 text-neutral-900 dark:text-neutral-100 min-h-screen">
       
@@ -480,7 +649,31 @@ export function StockResearchClient({
                 textClassName="text-sm md:text-lg"
             />
             <div>
-              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight leading-none break-words">{name}</h1>
+              <div className="flex items-center space-x-3">
+                <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight leading-none break-words">{name}</h1>
+                <button
+                  onClick={handleWatchlistToggle}
+                  disabled={watchlistSaving}
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                    inWatchlist
+                      ? "bg-teal-50 dark:bg-teal-950/40 text-[#0F766E] dark:text-teal-400 border-teal-300 dark:border-teal-700"
+                      : "bg-neutral-50 dark:bg-[#161616] text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-800 hover:border-teal-500"
+                  }`}
+                  title={inWatchlist ? "Remove from Watchlist" : "Save to Watchlist"}
+                >
+                  {inWatchlist ? (
+                    <>
+                      <BookmarkCheck className="w-3.5 h-3.5 fill-current text-teal-600 dark:text-teal-400" />
+                      <span>In Watchlist</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="w-3.5 h-3.5" />
+                      <span>Add to Watchlist</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500 mt-2 font-medium">
                 <span className="font-bold text-[#0F766E] dark:text-teal-400 font-mono">{symbol}</span>
                 <span className="text-neutral-350 dark:text-neutral-700">·</span>
@@ -1548,6 +1741,12 @@ export function StockResearchClient({
           symbol: symbol,
           title: name,
         }}
+      />
+
+      <LoginRequiredModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        reason={loginModalReason}
       />
 
     </main>

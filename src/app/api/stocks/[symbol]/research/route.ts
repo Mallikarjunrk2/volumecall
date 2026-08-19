@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { auth } from "@/auth";
+import { checkOrRecordStockResearch, VC_ANON_COOKIE_NAME } from "@/lib/user/research-gate-service";
 import { resolveSymbol, getStockPrice, getStockProfile, searchInstruments } from "@/lib/upstox/service";
 import { getIndianCompanyDetails, getIndianFinancialStats } from "@/lib/providers/indianapi/provider";
 import {
@@ -233,6 +236,49 @@ export async function GET(
     const { symbol: rawSymbol } = await props.params;
     const symbol = rawSymbol.toUpperCase();
 
+    // ── ANONYMOUS RESEARCH GATE ──
+    const session = await auth();
+    const authUserId = session?.user?.id || null;
+
+    const cookieStore = await cookies();
+    const existingAnonCookie = cookieStore.get(VC_ANON_COOKIE_NAME)?.value || null;
+
+    const gateResult = await checkOrRecordStockResearch(symbol, existingAnonCookie, authUserId);
+
+    if (!gateResult.allowed) {
+      const response = NextResponse.json(
+        { error: "LOGIN_REQUIRED", reason: "stock_limit" },
+        { status: 403 }
+      );
+      if (gateResult.isNewAnonCookie && gateResult.anonId) {
+        response.cookies.set({
+          name: VC_ANON_COOKIE_NAME,
+          value: gateResult.anonId,
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 31536000, // 1 year
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
+      return response;
+    }
+
+    const attachAnonCookie = (res: NextResponse) => {
+      if (gateResult.isNewAnonCookie && gateResult.anonId) {
+        res.cookies.set({
+          name: VC_ANON_COOKIE_NAME,
+          value: gateResult.anonId,
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 31536000,
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
+      return res;
+    };
+
     // Parse section query parameter
     const { searchParams } = new URL(request.url);
     const section = searchParams.get("section") || "overview";
@@ -240,7 +286,7 @@ export async function GET(
     // 1. Resolve ticker metadata from Upstox
     const instrument = await resolveSymbol(symbol);
     if (!instrument) {
-      return NextResponse.json({ error: `Symbol ${symbol} not found.` }, { status: 404 });
+      return attachAnonCookie(NextResponse.json({ error: `Symbol ${symbol} not found.` }, { status: 404 }));
     }
 
     if (section === "overview") {
@@ -382,19 +428,21 @@ export async function GET(
 
       const latestFinancials = resolveLatestFinancials(rawIndianDetails, annualProfitLoss);
 
-      return NextResponse.json({
-        company,
-        market,
-        ratios: enrichedRatios,
-        shareholdingLatest,
-        corporateActions,
-        announcements,
-        latestFinancials,
-        cagr,
-        keyMetrics: rawIndianDetails ? (rawIndianDetails as any).keyMetrics : null,
-        source: rawIndianDetails ? "INDIAN_API" : "UPSTOX",
-        retrievedAt: ratiosRetrievedAt ? ratiosRetrievedAt.toISOString() : new Date().toISOString(),
-      });
+      return attachAnonCookie(
+        NextResponse.json({
+          company,
+          market,
+          ratios: enrichedRatios,
+          shareholdingLatest,
+          corporateActions,
+          announcements,
+          latestFinancials,
+          cagr,
+          keyMetrics: rawIndianDetails ? (rawIndianDetails as any).keyMetrics : null,
+          source: rawIndianDetails ? "INDIAN_API" : "UPSTOX",
+          retrievedAt: ratiosRetrievedAt ? ratiosRetrievedAt.toISOString() : new Date().toISOString(),
+        })
+      );
     }
 
     if (section === "financials") {
@@ -480,13 +528,15 @@ export async function GET(
         .filter((t): t is Date => t !== null)
         .sort((a, b) => b.getTime() - a.getTime())[0] || new Date();
 
-      return NextResponse.json({
-        quarterlyResults,
-        annualProfitLoss,
-        balanceSheet,
-        cashFlow,
-        retrievedAt: latestTime.toISOString(),
-      });
+      return attachAnonCookie(
+        NextResponse.json({
+          quarterlyResults,
+          annualProfitLoss,
+          balanceSheet,
+          cashFlow,
+          retrievedAt: latestTime.toISOString(),
+        })
+      );
     }
 
     if (section === "shareholding") {
@@ -507,20 +557,24 @@ export async function GET(
         }
       }
 
-      return NextResponse.json({
-        history,
-        retrievedAt: retrievedTime.toISOString(),
-      });
+      return attachAnonCookie(
+        NextResponse.json({
+          history,
+          retrievedAt: retrievedTime.toISOString(),
+        })
+      );
     }
 
     if (section === "peers") {
       const cachedPeers = await getPeersFromDb(symbol);
       if (cachedPeers && isSectionFresh(cachedPeers.retrievedAt, SECTION_TTL_DAYS.PEERS)) {
-        return NextResponse.json({
-          peers: cachedPeers.data.peers,
-          medians: cachedPeers.data.medians,
-          retrievedAt: cachedPeers.retrievedAt.toISOString(),
-        });
+        return attachAnonCookie(
+          NextResponse.json({
+            peers: cachedPeers.data.peers,
+            medians: cachedPeers.data.medians,
+            retrievedAt: cachedPeers.retrievedAt.toISOString(),
+          })
+        );
       }
 
       interface RawPeerCompany {
@@ -674,14 +728,16 @@ export async function GET(
       // Save to PostgreSQL Cache
       await savePeersToDb(symbol, { peers: peerResults, medians });
 
-      return NextResponse.json({
-        peers: peerResults,
-        medians,
-        retrievedAt: new Date().toISOString(),
-      });
+      return attachAnonCookie(
+        NextResponse.json({
+          peers: peerResults,
+          medians,
+          retrievedAt: new Date().toISOString(),
+        })
+      );
     }
 
-    return NextResponse.json({ error: `Unsupported section ${section}` }, { status: 400 });
+    return attachAnonCookie(NextResponse.json({ error: `Unsupported section ${section}` }, { status: 400 }));
   } catch (error: unknown) {
     console.error("[Research API Error]:", error);
     const message = (error as Error).message || "An unexpected error occurred retrieving research details.";
