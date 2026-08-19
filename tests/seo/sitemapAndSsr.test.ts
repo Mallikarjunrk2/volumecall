@@ -47,12 +47,26 @@ describe("Sitemap & SSR/SEO Audit Tests", () => {
       expect(urls).toContain("https://volumecall.in/stocks/CUSTOM_DB_STOCK");
     });
 
-    it("includes every ticker in UNIVERSE_TICKERS without omission", async () => {
+    it("includes every ticker in UNIVERSE_TICKERS without omission and XML-escapes special characters", async () => {
       const entries = await sitemap();
       const urls = new Set(entries.map((e) => e.url));
 
       for (const ticker of UNIVERSE_TICKERS) {
-        expect(urls.has(`https://volumecall.in/stocks/${ticker}`)).toBe(true);
+        const expectedUrl = `https://volumecall.in/stocks/${ticker.replace(/&/g, "&amp;")}`;
+        expect(urls.has(expectedUrl)).toBe(true);
+      }
+
+      // Explicitly check M&M symbol XML escaping
+      expect(urls.has("https://volumecall.in/stocks/M&amp;M")).toBe(true);
+      expect(urls.has("https://volumecall.in/stocks/M&M")).toBe(false);
+    });
+
+    it("ensures zero unescaped ampersands exist in any sitemap URL", async () => {
+      const entries = await sitemap();
+      for (const entry of entries) {
+        // Any ampersand must be followed by amp; or lt; or gt; or quot; or apos;
+        const unescapedMatch = entry.url.match(/&(?!amp;|lt;|gt;|quot;|apos;)/);
+        expect(unescapedMatch).toBeNull();
       }
     });
 

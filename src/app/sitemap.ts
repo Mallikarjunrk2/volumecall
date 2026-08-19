@@ -122,5 +122,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("[Sitemap Stocks Query Error]:", err);
   }
 
-  return entries;
+  // XML-escape special characters (& -> &amp;) in URLs so Next.js sitemap output parses as valid XML
+  return entries.map((entry) => ({
+    ...entry,
+    url: entry.url.replace(/&(?!amp;|lt;|gt;|quot;|apos;)/g, "&amp;"),
+  }));
 }
