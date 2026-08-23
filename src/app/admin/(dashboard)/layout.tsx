@@ -29,10 +29,16 @@ export default async function AdminDashboardLayout({
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
           {/* Brand & Section Title */}
           <div className="flex items-center space-x-6">
-            <Link href="/admin" className="flex items-center space-x-2">
-              <span className="h-4 w-4 rounded-xs bg-[#0D9488] dark:bg-[#2DD4BF] flex items-center justify-center shrink-0">
-                <span className="h-1.5 w-1.5 bg-white dark:bg-black rounded-xs" />
-              </span>
+            <Link href="/admin" className="flex items-center space-x-2.5">
+              <svg
+                viewBox="0 0 200 200"
+                className="h-4.5 w-4.5 shrink-0 fill-[#0A0A0A] dark:fill-[#FFFFFF] transition-colors"
+                aria-hidden="true"
+              >
+                <rect x="40" y="44" width="36" height="50" rx="11" />
+                <rect x="76" y="100" width="36" height="50" rx="11" />
+                <rect x="128" y="44" width="36" height="106" rx="11" />
+              </svg>
               <span className="text-sm font-bold tracking-tight uppercase">
                 VolumeCall CMS
               </span>

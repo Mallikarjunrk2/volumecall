@@ -64,12 +64,18 @@ export function Header({ showTicker }: HeaderProps) {
           <div className="flex items-center space-x-6 lg:space-x-8 shrink-0">
             <Link
               href="/"
-              className="flex items-center space-x-2 focus:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 rounded-xs"
+              className="flex items-center space-x-2.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 rounded-xs"
             >
-              {/* Crisp teal brand mark */}
-              <span className="h-4 w-4 rounded-xs bg-[#0D9488] dark:bg-[#2DD4BF] flex items-center justify-center shrink-0">
-                <span className="h-1.5 w-1.5 bg-white dark:bg-black rounded-xs" />
-              </span>
+              {/* Official VolumeCall V Mark */}
+              <svg
+                viewBox="0 0 200 200"
+                className="h-5 w-5 shrink-0 fill-[#0A0A0A] dark:fill-[#FFFFFF] transition-colors"
+                aria-hidden="true"
+              >
+                <rect x="40" y="44" width="36" height="50" rx="11" />
+                <rect x="76" y="100" width="36" height="50" rx="11" />
+                <rect x="128" y="44" width="36" height="106" rx="11" />
+              </svg>
               <span className="text-sm sm:text-base font-bold tracking-tight text-[var(--text-primary)] uppercase">
                 VolumeCall
               </span>

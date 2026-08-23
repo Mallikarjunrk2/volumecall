@@ -39,10 +39,16 @@ function LoginCard() {
     <div className="w-full max-w-sm sm:max-w-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg p-6 sm:p-8 space-y-6 shadow-xs">
       {/* Brand Header */}
       <div className="text-center space-y-2">
-        <Link href="/" className="inline-flex items-center space-x-2 focus:outline-none rounded-xs">
-          <span className="h-5 w-5 rounded-xs bg-[#0D9488] dark:bg-[#2DD4BF] flex items-center justify-center shrink-0">
-            <span className="h-2 w-2 bg-white dark:bg-black rounded-xs" />
-          </span>
+        <Link href="/" className="inline-flex items-center space-x-2.5 focus:outline-none rounded-xs">
+          <svg
+            viewBox="0 0 200 200"
+            className="h-5 w-5 shrink-0 fill-[#0A0A0A] dark:fill-[#FFFFFF] transition-colors"
+            aria-hidden="true"
+          >
+            <rect x="40" y="44" width="36" height="50" rx="11" />
+            <rect x="76" y="100" width="36" height="50" rx="11" />
+            <rect x="128" y="44" width="36" height="106" rx="11" />
+          </svg>
           <span className="text-lg font-bold tracking-tight text-[var(--text-primary)] uppercase">
             VolumeCall
           </span>

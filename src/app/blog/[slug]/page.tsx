@@ -131,7 +131,7 @@ export default async function BlogPostPage(props: Props) {
       name: "VolumeCall",
       logo: {
         "@type": "ImageObject",
-        url: "https://volumecall.in/favicon.ico",
+        url: "https://volumecall.in/icon-512.png",
       },
     },
     mainEntityOfPage: {
