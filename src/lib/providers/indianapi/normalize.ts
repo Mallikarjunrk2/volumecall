@@ -76,31 +76,46 @@ function getSortedPeriods(stats: RawIndianHistoricalStats): string[] {
 }
 
 /**
- * Helper to lookup metric values from nested keyMetrics groups
+ * Helper to lookup metric values from flat objects or nested keyMetrics groups, supporting single key or alias array
  */
-export function getMetricValue(keyMetrics: unknown, keyName: string): number | null {
+export function getMetricValue(keyMetrics: unknown, keyName: string | string[]): number | null {
   if (!keyMetrics || typeof keyMetrics !== "object") return null;
-  const metrics = keyMetrics as Record<string, unknown>;
-  const cleanKey = keyName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const targets = (Array.isArray(keyName) ? keyName : [keyName]).map((k) =>
+    k.toLowerCase().replace(/[^a-z0-9]/g, "")
+  );
 
+  const metrics = keyMetrics as Record<string, unknown>;
+
+  // 1. Direct flat object properties
+  for (const k of Object.keys(metrics)) {
+    const cleanK = k.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (targets.includes(cleanK)) {
+      const val = metrics[k];
+      if (val !== undefined && val !== null && val !== "null") {
+        const num = typeof val === "number" ? val : parseFloat(String(val).replace(/[^0-9.-]/g, ""));
+        if (!isNaN(num)) return num;
+      }
+    }
+  }
+
+  // 2. Nested category arrays: { valuation: [{ key: "marketCap", value: "1770000" }] }
   for (const cat of Object.keys(metrics)) {
     const items = metrics[cat];
     if (Array.isArray(items)) {
-      const found = items.find((item: unknown) => {
+      for (const item of items) {
         const it = item as Record<string, unknown>;
-        if (!it || !it.key) return false;
+        if (!it || !it.key) continue;
         const currentKey = String(it.key).toLowerCase().replace(/[^a-z0-9]/g, "");
-        return currentKey === cleanKey;
-      });
-      if (found) {
-        const foundObj = found as Record<string, unknown>;
-        if (foundObj.value !== undefined && foundObj.value !== null && foundObj.value !== "null") {
-          const num = parseFloat(String(foundObj.value).replace(/[^0-9.-]/g, ""));
-          if (!isNaN(num)) return num;
+        if (targets.includes(currentKey)) {
+          if (it.value !== undefined && it.value !== null && it.value !== "null") {
+            const num = typeof it.value === "number" ? it.value : parseFloat(String(it.value).replace(/[^0-9.-]/g, ""));
+            if (!isNaN(num)) return num;
+          }
         }
       }
     }
   }
+
   return null;
 }
 
@@ -138,15 +153,16 @@ export function normalizeMarketSnapshot(
   const priceBse = current ? getPrice(current.BSE) : null;
   const priceNse = current ? getPrice(current.NSE) : null;
 
-  const high52W = getMetricValue(raw.keyMetrics, "52WeekHigh");
-  const low52W = getMetricValue(raw.keyMetrics, "52WeekLow");
+  // 52-Week High / Low MUST come from keyMetrics or raw 52W fields, NEVER intraday!
+  const high52W = getMetricValue(raw.keyMetrics, ["52WeekHigh", "yearHigh", "fiftyTwoWeekHigh"]) ?? getPrice(raw.yearHigh);
+  const low52W = getMetricValue(raw.keyMetrics, ["52WeekLow", "yearLow", "fiftyTwoWeekLow"]) ?? getPrice(raw.yearLow);
 
   return {
     priceBse,
     priceNse,
     percentChange: getPrice(raw.percentChange),
-    yearHigh: high52W ?? getPrice(raw.yearHigh),
-    yearLow: low52W ?? getPrice(raw.yearLow),
+    yearHigh: high52W,
+    yearLow: low52W,
     freshness: "DELAYED",
     updatedAt: new Date().toISOString(),
   };
@@ -157,26 +173,23 @@ export function normalizeMarketSnapshot(
  */
 export function normalizeRatios(raw: RawIndianCompanyDetails): NormalizedRatios {
   const getMetric = (keys: string[]): number | null => {
-    for (const k of keys) {
-      const val = getMetricValue(raw.keyMetrics, k);
-      if (val !== null) return val;
-    }
-    return null;
+    return getMetricValue(raw.keyMetrics, keys);
   };
 
   return {
-    pe: getMetric(["pPerEBasicExcludingExtraordinaryItemsTTM", "pPerEIncludingExtraordinaryItemsTTM", "pPerEExcludingExtraordinaryItemsMostRecentFiscalYearQuarter", "pPerENormalizedMostRecentFiscalYear"]),
-    pb: getMetric(["priceToBookMostRecentQuarter", "priceToBookMostRecentFiscalYear"]),
-    evebitda: getMetric(["currentEVPerEBITDATrailing12Months", "currentEVPerEBITDALFY"]),
-    priceToSales: getMetric(["priceToSalesTrailing12Month", "priceToSalesMostRecentFiscalYear"]),
-    dividendYield: getMetric(["dividendYieldIndicatedAnnualDividendDividedByClosingprice", "currentDividendYieldCommonStockPrimaryIssueLTM"]),
-    roe: getMetric(["returnOnAverageEquityTrailing12Month", "returnOnAverageEquityMostRecentFiscalYear"]),
-    roce: getMetric(["returnOnInvestmentTrailing12Month", "returnOnInvestmentMostRecentFiscalYear"]),
-    roa: getMetric(["returnOnAverageAssetsTrailing12Month", "returnOnAverageAssetsMostRecenFiscalYear"]),
-    debtToEquity: getMetric(["totalDebtPerTotalEquityMostRecentQuarter", "totalDebtPerTotalEquityMostRecentFiscalYear"]),
-    currentRatio: getMetric(["currentRatioMostRecentQuarter", "currentRatioMostRecentFiscalYear"]),
-    quickRatio: getMetric(["quickRatioMostRecentQuarter", "quickRatioMostRecentFiscalYear"]),
-    interestCoverage: getMetric(["netInterestCoverageTrailing12Month", "netInterestCoverageMostRecentFiscalYear"]),
+    pe: getMetric(["pPerEBasicExcludingExtraordinaryItemsTTM", "pPerEIncludingExtraordinaryItemsTTM", "pPerEExcludingExtraordinaryItemsMostRecentFiscalYearQuarter", "pPerENormalizedMostRecentFiscalYear", "pe", "peRatio"]),
+    pb: getMetric(["priceToBookMostRecentQuarter", "priceToBookMostRecentFiscalYear", "priceToBook", "pb"]),
+    bookValue: getMetric(["bookValuePerShareMostRecentQuarter", "bookValuePerShareMostRecentFiscalYear", "bookValuePerShare", "bookValue"]),
+    evebitda: getMetric(["currentEVPerEBITDATrailing12Months", "currentEVPerEBITDALFY", "enterpriseValueToEBITDA", "evebitda"]),
+    priceToSales: getMetric(["priceToSalesTrailing12Month", "priceToSalesMostRecentFiscalYear", "priceToSales"]),
+    dividendYield: getMetric(["dividendYieldIndicatedAnnualDividendDividedByClosingprice", "currentDividendYieldCommonStockPrimaryIssueLTM", "dividendYield"]),
+    roe: getMetric(["returnOnAverageEquityTrailing12Month", "returnOnAverageEquityMostRecentFiscalYear", "roe"]),
+    roce: getMetric(["returnOnInvestmentTrailing12Month", "returnOnInvestmentMostRecentFiscalYear", "roce"]),
+    roa: getMetric(["returnOnAverageAssetsTrailing12Month", "returnOnAverageAssetsMostRecenFiscalYear", "roa"]),
+    debtToEquity: getMetric(["totalDebtPerTotalEquityMostRecentQuarter", "totalDebtPerTotalEquityMostRecentFiscalYear", "debtToEquity"]),
+    currentRatio: getMetric(["currentRatioMostRecentQuarter", "currentRatioMostRecentFiscalYear", "currentRatio"]),
+    quickRatio: getMetric(["quickRatioMostRecentQuarter", "quickRatioMostRecentFiscalYear", "quickRatio"]),
+    interestCoverage: getMetric(["netInterestCoverageTrailing12Month", "netInterestCoverageMostRecentFiscalYear", "interestCoverage"]),
   };
 }
 

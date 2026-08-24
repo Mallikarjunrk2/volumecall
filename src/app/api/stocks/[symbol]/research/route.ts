@@ -19,6 +19,8 @@ import {
   getMetricValue
 } from "@/lib/providers/indianapi/normalize";
 import { calculateGrowth, calculateMedian } from "@/lib/stocks/calculations";
+import { getPublicArticles } from "@/lib/cms/service";
+import { matchMetricArticles } from "@/lib/stocks/metricEducation";
 import {
   NormalizedCompanyIdentity,
   NormalizedMarketSnapshot,
@@ -92,11 +94,13 @@ function calculateDerivableMetrics(
 ) {
   const updatedRatios = { ...ratios };
   
-  // Resolve EPS from annual P&L if available
+  // Resolve EPS and Net Profit from annual P&L if available
   let latestEPS: number | null = null;
+  let latestNetProfit: number | null = null;
   if (annualPL.length > 0) {
     const latestAnnual = annualPL[annualPL.length - 1];
     latestEPS = latestAnnual.eps;
+    latestNetProfit = latestAnnual.netProfit;
   }
 
   // 1. Calculate P/E if null
@@ -114,32 +118,46 @@ function calculateDerivableMetrics(
     updatedRatios.priceToSales = marketCap / latestRevenue;
   }
 
-  // 3. Calculate Debt to Equity if null
-  if (updatedRatios.debtToEquity === null && balanceSheet.length > 0) {
+  // 3. Calculate Total Equity & Debt to Equity if null
+  let totalEquity: number | null = null;
+  if (balanceSheet.length > 0) {
     const latestBS = balanceSheet[balanceSheet.length - 1];
-    const totalEquity = (latestBS.equityCapital || 0) + (latestBS.reserves || 0);
-    if (totalEquity > 0 && latestBS.borrowings !== null) {
+    if (latestBS.equityCapital !== null || latestBS.reserves !== null) {
+      totalEquity = (latestBS.equityCapital || 0) + (latestBS.reserves || 0);
+    }
+    if (updatedRatios.debtToEquity === null && totalEquity && totalEquity > 0 && latestBS.borrowings !== null) {
       updatedRatios.debtToEquity = latestBS.borrowings / totalEquity;
     }
   }
 
   // 4. Calculate ROE if null
-  if (updatedRatios.roe === null && annualPL.length > 0 && balanceSheet.length > 0) {
-    const latestAnnual = annualPL[annualPL.length - 1];
-    const latestBS = balanceSheet[balanceSheet.length - 1];
-    const totalEquity = (latestBS.equityCapital || 0) + (latestBS.reserves || 0);
-    if (totalEquity > 0 && latestAnnual.netProfit !== null) {
-      updatedRatios.roe = (latestAnnual.netProfit / totalEquity) * 100;
-    }
+  if (updatedRatios.roe === null && latestNetProfit !== null && totalEquity && totalEquity > 0) {
+    updatedRatios.roe = (latestNetProfit / totalEquity) * 100;
   }
 
   // 5. Calculate ROA if null
-  if (updatedRatios.roa === null && annualPL.length > 0 && balanceSheet.length > 0) {
-    const latestAnnual = annualPL[annualPL.length - 1];
+  if (updatedRatios.roa === null && latestNetProfit !== null && balanceSheet.length > 0) {
     const latestBS = balanceSheet[balanceSheet.length - 1];
-    if (latestBS.totalAssets && latestBS.totalAssets > 0 && latestAnnual.netProfit !== null) {
-      updatedRatios.roa = (latestAnnual.netProfit / latestBS.totalAssets) * 100;
+    if (latestBS.totalAssets && latestBS.totalAssets > 0) {
+      updatedRatios.roa = (latestNetProfit / latestBS.totalAssets) * 100;
     }
+  }
+
+  // 6. Book Value derivation: Prefer actual API Book Value Per Share, derive Price / P/B ONLY if actual Book Value is genuinely unavailable!
+  if (updatedRatios.bookValue === null) {
+    if (price && updatedRatios.pb && updatedRatios.pb > 0) {
+      updatedRatios.bookValue = price / updatedRatios.pb;
+    } else if (totalEquity && latestEPS && latestNetProfit && latestNetProfit > 0) {
+      const estShares = latestNetProfit / latestEPS;
+      if (estShares > 0) {
+        updatedRatios.bookValue = totalEquity / estShares;
+      }
+    }
+  }
+
+  // 7. Calculate P/B if null (Price / Book Value)
+  if (updatedRatios.pb === null && price && updatedRatios.bookValue && updatedRatios.bookValue > 0) {
+    updatedRatios.pb = price / updatedRatios.bookValue;
   }
 
   // Calculate CAGRs
@@ -193,36 +211,45 @@ function resolveLatestFinancials(
     result.netProfit = latest.netProfit;
     result.eps = latest.eps;
     result.operatingMargin = latest.opmPercent;
-    result.revenueGrowth = latest.yoyGrowth || null;
   }
 
-  // 2. Fallback: Key metrics trailing/TTM data
+  // Calculate Revenue Growth & Profit Growth from annual P&L if two valid comparable periods exist
+  if (annualPL.length >= 2) {
+    const latest = annualPL[annualPL.length - 1];
+    const prev = annualPL[annualPL.length - 2];
+
+    if (latest.sales !== null && prev.sales !== null && prev.sales > 0) {
+      result.revenueGrowth = ((latest.sales - prev.sales) / prev.sales) * 100;
+    }
+    if (latest.netProfit !== null && prev.netProfit !== null && prev.netProfit !== 0) {
+      result.profitGrowth = ((latest.netProfit - prev.netProfit) / Math.abs(prev.netProfit)) * 100;
+    }
+  }
+
+  // 2. Fallback: Key metrics trailing/TTM data if annual P&L growth is unavailable
   if (rawDetails && rawDetails.keyMetrics) {
     const getVal = (keys: string[]): number | null => {
-      for (const k of keys) {
-        const v = getMetricValue(rawDetails.keyMetrics, k);
-        if (v !== null) return v;
-      }
-      return null;
+      return getMetricValue(rawDetails.keyMetrics, keys);
     };
 
-    const ttmRev = getVal(["revenueTrailing12Month", "revenueMostRecentFiscalYear"]);
-    if (ttmRev !== null) result.revenue = ttmRev;
-
-    const ttmProfit = getVal(["netIncomeAvailableToCommonTrailing12Months", "netIncomeAvailableToCommonMostRecentFiscalYear"]);
-    if (ttmProfit !== null) result.netProfit = ttmProfit;
-
-    const ttmEps = getVal(["earningsPerShareNormalizedExcludingExtraordinaryItemsAvgDilutedSharesOutstandingTTM", "ePSIncludingExtraOrdinaryItemsTrailing12Month", "ePSBasicExcludingExtraordinaryItemsItrailing12Month"]);
-    if (ttmEps !== null) result.eps = ttmEps;
-
-    const ttmMargin = getVal(["operatingMarginTrailing12Month", "operatingMarginMostRecentFiscalYear"]);
-    if (ttmMargin !== null) result.operatingMargin = ttmMargin;
-
-    const revGrowth = getVal(["revenueChangePercentTTMPOverTTM", "revenueChangePercentMostRecentQuarter1YearAgo"]);
-    if (revGrowth !== null) result.revenueGrowth = revGrowth;
-
-    const profGrowth = getVal(["ePSChangePercentTTMOverTTM", "ePSChangePercentMostRecentQuarter1YearAgo"]);
-    if (profGrowth !== null) result.profitGrowth = profGrowth;
+    if (result.revenue === null) {
+      result.revenue = getVal(["revenueTrailing12Month", "revenueMostRecentFiscalYear"]);
+    }
+    if (result.netProfit === null) {
+      result.netProfit = getVal(["netIncomeAvailableToCommonTrailing12Months", "netIncomeAvailableToCommonMostRecentFiscalYear"]);
+    }
+    if (result.eps === null) {
+      result.eps = getVal(["earningsPerShareNormalizedExcludingExtraordinaryItemsAvgDilutedSharesOutstandingTTM", "ePSIncludingExtraOrdinaryItemsTrailing12Month", "ePSBasicExcludingExtraordinaryItemsItrailing12Month"]);
+    }
+    if (result.operatingMargin === null) {
+      result.operatingMargin = getVal(["operatingMarginTrailing12Month", "operatingMarginMostRecentFiscalYear"]);
+    }
+    if (result.revenueGrowth === null) {
+      result.revenueGrowth = getVal(["revenueChangePercentTTMPOverTTM", "revenueChangePercentMostRecentQuarter1YearAgo"]);
+    }
+    if (result.profitGrowth === null) {
+      result.profitGrowth = getVal(["ePSChangePercentTTMOverTTM", "ePSChangePercentMostRecentQuarter1YearAgo", "netIncomeChangePercentTTMOverTTM"]);
+    }
   }
 
   return result;
@@ -296,7 +323,7 @@ export async function GET(
 
       // 2. Resolve Ratios (PostgreSQL Read-Through)
       let ratios: NormalizedRatios = {
-        pe: null, pb: null, evebitda: null, priceToSales: null, dividendYield: null,
+        pe: null, pb: null, bookValue: null, evebitda: null, priceToSales: null, dividendYield: null,
         roe: null, roce: null, roa: null, debtToEquity: null, currentRatio: null,
         quickRatio: null, interestCoverage: null
       };
@@ -428,6 +455,15 @@ export async function GET(
 
       const latestFinancials = resolveLatestFinancials(rawIndianDetails, annualProfitLoss);
 
+      // Fetch CMS published articles ONCE and resolve metric article links dynamically
+      let metricArticles: Record<string, string> = {};
+      try {
+        const cmsArticles = await getPublicArticles();
+        metricArticles = matchMetricArticles(cmsArticles);
+      } catch (err) {
+        console.error("[Research API] Error fetching metric CMS articles:", err);
+      }
+
       return attachAnonCookie(
         NextResponse.json({
           company,
@@ -438,6 +474,7 @@ export async function GET(
           announcements,
           latestFinancials,
           cagr,
+          metricArticles,
           keyMetrics: rawIndianDetails ? (rawIndianDetails as any).keyMetrics : null,
           source: rawIndianDetails ? "INDIAN_API" : "UPSTOX",
           retrievedAt: ratiosRetrievedAt ? ratiosRetrievedAt.toISOString() : new Date().toISOString(),

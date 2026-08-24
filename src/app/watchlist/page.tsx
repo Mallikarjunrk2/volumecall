@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import Header from "@/components/layout/Header";
@@ -30,8 +30,7 @@ export default function WatchlistPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Load watchlist items from DB for authenticated user
-  const fetchWatchlist = async () => {
+  const fetchWatchlist = useCallback(async () => {
     if (!isAuthenticated) {
       setLoading(false);
       return;
@@ -51,16 +50,13 @@ export default function WatchlistPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (status !== "loading") {
       fetchWatchlist();
     }
-
-    return () => {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, isAuthenticated]);
+  }, [status, fetchWatchlist]);
 
   const handleAddSymbol = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -120,7 +120,7 @@ export function Footer() {
       {/* ─── 4. BOTTOM OVERLAID COPYRIGHT, LINKS & FINANCIAL DISCLAIMER ───── */}
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end pt-4 border-t border-neutral-900/60">
-          
+
           {/* Disclaimer on Left (50% Opacity) */}
           <div className="md:col-span-7 text-[10px] leading-relaxed text-neutral-400 opacity-50 font-sans">
             <p>

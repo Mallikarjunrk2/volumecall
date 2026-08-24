@@ -11,6 +11,7 @@ import { getMetricValue } from "@/lib/providers/indianapi/normalize";
 import VolumeCallAIDrawer from "./VolumeCallAIDrawer";
 import { CompanyLogo } from "./CompanyLogo";
 import { LoginRequiredModal, LoginReason } from "@/components/auth/LoginRequiredModal";
+import { MetricInfo } from "./MetricInfo";
 
 interface Candle {
   time: string;
@@ -77,6 +78,7 @@ interface OverviewData {
     prof3Y: number | null;
     prof5Y: number | null;
   };
+  metricArticles?: Record<string, string>;
 }
 
 interface FinancialPeriod {
@@ -600,7 +602,7 @@ export function StockResearchClient({
               Keep exploring stocks
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-md mx-auto">
-              You've explored 3 stocks as a guest. Sign in with Google to continue researching all stocks on VolumeCall with unlimited access.
+              You&apos;ve explored 3 stocks as a guest. Sign in with Google to continue researching all stocks on VolumeCall with unlimited access.
             </p>
           </div>
 
@@ -796,19 +798,27 @@ export function StockResearchClient({
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-5">
                       {[
-                        { label: "Market Cap", val: getMetricValue(overview.keyMetrics, "marketCap") ? `${formatCurrency(getMetricValue(overview.keyMetrics, "marketCap"))} Cr` : "—" },
-                        { label: "Current Price", val: overview.market?.priceNse ? formatCurrency(overview.market.priceNse) : (overview.market?.priceBse ? formatCurrency(overview.market.priceBse) : "—") },
-                        { label: "52W High / Low", val: (overview.market?.yearHigh && overview.market?.yearLow) ? `₹${formatIndianNumber(Number(overview.market.yearHigh))} / ₹${formatIndianNumber(Number(overview.market.yearLow))}` : "—" },
-                        { label: "Stock P/E", val: overview.ratios?.pe ? `${overview.ratios.pe.toFixed(1)}x` : "—" },
-                        { label: "Price to Book (P/B)", val: overview.ratios?.pb ? `${overview.ratios.pb.toFixed(1)}x` : "—" },
-                        { label: "Book Value", val: getMetricValue(overview.keyMetrics, "bookValuePerShareMostRecentQuarter") ? `₹${formatIndianNumber(Number(getMetricValue(overview.keyMetrics, "bookValuePerShareMostRecentQuarter")))}` : "—" },
-                        { label: "Dividend Yield", val: overview.ratios?.dividendYield ? `${overview.ratios.dividendYield.toFixed(2)}%` : "—" },
-                        { label: "ROE", val: overview.ratios?.roe ? `${overview.ratios.roe.toFixed(1)}%` : "—" },
-                        { label: "ROCE", val: overview.ratios?.roce ? `${overview.ratios.roce.toFixed(1)}%` : "—" },
-                        { label: "Debt to Equity", val: overview.ratios?.debtToEquity !== null && overview.ratios?.debtToEquity !== undefined ? `${overview.ratios.debtToEquity.toFixed(2)}` : "—" },
+                        { key: "marketCap", label: "Market Cap", val: getMetricValue(overview.keyMetrics, ["marketCap", "marketCapitalization", "mcap"]) ? `₹${formatIndianNumber(getMetricValue(overview.keyMetrics, ["marketCap", "marketCapitalization", "mcap"]))} Cr` : "—" },
+                        { key: "currentPrice", label: "Current Price", val: overview.market?.priceNse ? formatCurrency(overview.market.priceNse) : (overview.market?.priceBse ? formatCurrency(overview.market.priceBse) : "—") },
+                        { key: "highLow", label: "52W High / Low", val: (overview.market?.yearHigh && overview.market?.yearLow) ? `₹${formatIndianNumber(Number(overview.market.yearHigh))} / ₹${formatIndianNumber(Number(overview.market.yearLow))}` : "—" },
+                        { key: "pe", label: "Stock P/E", val: overview.ratios?.pe ? `${overview.ratios.pe.toFixed(1)}x` : "—" },
+                        { key: "pb", label: "Price to Book (P/B)", val: overview.ratios?.pb ? `${overview.ratios.pb.toFixed(1)}x` : "—" },
+                        { key: "bookValue", label: "Book Value", val: overview.ratios?.bookValue ? `₹${formatIndianNumber(Number(overview.ratios.bookValue), true)}` : "—" },
+                        { key: "dividendYield", label: "Dividend Yield", val: overview.ratios?.dividendYield ? `${overview.ratios.dividendYield.toFixed(2)}%` : "—" },
+                        { key: "roe", label: "ROE", val: overview.ratios?.roe ? `${overview.ratios.roe.toFixed(1)}%` : "—" },
+                        { key: "roce", label: "ROCE", val: overview.ratios?.roce ? `${overview.ratios.roce.toFixed(1)}%` : "—" },
+                        { key: "debtToEquity", label: "Debt to Equity", val: overview.ratios?.debtToEquity !== null && overview.ratios?.debtToEquity !== undefined ? `${overview.ratios.debtToEquity.toFixed(2)}` : "—" },
                       ].map((card, idx) => (
                         <div key={idx} className="p-3 md:p-4 border border-neutral-200 dark:border-[#1f1f1f] bg-neutral-50 dark:bg-[#161616] rounded-xl flex flex-col justify-between gap-1 min-h-[72px] md:min-h-[84px]">
-                          <span className="text-[9px] md:text-[10px] uppercase font-bold text-neutral-450 tracking-wider block leading-snug">{card.label}</span>
+                          <span className="text-[9px] md:text-[10px] uppercase font-bold text-neutral-450 tracking-wider flex items-center leading-snug">
+                            <MetricInfo
+                              metricKey={card.key}
+                              label={card.label}
+                              metricArticles={overview.metricArticles}
+                              activeMetric={activeRatioTooltip}
+                              onToggleActive={setActiveRatioTooltip}
+                            />
+                          </span>
                           <div className="text-sm xs:text-base md:text-lg font-black tabular-nums break-words leading-tight text-neutral-900 dark:text-white">{card.val}</div>
                         </div>
                       ))}
@@ -1059,7 +1069,7 @@ export function StockResearchClient({
                     <tr className="bg-teal-500/5 text-[#0F766E] dark:text-teal-400 font-extrabold">
                       <td className="sticky-metric font-semibold text-[#0F766E] dark:text-teal-400">{symbol} (Self)</td>
                       <td className="text-right num-important">{currentPrice ? `₹${formatIndianNumber(currentPrice, true)}` : "—"}</td>
-                      <td className="text-right num-important">{getMetricValue(overview?.keyMetrics, "marketCap") ? `₹${formatIndianNumber(getMetricValue(overview?.keyMetrics, "marketCap"))} Cr` : "—"}</td>
+                      <td className="text-right num-important">{getMetricValue(overview?.keyMetrics, ["marketCap", "marketCapitalization", "mcap"]) ? `₹${formatIndianNumber(getMetricValue(overview?.keyMetrics, ["marketCap", "marketCapitalization", "mcap"]))} Cr` : "—"}</td>
                       <td className="text-right num-important">{overview?.ratios?.pe ? `${formatIndianNumber(overview.ratios.pe, true)}x` : "—"}</td>
                       <td className="text-right num-important">{overview?.ratios?.pb ? `${formatIndianNumber(overview.ratios.pb, true)}x` : "—"}</td>
                       <td className="text-right num-important">{overview?.ratios?.roe ? `${formatIndianNumber(overview.ratios.roe, true)}%` : "—"}</td>
@@ -1409,16 +1419,15 @@ export function StockResearchClient({
                       const val = overview.ratios[row.key];
                       return (
                         <div key={row.key} className="py-3 flex justify-between items-center relative">
-                          <span className="font-semibold text-neutral-600 dark:text-neutral-400 flex items-center">
-                            {row.name}
-                            <button onClick={() => setActiveRatioTooltip(activeRatioTooltip === row.key ? null : row.key)} className="ml-1 text-neutral-450 hover:text-[#0F766E] cursor-pointer">ⓘ</button>
-                          </span>
+                          <MetricInfo
+                            metricKey={row.key}
+                            label={row.name}
+                            metricArticles={overview.metricArticles}
+                            activeMetric={activeRatioTooltip}
+                            onToggleActive={setActiveRatioTooltip}
+                            className="font-semibold text-neutral-600 dark:text-neutral-400"
+                          />
                           <span className="tabular-nums font-bold text-base">{val !== null ? row.format(val) : "—"}</span>
-                          {activeRatioTooltip === row.key && (
-                            <div className="absolute left-0 bottom-full mb-1.5 z-40 p-3 bg-neutral-900 text-white rounded-lg text-xs leading-relaxed max-w-[280px]">
-                              {ratioDefinitions[row.key]}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -1437,16 +1446,15 @@ export function StockResearchClient({
                       const val = overview.ratios[row.key];
                       return (
                         <div key={row.key} className="py-3 flex justify-between items-center relative">
-                          <span className="font-semibold text-neutral-600 dark:text-neutral-400 flex items-center">
-                            {row.name}
-                            <button onClick={() => setActiveRatioTooltip(activeRatioTooltip === row.key ? null : row.key)} className="ml-1 text-neutral-450 hover:text-[#0F766E] cursor-pointer">ⓘ</button>
-                          </span>
+                          <MetricInfo
+                            metricKey={row.key}
+                            label={row.name}
+                            metricArticles={overview.metricArticles}
+                            activeMetric={activeRatioTooltip}
+                            onToggleActive={setActiveRatioTooltip}
+                            className="font-semibold text-neutral-600 dark:text-neutral-400"
+                          />
                           <span className="tabular-nums font-bold text-base">{val !== null ? row.format(val) : "—"}</span>
-                          {activeRatioTooltip === row.key && (
-                            <div className="absolute left-0 bottom-full mb-1.5 z-40 p-3 bg-neutral-900 text-white rounded-lg text-xs leading-relaxed max-w-[280px]">
-                              {ratioDefinitions[row.key]}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -1466,16 +1474,15 @@ export function StockResearchClient({
                       const val = overview.ratios[row.key];
                       return (
                         <div key={row.key} className="py-3 flex justify-between items-center relative">
-                          <span className="font-semibold text-neutral-600 dark:text-neutral-400 flex items-center">
-                            {row.name}
-                            <button onClick={() => setActiveRatioTooltip(activeRatioTooltip === row.key ? null : row.key)} className="ml-1 text-neutral-450 hover:text-[#0F766E] cursor-pointer">ⓘ</button>
-                          </span>
+                          <MetricInfo
+                            metricKey={row.key}
+                            label={row.name}
+                            metricArticles={overview.metricArticles}
+                            activeMetric={activeRatioTooltip}
+                            onToggleActive={setActiveRatioTooltip}
+                            className="font-semibold text-neutral-600 dark:text-neutral-400"
+                          />
                           <span className="font-mono font-bold text-base">{val !== null ? row.format(val) : "—"}</span>
-                          {activeRatioTooltip === row.key && (
-                            <div className="absolute left-0 bottom-full mb-1.5 z-40 p-3 bg-neutral-900 text-white rounded-lg text-xs leading-relaxed max-w-[280px]">
-                              {ratioDefinitions[row.key]}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -1487,13 +1494,20 @@ export function StockResearchClient({
                   <span className="text-xs font-bold uppercase text-[#0F766E] dark:text-teal-400 tracking-wider">Calculated CAGRs</span>
                   <div className="divide-y divide-neutral-200/40 dark:divide-neutral-800/40 text-xs sm:text-sm">
                     {[
-                      { name: "3-Year Revenue CAGR", val: overview.cagr?.rev3Y !== undefined && overview.cagr?.rev3Y !== null ? `${overview.cagr.rev3Y.toFixed(1)}%` : "—" },
-                      { name: "5-Year Revenue CAGR", val: overview.cagr?.rev5Y !== undefined && overview.cagr?.rev5Y !== null ? `${overview.cagr.rev5Y.toFixed(1)}%` : "—" },
-                      { name: "3-Year Profit CAGR", val: overview.cagr?.prof3Y !== undefined && overview.cagr?.prof3Y !== null ? `${overview.cagr.prof3Y.toFixed(1)}%` : "—" },
-                      { name: "5-Year Profit CAGR", val: overview.cagr?.prof5Y !== undefined && overview.cagr?.prof5Y !== null ? `${overview.cagr.prof5Y.toFixed(1)}%` : "—" },
+                      { key: "cagr", name: "3-Year Revenue CAGR", val: overview.cagr?.rev3Y !== undefined && overview.cagr?.rev3Y !== null ? `${overview.cagr.rev3Y.toFixed(1)}%` : "—" },
+                      { key: "cagr", name: "5-Year Revenue CAGR", val: overview.cagr?.rev5Y !== undefined && overview.cagr?.rev5Y !== null ? `${overview.cagr.rev5Y.toFixed(1)}%` : "—" },
+                      { key: "cagr", name: "3-Year Profit CAGR", val: overview.cagr?.prof3Y !== undefined && overview.cagr?.prof3Y !== null ? `${overview.cagr.prof3Y.toFixed(1)}%` : "—" },
+                      { key: "cagr", name: "5-Year Profit CAGR", val: overview.cagr?.prof5Y !== undefined && overview.cagr?.prof5Y !== null ? `${overview.cagr.prof5Y.toFixed(1)}%` : "—" },
                     ].map((row, idx) => (
                       <div key={idx} className="py-3.5 flex justify-between items-center">
-                        <span className="font-semibold text-neutral-600 dark:text-neutral-400">{row.name}</span>
+                        <MetricInfo
+                          metricKey={row.key}
+                          label={row.name}
+                          metricArticles={overview.metricArticles}
+                          activeMetric={activeRatioTooltip}
+                          onToggleActive={setActiveRatioTooltip}
+                          className="font-semibold text-neutral-600 dark:text-neutral-400"
+                        />
                         <span className="tabular-nums font-bold text-base">{row.val}</span>
                       </div>
                     ))}
@@ -1541,15 +1555,21 @@ export function StockResearchClient({
                         return (
                           <>
                             <div className="p-3 border border-neutral-200 dark:border-neutral-850 rounded-xl bg-white dark:bg-[#0a0a0a] space-y-1">
-                              <span className="text-[10px] text-[#0F766E] uppercase font-bold tracking-wider">Promoters</span>
+                              <span className="text-[10px] text-[#0F766E] uppercase font-bold tracking-wider block">
+                                <MetricInfo metricKey="promoters" label="Promoters" metricArticles={overview?.metricArticles} activeMetric={activeRatioTooltip} onToggleActive={setActiveRatioTooltip} />
+                              </span>
                               <div className="text-lg font-black tabular-nums">{latest.promoter}%</div>
                             </div>
                             <div className="p-3 border border-neutral-200 dark:border-neutral-850 rounded-xl bg-white dark:bg-[#0a0a0a] space-y-1">
-                              <span className="text-[10px] text-blue-650 uppercase font-bold tracking-wider">FII Holding</span>
+                              <span className="text-[10px] text-blue-650 uppercase font-bold tracking-wider block">
+                                <MetricInfo metricKey="fii" label="FII Holding" metricArticles={overview?.metricArticles} activeMetric={activeRatioTooltip} onToggleActive={setActiveRatioTooltip} />
+                              </span>
                               <div className="text-lg font-black tabular-nums">{latest.fii}%</div>
                             </div>
                             <div className="p-3 border border-neutral-200 dark:border-neutral-850 rounded-xl bg-white dark:bg-[#0a0a0a] space-y-1">
-                              <span className="text-[10px] text-amber-600 uppercase font-bold tracking-wider">DII Holding</span>
+                              <span className="text-[10px] text-amber-600 uppercase font-bold tracking-wider block">
+                                <MetricInfo metricKey="dii" label="DII Holding" metricArticles={overview?.metricArticles} activeMetric={activeRatioTooltip} onToggleActive={setActiveRatioTooltip} />
+                              </span>
                               <div className="text-lg font-black tabular-nums">{latest.dii}%</div>
                             </div>
                             <div className="p-3 border border-neutral-200 dark:border-neutral-850 rounded-xl bg-white dark:bg-[#0a0a0a] space-y-1">

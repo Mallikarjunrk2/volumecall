@@ -41,7 +41,8 @@ export async function checkOrRecordStockResearch(
     };
   }
 
-  await ensurePublicUserTables();
+  try {
+    await ensurePublicUserTables();
 
   const normalizedSymbol = normalizeSymbol(symbol);
   if (!normalizedSymbol) {
@@ -144,4 +145,14 @@ export async function checkOrRecordStockResearch(
     anonId,
     isNewAnonCookie,
   };
+  } catch (error) {
+    console.error("[Research Gate Error - DB fallback]:", error);
+    return {
+      allowed: true,
+      count: 0,
+      remaining: 999,
+      anonId: reqCookieAnonId || "",
+      isNewAnonCookie: false,
+    };
+  }
 }

@@ -90,6 +90,7 @@ export interface NormalizedShareholdingQuarter {
 export interface NormalizedRatios {
   pe: number | null;
   pb: number | null;
+  bookValue: number | null;
   evebitda: number | null;
   priceToSales: number | null;
   dividendYield: number | null;
