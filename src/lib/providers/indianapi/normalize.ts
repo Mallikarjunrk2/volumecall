@@ -45,10 +45,11 @@ function findValue(
   aliases: string[],
   period: string
 ): number | null {
+  const cleanAliases = aliases.map((a) => a.toLowerCase().replace(/[^a-z0-9]/g, ""));
   const matchKey = Object.keys(stats).find((key) => {
     const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return aliases.some(
-      (alias) => cleanKey.includes(alias.toLowerCase().replace(/[^a-z0-9]/g, ""))
+    return cleanAliases.some(
+      (alias) => cleanKey === alias || cleanKey.includes(alias) || alias.includes(cleanKey)
     );
   });
 
@@ -414,19 +415,27 @@ export function normalizeLatestShareholding(rawShareholding: unknown) {
 
     if (cat && Array.isArray(cat.categories) && cat.categories.length > 0) {
       const latestValObj = cat.categories[cat.categories.length - 1] as Record<string, unknown>;
-      if (latestValObj && latestValObj.value !== undefined && latestValObj.value !== null && latestValObj.value !== "null") {
-        const num = parseFloat(String(latestValObj.value).replace(/[^0-9.-]/g, ""));
-        if (!isNaN(num)) return num;
+      if (latestValObj) {
+        const rawVal = latestValObj.percentage !== undefined ? latestValObj.percentage : latestValObj.value;
+        if (rawVal !== undefined && rawVal !== null && rawVal !== "null") {
+          const num = parseFloat(String(rawVal).replace(/[^0-9.-]/g, ""));
+          if (!isNaN(num)) return num;
+        }
       }
     }
     return null;
   };
 
+  const promoters = findValue("Promoter");
+  const fii = findValue("FII");
+  const dii = findValue("MF") || findValue("DII");
+  const publicHold = findValue("Other") || findValue("Public");
+
   return {
-    promoters: findValue("Promoter"),
-    fii: findValue("FII"),
-    dii: findValue("MF") || findValue("DII"),
-    public: findValue("Other") || findValue("Public")
+    promoters: promoters !== null ? promoters : (fii !== null || dii !== null || publicHold !== null ? 0 : null),
+    fii,
+    dii,
+    public: publicHold
   };
 }
 
@@ -439,10 +448,10 @@ export function normalizeFinancialPeriods(
   const periods = getSortedPeriods(stats);
 
   return periods.map((period) => {
-    const sales = findValue(stats, ["sales", "revenue", "revenuefromoperations"], period);
-    const expenses = findValue(stats, ["expenses", "totalexpenses"], period);
-    const operatingProfit = findValue(stats, ["operatingprofit", "op"], period);
-    const opmPercent = findValue(stats, ["opm", "operatingmargin"], period);
+    const sales = findValue(stats, ["sales", "revenue", "revenuefromoperations", "totalrevenue", "interestearned"], period);
+    const expenses = findValue(stats, ["expenses", "totalexpenses", "operatingexpenses"], period);
+    const operatingProfit = findValue(stats, ["operatingprofit", "op", "financingprofit"], period);
+    const opmPercent = findValue(stats, ["opm", "operatingmargin", "financingmargin"], period);
     const otherIncome = findValue(stats, ["otherincome"], period);
     const interest = findValue(stats, ["interest", "financecosts"], period);
     const depreciation = findValue(stats, ["depreciation", "amortization"], period);
@@ -481,7 +490,7 @@ export function normalizeBalanceSheet(
   return periods.map((period) => {
     const equityCapital = findValue(stats, ["equitycapital", "sharecapital"], period);
     const reserves = findValue(stats, ["reserves", "retainedearnings", "otherequity"], period);
-    const borrowings = findValue(stats, ["borrowings", "debt", "totaldebt"], period);
+    const borrowings = findValue(stats, ["borrowing", "borrowings", "debt", "totaldebt"], period);
     const otherLiabilities = findValue(stats, ["otherliabilities", "currentliabilities"], period);
     const totalLiabilities = findValue(stats, ["totalliabilities"], period);
     const fixedAssets = findValue(stats, ["fixedassets", "propertyplant", "ppe"], period);
@@ -537,11 +546,16 @@ export function normalizeShareholdingHistory(
   const periods = getSortedPeriods(stats);
 
   return periods.map((period) => {
-    const promoter = findValue(stats, ["promoters", "promoter"], period);
+    let promoter = findValue(stats, ["promoters", "promoter"], period);
     const fii = findValue(stats, ["fii", "fiis", "foreigninstitutional"], period);
     const dii = findValue(stats, ["dii", "diis", "domesticinstitutional"], period);
     const publicHold = findValue(stats, ["public", "others"], period);
     const pledgedPercent = findValue(stats, ["pledged", "promoterpledged"], period);
+
+    // If company is professionally managed (0% promoters like HDFC Bank, ICICI Bank, ITC, L&T)
+    if (promoter === null && (fii !== null || dii !== null || publicHold !== null)) {
+      promoter = 0;
+    }
 
     return {
       period,

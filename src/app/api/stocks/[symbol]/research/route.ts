@@ -160,6 +160,19 @@ function calculateDerivableMetrics(
     updatedRatios.pb = price / updatedRatios.bookValue;
   }
 
+  // 8. Calculate ROCE if null (EBIT / Capital Employed)
+  if (updatedRatios.roce === null && annualPL.length > 0 && balanceSheet.length > 0) {
+    const latestAnnual = annualPL[annualPL.length - 1];
+    const latestBS = balanceSheet[balanceSheet.length - 1];
+    const ebit = (latestAnnual.profitBeforeTax !== null && latestAnnual.interest !== null)
+      ? latestAnnual.profitBeforeTax + latestAnnual.interest
+      : latestAnnual.profitBeforeTax ?? latestAnnual.operatingProfit;
+    const capitalEmployed = (totalEquity || 0) + (latestBS.borrowings || 0);
+    if (ebit !== null && capitalEmployed > 0) {
+      updatedRatios.roce = (ebit / capitalEmployed) * 100;
+    }
+  }
+
   // Calculate CAGRs
   let rev3Y: number | null = null;
   let rev5Y: number | null = null;
@@ -384,6 +397,13 @@ export async function GET(
         await saveBalanceSheetToDb(symbol, rawBS);
       }
 
+      // Ensure rawIndianDetails is available for shareholding & 52-week metrics
+      if (!rawIndianDetails) {
+        try {
+          rawIndianDetails = await orchestrateResearchRequest(`details:${symbol}`, () => getIndianCompanyDetails(symbol));
+        } catch {}
+      }
+
       // 6. Resolve Shareholding Latest
       let shareholdingLatest = {
         promoters: null as number | null,
@@ -427,12 +447,22 @@ export async function GET(
         website: null,
       };
 
+      // Extract 52W High / Low from IndianAPI
+      const high52W = rawIndianDetails
+        ? (getMetricValue(rawIndianDetails.keyMetrics, ["52WeekHigh", "yearHigh", "fiftyTwoWeekHigh"]) ??
+           (typeof rawIndianDetails.yearHigh === "number" ? rawIndianDetails.yearHigh : parseFloat(String(rawIndianDetails.yearHigh || "").replace(/[^0-9.-]/g, "")) || null))
+        : null;
+      const low52W = rawIndianDetails
+        ? (getMetricValue(rawIndianDetails.keyMetrics, ["52WeekLow", "yearLow", "fiftyTwoWeekLow"]) ??
+           (typeof rawIndianDetails.yearLow === "number" ? rawIndianDetails.yearLow : parseFloat(String(rawIndianDetails.yearLow || "").replace(/[^0-9.-]/g, "")) || null))
+        : null;
+
       const market: NormalizedMarketSnapshot = {
         priceBse: null,
         priceNse: resolvedPrice?.lastPrice ?? null,
         percentChange: resolvedPrice?.changePercent ?? null,
-        yearHigh: null,
-        yearLow: null,
+        yearHigh: high52W && !isNaN(high52W) ? high52W : null,
+        yearLow: low52W && !isNaN(low52W) ? low52W : null,
         freshness: "LIVE",
         updatedAt: resolvedPrice?.timestamp || new Date().toISOString(),
       };

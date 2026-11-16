@@ -893,11 +893,11 @@ export function StockResearchClient({
                   <div className="p-6 border border-neutral-200 dark:border-[#1f1f1f] rounded-2xl bg-white dark:bg-[#0a0a0a] space-y-6">
                     <span className="text-sm font-bold uppercase text-neutral-500 tracking-wider">Ownership Snapshot</span>
                     
-                    {overview.shareholdingLatest?.promoters !== null && overview.shareholdingLatest?.promoters !== undefined ? (
+                    {overview.shareholdingLatest && (overview.shareholdingLatest.promoters !== null || overview.shareholdingLatest.fii !== null || overview.shareholdingLatest.public !== null) ? (
                       <div className="space-y-6 flex flex-col items-center">
                         <div className="h-32 w-32 md:h-44 md:w-44 mx-auto">
                           {renderDonutChart(
-                            overview.shareholdingLatest.promoters,
+                            overview.shareholdingLatest.promoters || 0,
                             overview.shareholdingLatest.fii || 0,
                             overview.shareholdingLatest.dii || 0,
                             overview.shareholdingLatest.public || 0
@@ -907,7 +907,7 @@ export function StockResearchClient({
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 md:block md:space-y-2 text-xs font-semibold w-full">
                           <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none">
                             <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#0F766E] mr-2 shrink-0" />Promoters</span>
-                            <span className="num-val">{formatIndianNumber(overview.shareholdingLatest.promoters, true)}%</span>
+                            <span className="num-val">{formatIndianNumber(overview.shareholdingLatest.promoters || 0, true)}%</span>
                           </div>
                           <div className="flex justify-between items-center py-1.5 md:py-0 border-b border-neutral-100/50 dark:border-neutral-900/50 md:border-none">
                             <span className="flex items-center"><span className="h-2.5 w-2.5 rounded-full bg-[#3B82F6] mr-2 shrink-0" />FIIs</span>
@@ -1558,7 +1558,7 @@ export function StockResearchClient({
                               <span className="text-[10px] text-[#0F766E] uppercase font-bold tracking-wider block">
                                 <MetricInfo metricKey="promoters" label="Promoters" metricArticles={overview?.metricArticles} activeMetric={activeRatioTooltip} onToggleActive={setActiveRatioTooltip} />
                               </span>
-                              <div className="text-lg font-black tabular-nums">{latest.promoter}%</div>
+                              <div className="text-lg font-black tabular-nums">{latest.promoter !== null && latest.promoter !== undefined ? `${latest.promoter}%` : "0.00%"}</div>
                             </div>
                             <div className="p-3 border border-neutral-200 dark:border-neutral-850 rounded-xl bg-white dark:bg-[#0a0a0a] space-y-1">
                               <span className="text-[10px] text-blue-650 uppercase font-bold tracking-wider block">
@@ -1600,7 +1600,7 @@ export function StockResearchClient({
                       {shareholding.history?.map((s, idx) => (
                         <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-[#161616]/30 font-medium">
                           <td className="py-3.5 px-4 font-bold text-[#0F766E]">{s.period}</td>
-                          <td className="py-3.5 px-4 text-right tabular-nums">{s.promoter !== null ? `${s.promoter.toFixed(2)}%` : "—"}</td>
+                          <td className="py-3.5 px-4 text-right tabular-nums">{s.promoter !== null && s.promoter !== undefined ? `${s.promoter.toFixed(2)}%` : "0.00%"}</td>
                           <td className="py-3.5 px-4 text-right tabular-nums">{s.fii !== null ? `${s.fii.toFixed(2)}%` : "—"}</td>
                           <td className="py-3.5 px-4 text-right tabular-nums">{s.dii !== null ? `${s.dii.toFixed(2)}%` : "—"}</td>
                           <td className="py-3.5 px-4 text-right tabular-nums">{s.public !== null ? `${s.public.toFixed(2)}%` : "—"}</td>

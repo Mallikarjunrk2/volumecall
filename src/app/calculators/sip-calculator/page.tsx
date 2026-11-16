@@ -215,7 +215,7 @@ export default function SipCalculatorPage() {
 
   // Circle perimeter for SVG stroke-dasharray (radius = 48, perimeter = 2 * PI * r = 301.59)
   const strokePerimeter = 301.59;
-  
+
   // Exact non-overlapping arc lengths
   const principalArcLength = (principalPercentage / 100) * strokePerimeter;
   const interestArcLength = (interestPercentage / 100) * strokePerimeter;
@@ -353,7 +353,7 @@ export default function SipCalculatorPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 calc-grid mb-10">
           {/* Left Column: Form Controls */}
           <div className="lg:col-span-7 h-full bg-[var(--calc-card-bg)] border border-[var(--calc-border)] rounded-xl p-6 sm:p-7 space-y-6">
-            
+
             {/* Input 1: Monthly Investment */}
             <div className="space-y-3">
               <div className="flex justify-between items-center gap-4">
@@ -618,7 +618,7 @@ export default function SipCalculatorPage() {
                 </button>
               )}
             </div>
-            
+
             <div className="overflow-x-auto">
               <div className={showSchedule ? "max-h-[500px] overflow-y-auto" : ""}>
                 <table className="financial-table min-w-full">
